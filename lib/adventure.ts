@@ -1,108 +1,267 @@
+import {BIOMES,NPCS,makeWorld,type Biome} from './world';
 export const T=32;
 export type Direction='up'|'down'|'left'|'right';
-export type Zone='forest'|'temple';
-export type Entity={id:string;x:number;y:number;hp:number;maxHp:number;kind:'slime'|'bat'|'boss';timer:number;hit:number;homeX:number;homeY:number};
-export type Prop={id:string;x:number;y:number;kind:'tree'|'rock'|'bush'|'npc'|'chest'|'door'|'exit'|'lever'|'relic';solid?:boolean;open?:boolean};
-export type GameMap={width:number;height:number;tiles:number[][];props:Prop[];enemies:Entity[]};
-export type Snapshot={screen:'ready'|'playing'|'paused'|'dead'|'won';zone:Zone;hp:number;maxHp:number;coins:number;potions:number;key:boolean;met:boolean;entered:boolean;levers:number;bossDead:boolean;objective:string;location:string;hint:string;notice:string;x:number;y:number;defeated:number;elapsed:number};
+export type Zone='world'|'cave1'|'cave2'|'temple';
+export type Entity={id:string;x:number;y:number;hp:number;maxHp:number;kind:'slime'|'bat'|'boss'|'golem';timer:number;hit:number;homeX:number;homeY:number;tint?:string;vx:number;vy:number;flash:number;dying:number};
+export type Prop={id:string;x:number;y:number;kind:'tree'|'rock'|'bush'|'npc'|'chest'|'door'|'exit'|'stairs'|'lever'|'relic';solid?:boolean;open?:boolean;item?:'key'|'coins'|'fragment'|'heart'|'potion'|'crystals'|'bosskey';guard?:string;to?:Zone;ax?:number;ay?:number;needs?:'bosskey';label?:string};
+export type GameMap={width:number;height:number;tiles:number[][];props:Prop[];enemies:Entity[];biome?:Biome[][]};
+export type Cheats={life:boolean;walls:boolean};
+export type Snapshot={screen:'ready'|'playing'|'paused'|'dead'|'won';zone:Zone;hp:number;maxHp:number;coins:number;potions:number;key:boolean;met:boolean;entered:boolean;levers:number;bossDead:boolean;objective:string;location:string;hint:string;notice:string;x:number;y:number;defeated:number;elapsed:number;fragments:number;bossKey:boolean;deepest:number;rewinding:boolean;rewindLeft:number;canRewind:boolean;fast:boolean};
 const dirs:Record<Direction,{x:number;y:number;angle:number;row:number}>={down:{x:0,y:1,angle:Math.PI/2,row:0},right:{x:1,y:0,angle:0,row:1},up:{x:0,y:-1,angle:-Math.PI/2,row:2},left:{x:-1,y:0,angle:Math.PI,row:3}};
 const center=(n:number)=>n*T+T/2;
-const entity=(id:string,x:number,y:number,kind:Entity['kind']):Entity=>({id,x:center(x),y:center(y),homeX:center(x),homeY:center(y),hp:kind==='boss'?12:kind==='bat'?2:3,maxHp:kind==='boss'?12:kind==='bat'?2:3,kind,timer:0,hit:0});
-export function makeMap(zone:Zone):GameMap{
-const width=zone==='forest'?34:26,height=zone==='forest'?28:20;
-const tiles:number[][]=Array.from({length:height},(_,y)=>Array.from({length:width},(_,x)=>x===0||y===0||x===width-1||y===height-1?4:zone==='forest'?0:3));
+const HP:Record<Entity['kind'],number>={boss:12,golem:8,bat:2,slime:3};
+const entity=(id:string,x:number,y:number,kind:Entity['kind'],tint?:string):Entity=>({id,x:center(x),y:center(y),homeX:center(x),homeY:center(y),hp:HP[kind],maxHp:HP[kind],kind,timer:0,hit:0,tint,vx:0,vy:0,flash:0,dying:0});
+export const ZONES:Zone[]=['world','cave1','cave2','temple'];
+const FLOOR:Record<Zone,number>={world:0,cave1:1,cave2:2,temple:3};
+const ZONE_NAME:Record<Exclude<Zone,'world'>,string>={cave1:'Templo da Lua · 1º andar',cave2:'Galerias Submersas · 2º andar',temple:'Câmara do Guardião · 3º andar'};
+const CAVE_FILTER:Record<Exclude<Zone,'world'>,string>={cave1:'brightness(1.08) saturate(.9)',cave2:'hue-rotate(-28deg) brightness(1) saturate(1.1)',temple:'none'};
+const CAVE_FLOOR:Record<Exclude<Zone,'world'>,string>={cave1:'brightness(.58) saturate(.75)',cave2:'hue-rotate(-28deg) brightness(.52) saturate(1.05)',temple:'none'};
+const SPAWN={x:center(46),y:center(42)};
+const HISTORY_STEP=.1,HISTORY_MAX=300; // ~30 s para voltar no tempo
+const JUMP_TIME=.5,JUMP_SPEED=230,JUMP_HEIGHT=26,ATTACK_TIME=.23;
+const CAVE_NOTES=[196,233.08,293.66,261.63,220,196,174.61,220],TEMPLE_NOTES=[220,261.63,329.63,293.66,246.94,220,196,246.94];
+const SAVE_VERSION=2;
+const WHITE='brightness(0) invert(1)';
+
+/* ---------- andares do templo ---------- */
+function blankFloor(width:number,height:number){return Array.from({length:height},(_,y)=>Array.from({length:width},(_,x)=>x===0||y===0||x===width-1||y===height-1?4:3));}
+const fill=(tiles:number[][],x0:number,y0:number,x1:number,y1:number,t:number)=>{for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++)tiles[y][x]=t;};
+function makeCave1():GameMap{
+const tiles=blankFloor(26,20),props:Prop[]=[];
+for(let x=1;x<25;x++)if(![6,12,13,19].includes(x))tiles[10][x]=4;
+fill(tiles,9,2,16,7,6);fill(tiles,11,4,14,5,3);
+fill(tiles,3,14,8,15,6);fill(tiles,17,14,22,15,6);
+for(let y=1;y<10;y++)if(y!==5)tiles[y][6]=4;
+props.push({kind:'stairs',id:'c1-up',x:center(12.5),y:center(18),solid:true,to:'world',ax:47.5,ay:7,label:'Subir para as Ruínas'});
+props.push({kind:'stairs',id:'c1-down',x:center(2),y:center(2),solid:true,to:'cave2',ax:2,ay:12.5,label:'Descer ao 2º andar'});
+props.push({kind:'chest',id:'c1-heart',x:center(12.5),y:center(4.5),solid:true,item:'heart'},{kind:'chest',id:'c1-potion',x:center(2),y:center(17),solid:true,item:'potion'},{kind:'chest',id:'c1-crystals',x:center(23),y:center(2),solid:true,item:'crystals'});
+props.push({kind:'rock',id:'c1-rock-a',x:center(20),y:center(7),solid:true},{kind:'rock',id:'c1-rock-b',x:center(4),y:center(8),solid:true});
+return{width:26,height:20,tiles,props,enemies:[entity('c1-bat-a',4,4,'bat'),entity('c1-bat-b',20,4,'bat'),entity('c1-bat-c',19,13,'bat'),entity('c1-slime-a',8,12,'slime'),entity('c1-slime-b',21,17,'slime'),entity('c1-slime-c',16,8,'slime')]};
+}
+function makeCave2():GameMap{
+const tiles=blankFloor(30,22),props:Prop[]=[];
+fill(tiles,14,1,15,20,2);
+for(let x=20;x<=28;x++){tiles[2][x]=4;tiles[9][x]=4;}for(let y=2;y<=9;y++){tiles[y][28]=4;if(y!==6)tiles[y][20]=4;}
+fill(tiles,4,12,10,17,6);fill(tiles,6,14,8,15,3);
+fill(tiles,18,13,24,14,2);
+props.push({kind:'stairs',id:'c2-up',x:center(2),y:center(10),solid:true,to:'cave1',ax:2,ay:4,label:'Subir ao 1º andar'});
+props.push({kind:'stairs',id:'c2-down',x:center(27),y:center(19),solid:true,to:'temple',ax:12.5,ay:16,needs:'bosskey',label:'Descer à Câmara do Guardião'});
+props.push({kind:'chest',id:'c2-bosskey',x:center(26),y:center(4),solid:true,item:'bosskey',guard:'c2-golem'},{kind:'chest',id:'c2-island',x:center(7),y:center(14.5),solid:true,item:'crystals'},{kind:'chest',id:'c2-potion',x:center(3),y:center(19),solid:true,item:'potion'},{kind:'chest',id:'c2-coins',x:center(18),y:center(3),solid:true,item:'coins'});
+return{width:30,height:22,tiles,props,enemies:[entity('c2-golem',24,6,'golem','hue-rotate(-30deg) brightness(.85)'),entity('c2-slime-a',8,5,'slime','hue-rotate(110deg)'),entity('c2-slime-b',10,9,'slime','hue-rotate(110deg)'),entity('c2-slime-c',19,17,'slime','hue-rotate(110deg)'),entity('c2-slime-d',24,18,'slime','hue-rotate(110deg)'),entity('c2-bat-a',18,6,'bat'),entity('c2-bat-b',25,12,'bat'),entity('c2-bat-c',11,19,'bat')]};
+}
+function makeTemple():GameMap{
+const width=26,height=20;
+const tiles:number[][]=blankFloor(width,height);
 const props:Prop[]=[];
 const add=(kind:Prop['kind'],x:number,y:number,id:string,solid=false)=>props.push({kind,x:center(x),y:center(y),id,solid});
-if(zone==='forest'){
-for(let y=1;y<27;y++)for(let x=16;x<=18;x++)tiles[y][x]=2;
-for(let x=3;x<15;x++)for(let y=21;y<=22;y++)tiles[y][x]=1;
-for(let y=14;y<26;y++)for(let x=8;x<=9;x++)tiles[y][x]=1;
-for(let x=8;x<31;x++)for(let y=14;y<=15;y++)tiles[y][x]=1;
-for(let y=5;y<23;y++)for(let x=26;x<=27;x++)tiles[y][x]=1;
-for(let x=23;x<=30;x++)for(let y=4;y<=6;y++)tiles[y][x]=1;
-for(let x=19;x<31;x++)for(let y=20;y<=21;y++)tiles[y][x]=1;
-for(let x=1;x<33;x++){if(x!==26&&x!==27){add('tree',x,1,`border-n-${x}`,true);add('tree',x,26,`border-s-${x}`,true);}}
-for(let y=3;y<26;y+=2){add('tree',1,y,`border-w-${y}`,true);add('tree',32,y,`border-e-${y}`,true);}
-const trees=[[4,4],[5,4],[6,5],[3,8],[5,8],[7,7],[10,4],[11,5],[13,4],[12,8],[3,12],[4,12],[5,14],[11,11],[12,11],[14,10],[21,3],[22,4],[21,8],[23,8],[29,9],[30,11],[21,11],[22,12],[5,18],[4,18],[12,18],[14,24],[21,24],[23,24],[28,24],[30,23]];
-trees.forEach(([x,y],i)=>add('tree',x,y,`tree-${i}`,true));
-[[6,11],[14,7],[10,18],[22,18],[29,18],[30,7],[3,24]].forEach(([x,y],i)=>add('rock',x,y,`rock-${i}`,true));
-[[5,21],[12,22],[24,20],[25,20],[24,21],[13,15],[20,15],[28,13]].forEach(([x,y],i)=>add('bush',x,y,`bush-${i}`,true));
-add('npc',7,21,'iris',true);add('chest',26,20,'key-chest',true);add('chest',4,10,'coin-chest',true);add('door',26,5,'temple-door',true);
-return{width,height,tiles,props,enemies:[entity('slime-a',13,21,'slime'),entity('slime-b',22,16,'slime'),entity('slime-c',26,18,'slime'),entity('slime-d',11,13,'slime'),entity('bat-a',23,9,'bat')]};
-}
 for(let x=2;x<24;x++)if(x!==12&&x!==13)tiles[8][x]=4;
 for(let y=2;y<7;y++){tiles[y][3]=4;tiles[y][22]=4;}
 for(let y=11;y<17;y++){tiles[y][4]=4;tiles[y][21]=4;}
 for(let x=5;x<21;x++)if(x!==12&&x!==13)tiles[17][x]=4;
-add('exit',12,18,'temple-exit');add('lever',7,13,'lever-west');add('lever',18,13,'lever-east');add('relic',12,3,'moon-relic');
+props.push({kind:'exit',id:'temple-exit',x:center(12),y:center(18),to:'cave2',ax:27,ay:17,label:'Subir ao 2º andar'});add('lever',7,13,'lever-west');add('lever',18,13,'lever-east');add('relic',12,3,'moon-relic');
 add('rock',7,5,'altar-west',true);add('rock',18,5,'altar-east',true);
 return{width,height,tiles,props,enemies:[entity('temple-bat-a',8,15,'bat'),entity('temple-bat-b',18,15,'bat'),entity('guardian',12,5,'boss')]};
 }
+export function makeMap(zone:Zone):GameMap{return zone==='world'?makeWorld(entity):zone==='cave1'?makeCave1():zone==='cave2'?makeCave2():makeTemple();}
+const freshMaps=():Record<Zone,GameMap>=>({world:makeMap('world'),cave1:makeMap('cave1'),cave2:makeMap('cave2'),temple:makeMap('temple')});
+const freshPlayer=()=>({x:SPAWN.x,y:SPAWN.y,dir:'up' as Direction,hp:6,maxHp:6,hurt:0,attack:0,cooldown:0,dash:0,dashCooldown:0,walk:0,jump:0,jumpCooldown:0,jumpFromX:SPAWN.x,jumpFromY:SPAWN.y,vx:0,vy:0,flash:0,squash:0});
+type Effect={x:number;y:number;life:number;max:number;kind:'impact'|'ring'|'dust'|'ghost';size:number;color:string;frame?:number;row?:number};
+type FloatText={x:number;y:number;text:string;life:number;color:string};
 
 export class Adventure{
 canvas:HTMLCanvasElement;ctx:CanvasRenderingContext2D;assets:{hero:HTMLImageElement;atlas:HTMLImageElement};onChange:(s:Snapshot)=>void;
-maps={forest:makeMap('forest'),temple:makeMap('temple')};zone:Zone='forest';screen:Snapshot['screen']='ready';
-player={x:center(5),y:center(23),dir:'up' as Direction,hp:6,maxHp:6,hurt:0,attack:0,cooldown:0,dash:0,dashCooldown:0,walk:0};
+maps=freshMaps();base:Record<Zone,Prop[]>={world:[],cave1:[],cave2:[],temple:[]};grids:Record<Zone,Map<number,Prop[]>>={world:new Map(),cave1:new Map(),cave2:new Map(),temple:new Map()};
+zone:Zone='world';screen:Snapshot['screen']='ready';
+player=freshPlayer();
 camera={x:0,y:0};keys=new Set<string>();coins=0;potions=2;hasKey=false;met=false;entered=false;levers=new Set<string>();bossDead=false;defeated=0;elapsed=0;notice='';noticeTime=0;dialog='';dialogTitle='';
-particles:{x:number;y:number;vx:number;vy:number;life:number;color:string}[]=[];projectiles:{x:number;y:number;vx:number;vy:number;life:number}[]=[];
+fragments=new Set<string>();bossKey=false;deepest=0;region:Biome='forest';banner='';bannerTime=0;checkpoint={...SPAWN};
+cheats:Cheats={life:false,walls:false};history:string[]=[];historyTimer=0;rewinding=false;rewindFrame=0;fast=false;fastSpeed=3;padKeys=new Set<string>();
+freeze=0;shake=0;shakePower=0;stepTimer=0;
+particles:{x:number;y:number;vx:number;vy:number;life:number;color:string}[]=[];projectiles:{x:number;y:number;vx:number;vy:number;life:number}[]=[];effects:Effect[]=[];texts:FloatText[]=[];
+variants=new Map<string,CanvasImageSource>();ground=new Map<Zone,HTMLCanvasElement>();minimap:HTMLCanvasElement|null=null;heroWhite:HTMLCanvasElement|null=null;
 raf=0;lastTime=0;lastEmit=0;disposed=false;audio:AudioContext|null=null;sound=false;musicTimer=0;musicStep=0;
-constructor(canvas:HTMLCanvasElement,assets:Adventure['assets'],onChange:Adventure['onChange']){this.canvas=canvas;this.ctx=canvas.getContext('2d')!;this.assets=assets;this.onChange=onChange;canvas.width=960;canvas.height=640;this.emit();this.draw();}
+constructor(canvas:HTMLCanvasElement,assets:Adventure['assets'],onChange:Adventure['onChange']){this.canvas=canvas;this.ctx=canvas.getContext('2d')!;this.assets=assets;this.onChange=onChange;canvas.width=960;canvas.height=640;this.indexMaps();this.emit();this.draw();}
 get map(){return this.maps[this.zone];}
-get hint(){const p=this.nearProp();if(!p)return '';if(p.kind==='npc')return'Conversar com Iris';if(p.kind==='chest')return p.open?'Baú aberto':'Abrir baú';if(p.kind==='door')return this.hasKey?'Entrar no templo':'Porta selada';if(p.kind==='exit')return'Voltar ao bosque';if(p.kind==='lever')return this.levers.has(p.id)?'Selo ativado':'Ativar selo';if(p.kind==='relic')return this.bossDead?'Recolher a Relíquia Lunar':'Derrote o guardião';return '';}
-get objective(){if(this.screen==='won')return'A Relíquia Lunar voltou ao vale.';if(!this.met)return'Converse com Iris, a guardiã da vila.';if(!this.hasKey)return'Encontre a chave no baú do bosque leste.';if(!this.entered)return'Abra a entrada do Templo da Lua, ao norte.';if(this.levers.size<2)return'Ative os dois selos na câmara do templo.';if(!this.bossDead)return'Derrote o Guardião de Pedra.';return'Recolha a Relíquia Lunar no altar.';}
-snapshot():Snapshot{return{screen:this.screen,zone:this.zone,hp:this.player.hp,maxHp:this.player.maxHp,coins:this.coins,potions:this.potions,key:this.hasKey,met:this.met,entered:this.entered,levers:this.levers.size,bossDead:this.bossDead,objective:this.objective,location:this.zone==='forest'?'Bosque de Elara':'Templo da Lua',hint:this.hint,notice:this.notice,x:Math.round(this.player.x),y:Math.round(this.player.y),defeated:this.defeated,elapsed:Math.floor(this.elapsed)};}
+
+/* ---------- mapas, colisão e grade espacial ---------- */
+indexMaps(){for(const z of ZONES){this.base[z]=this.maps[z].props.map(p=>({...p}));this.rebuildGrid(z);}}
+rebuildGrid(z:Zone){const g=new Map<number,Prop[]>();for(const p of this.maps[z].props){if(!p.solid)continue;const k=Math.floor(p.y/T)*1000+Math.floor(p.x/T);const cell=g.get(k);if(cell)cell.push(p);else g.set(k,[p]);}this.grids[z]=g;}
+// air=true: no ar (salto ou morcego) passa por água, abismo, arbustos e rochas; paredes e árvores continuam bloqueando.
+collides(x:number,y:number,r=9,air=false){const m=this.map;for(const dx of[-r,r])for(const dy of[-r*.55,r*.55]){const tx=Math.floor((x+dx)/T),ty=Math.floor((y+dy)/T);if(tx<0||ty<0||tx>=m.width||ty>=m.height)return true;const t=m.tiles[ty][tx];if(t===4||(!air&&(t===2||t===6)))return true;if(this.zone==='temple'&&this.levers.size<2&&ty===8&&(tx===12||tx===13))return true;}
+const g=this.grids[this.zone],cx=Math.floor(x/T),cy=Math.floor(y/T);for(let gy=cy-2;gy<=cy+2;gy++)for(let gx=cx-2;gx<=cx+2;gx++){const cell=g.get(gy*1000+gx);if(cell&&cell.some(p=>(!air||p.kind==='tree'||p.kind==='npc'||p.kind==='chest'||p.kind==='door'||p.kind==='stairs')&&Math.abs(p.x-x)<(p.kind==='tree'?17:14)+r&&Math.abs(p.y-y)<(p.kind==='tree'?10:12)+r*.55))return true;}return false;}
+move(dx:number,dy:number){const p=this.player,m=this.map,air=p.jump>0;if(this.cheats.walls){p.x=Math.max(T,Math.min(m.width*T-T,p.x+dx));p.y=Math.max(T,Math.min(m.height*T-T,p.y+dy));return;}if(!this.collides(p.x+dx,p.y,9,air))p.x+=dx;if(!this.collides(p.x,p.y+dy,9,air))p.y+=dy;}
+nearProp(){return this.map.props.filter(p=>!['tree','bush','rock'].includes(p.kind)&&Math.abs(p.x-this.player.x)<60&&Math.abs(p.y-this.player.y)<60).map(p=>({p,d:Math.hypot(p.x-this.player.x,p.y-this.player.y)})).filter(o=>o.d<55).sort((a,b)=>a.d-b.d)[0]?.p;}
+guardAlive(p:Prop){return !!p.guard&&Object.values(this.maps).some(m=>m.enemies.some(e=>e.id===p.guard&&e.hp>0));}
+
+/* ---------- textos ---------- */
+get hint(){const p=this.nearProp();if(!p)return '';if(p.kind==='npc')return`Conversar com ${(NPCS[p.id]?.name??'Iris').split(',')[0]}`;if(p.kind==='chest')return p.open?'Baú aberto':this.guardAlive(p)?'Protegido por um golem':'Abrir baú';if(p.kind==='door')return this.hasKey&&this.fragments.size===3?'Entrar no templo':'Porta selada';if(p.kind==='stairs'||p.kind==='exit')return p.needs==='bosskey'&&!this.bossKey?'Porta do Guardião (trancada)':p.label??'Voltar';if(p.kind==='lever')return this.levers.has(p.id)?'Selo ativado':'Ativar selo';if(p.kind==='relic')return this.bossDead?'Recolher a Relíquia Lunar':'Derrote o guardião';return '';}
+get objective(){const n=this.fragments.size;if(this.screen==='won')return'A Relíquia Lunar voltou ao vale.';if(!this.met)return'Converse com Iris, aqui no Bosque de Elara.';if(!this.hasKey)return'Encontre a Chave Lunar no baú a leste do bosque.';if(n<3)return`Recupere os Fragmentos Lunares (${n}/3): Deserto a oeste, Montanhas a noroeste e Pântano a sudeste.`;if(!this.entered)return'Leve a chave e os fragmentos ao Templo, nas Ruínas da Lua ao norte.';if(this.deepest<2)return'Atravesse o 1º andar do templo. Salte os abismos com K e desça a escada a noroeste.';if(!this.bossKey)return'No 2º andar, derrote o golem e pegue a Chave do Guardião.';if(this.deepest<3)return'Desça à Câmara do Guardião pela porta a sudeste do 2º andar.';if(this.levers.size<2)return'Ative os dois selos na câmara do templo.';if(!this.bossDead)return'Derrote o Guardião de Pedra.';return'Recolha a Relíquia Lunar no altar.';}
+snapshot():Snapshot{return{screen:this.screen,zone:this.zone,hp:this.player.hp,maxHp:this.player.maxHp,coins:this.coins,potions:this.potions,key:this.hasKey,met:this.met,entered:this.entered,levers:this.levers.size,bossDead:this.bossDead,objective:this.objective,location:this.zone==='world'?BIOMES[this.region].name:ZONE_NAME[this.zone],hint:this.hint,notice:this.notice,x:Math.round(this.player.x),y:Math.round(this.player.y),defeated:this.defeated,elapsed:Math.floor(this.elapsed),fragments:this.fragments.size,bossKey:this.bossKey,deepest:this.deepest,rewinding:this.rewinding,rewindLeft:Math.ceil(this.history.length*HISTORY_STEP),canRewind:this.history.length>0,fast:this.fast};}
 emit(){this.onChange(this.snapshot());}
 message(text:string){this.notice=text;this.noticeTime=4;this.emit();}
-start(){if(this.screen==='ready'){this.screen='playing';this.message('Iris espera na vila. Use E para conversar.');}this.keys.clear();this.emit();}
+
+/* ---------- fluxo ---------- */
+start(){if(this.screen==='ready'){this.screen='playing';this.showBanner();this.message('Iris está aqui no bosque. Use E para conversar.');}this.keys.clear();this.emit();}
 togglePause(){if(this.screen==='playing')this.screen='paused';else if(this.screen==='paused')this.screen='playing';this.keys.clear();this.emit();}
 pause(){if(this.screen==='playing'){this.screen='paused';this.keys.clear();this.emit();}}
 resume(){if(this.screen==='paused'){this.screen='playing';this.emit();}}
-keyDown(k:string){const was=this.keys.has(k);this.keys.add(k);if(was)return;if(k==='escape'){if(this.dialog)this.dismissDialog();else this.togglePause();return;}if(this.screen!=='playing')return;if(this.dialog){if(k==='e'||k==='enter'||k===' ')this.dismissDialog();return;}if(k==='j'||k===' '){this.attack();return;}if(k==='e'||k==='enter'){this.interact();return;}if(k==='q'){this.heal();return;}if(k==='shift'){this.dash();return;}const d=this.directionForKey(k);if(d){this.player.dir=d;this.move(dirs[d].x*9,dirs[d].y*9);this.player.walk+=.08;this.draw();this.emit();}}
-keyUp(k:string){this.keys.delete(k);}
+keyDown(k:string){const was=this.keys.has(k);this.keys.add(k);if(was)return;if(k==='r'){this.rewinding=true;this.emit();return;}if(k==='f'){this.fast=true;this.emit();return;}if(k==='escape'){if(this.dialog)this.dismissDialog();else this.togglePause();return;}if(this.screen!=='playing')return;if(this.dialog){if(k==='e'||k==='enter'||k===' ')this.dismissDialog();return;}if(k==='j'||k===' '){this.attack();return;}if(k==='e'||k==='enter'){this.interact();return;}if(k==='q'){this.heal();return;}if(k==='shift'){this.dash();return;}if(k==='k'){this.jump();return;}const d=this.directionForKey(k);if(d&&this.player.jump<=0){this.player.dir=d;this.move(dirs[d].x*9,dirs[d].y*9);this.player.walk+=.08;this.draw();this.emit();}}
+keyUp(k:string){this.keys.delete(k);if(k==='r'){this.rewinding=false;this.emit();}if(k==='f'){this.fast=false;this.emit();}}
 directionForKey(k:string):Direction|undefined{return({w:'up',arrowup:'up',s:'down',arrowdown:'down',a:'left',arrowleft:'left',d:'right',arrowright:'right'} as Record<string,Direction>)[k];}
-collides(x:number,y:number,r=9){const m=this.map;for(const dx of[-r,r])for(const dy of[-r*.55,r*.55]){const tx=Math.floor((x+dx)/T),ty=Math.floor((y+dy)/T);if(tx<0||ty<0||tx>=m.width||ty>=m.height||m.tiles[ty][tx]===4||m.tiles[ty][tx]===2)return true;if(this.zone==='temple'&&this.levers.size<2&&ty===8&&(tx===12||tx===13))return true;}return m.props.some(p=>p.solid&&Math.abs(p.x-x)<(p.kind==='tree'?17:14)+r&&Math.abs(p.y-y)<(p.kind==='tree'?10:12)+r*.55);}
-move(dx:number,dy:number){if(!this.collides(this.player.x+dx,this.player.y))this.player.x+=dx;if(!this.collides(this.player.x,this.player.y+dy))this.player.y+=dy;}
-nearProp(){return this.map.props.filter(p=>!['tree','bush','rock'].includes(p.kind)).map(p=>({p,d:Math.hypot(p.x-this.player.x,p.y-this.player.y)})).filter(o=>o.d<55).sort((a,b)=>a.d-b.d)[0]?.p;}
-interact(){if(this.screen!=='playing')return;if(this.dialog){this.dismissDialog();return;}const p=this.nearProp();if(!p){this.message('Aproxime-se de alguém, de um baú ou de um selo.');return;}
-if(p.kind==='npc'){this.met=true;this.openDialog('Iris, guardiã do vale',this.hasKey?'Você encontrou a chave! O templo fica no alto do bosque, além da ponte. Ative os dois selos e evite as investidas do guardião.':'O brilho da lua desapareceu do nosso vale. A chave do templo está em um baú no bosque leste, além da ponte. Corte os arbustos com sua espada e traga a Relíquia Lunar de volta.');}
-if(p.kind==='chest'){if(p.open){this.message('Este baú já foi aberto.');return;}p.open=true;if(p.id==='key-chest'){this.hasKey=true;this.met=true;this.coins+=15;this.openDialog('Chave Lunar encontrada','A porta do Templo da Lua agora pode ser aberta. Siga o caminho para o norte. Você também encontrou 15 cristais.');}else{this.coins+=30;this.potions++;this.message('Baú aberto: +30 cristais e +1 poção.');}this.tone(784,.13);}
-if(p.kind==='door'){if(!this.hasKey){this.message('A porta está selada. Procure a chave no bosque leste.');return;}this.changeZone('temple');}
-if(p.kind==='exit')this.changeZone('forest');
-if(p.kind==='lever'){if(this.levers.has(p.id)){this.message('Este selo já está ativado.');return;}this.levers.add(p.id);this.burst(p.x,p.y,'#9de8dc',20);this.message(this.levers.size===2?'Os dois selos brilharam. A passagem do guardião está aberta.':'Selo ativado. Encontre o outro na mesma câmara.');this.tone(660,.15);}
-if(p.kind==='relic'){if(!this.bossDead){this.message('O guardião ainda protege a relíquia.');return;}this.screen='won';this.keys.clear();this.burst(p.x,p.y,'#efce79',60);this.emit();}}
+interact(){if(this.screen!=='playing')return;if(this.dialog){this.dismissDialog();return;}if(this.player.jump>0)return;const p=this.nearProp();if(!p){this.message('Aproxime-se de alguém, de um baú ou de um selo.');return;}
+if(p.kind==='npc'){const npc=NPCS[p.id]??NPCS.iris;if(p.id==='iris')this.met=true;this.openDialog(npc.name,npc.talk({hasKey:this.hasKey,fragments:this.fragments.size}));}
+if(p.kind==='chest')this.openChest(p);
+if(p.kind==='door'){if(!this.hasKey){this.message('A porta está selada. Procure a Chave Lunar no Bosque de Elara.');return;}if(this.fragments.size<3){this.message(`A porta tem três encaixes vazios. Faltam ${3-this.fragments.size} Fragmento(s) Lunar(es).`);return;}this.changeZone('cave1',12.5,16);}
+if((p.kind==='stairs'||p.kind==='exit')&&p.to){if(p.needs==='bosskey'&&!this.bossKey){this.message('Uma fechadura enorme. Você precisa da Chave do Guardião, guardada pelo golem deste andar.');return;}this.changeZone(p.to,p.ax??12,p.ay??12);}
+if(p.kind==='lever'){if(this.levers.has(p.id)){this.message('Este selo já está ativado.');return;}this.levers.add(p.id);this.burst(p.x,p.y,'#9de8dc',20);this.ring(p.x,p.y,'#9de8dc',60);this.message(this.levers.size===2?'Os dois selos brilharam. A passagem do guardião está aberta.':'Selo ativado. Encontre o outro na mesma câmara.');this.tone(660,.15);}
+if(p.kind==='relic'){if(!this.bossDead){this.message('O guardião ainda protege a relíquia.');return;}this.screen='won';this.keys.clear();this.burst(p.x,p.y,'#efce79',60);this.ring(p.x,p.y,'#efce79',120);this.emit();}}
+openChest(p:Prop){if(p.open){this.message('Este baú já foi aberto.');return;}if(this.guardAlive(p)){this.message('Um golem de pedra protege este baú. Derrote-o primeiro!');return;}p.open=true;this.tone(784,.13);this.burst(p.x,p.y,'#efce79',16);this.ring(p.x,p.y-10,'#efce79',50);
+if(p.item==='key'){this.hasKey=true;this.met=true;this.coins+=15;this.openDialog('Chave Lunar encontrada','A porta do Templo da Lua, nas Ruínas ao norte, tem três encaixes. Recupere os Fragmentos Lunares no Deserto, nas Montanhas e no Pântano. Você também encontrou 15 cristais.');}
+else if(p.item==='fragment'){this.fragments.add(p.id);const n=this.fragments.size;this.openDialog(`Fragmento Lunar (${n}/3)`,n<3?`Um pedaço da lua pulsa em suas mãos. Faltam ${3-n}. Consulte o mapa no canto da tela.`:'Os três fragmentos se uniram em uma luz prateada. Siga para o Templo da Lua, nas Ruínas ao norte!');}
+else if(p.item==='heart'){this.player.maxHp+=2;this.player.hp=this.player.maxHp;this.openDialog('Coração Lunar','Sua vida máxima aumentou em dois corações.');}
+else if(p.item==='bosskey'){this.bossKey=true;this.openDialog('Chave do Guardião','Uma chave pesada, fria como pedra. Ela abre a porta para a Câmara do Guardião, a sudeste deste andar.');}
+else if(p.item==='potion'){this.potions+=2;this.floatText(p.x,p.y-30,'+2 poções','#f3b7c2');this.message('Baú aberto: +2 poções.');}
+else if(p.item==='crystals'){this.coins+=50;this.floatText(p.x,p.y-30,'+50','#b9e8c2');this.message('Baú aberto: +50 cristais.');}
+else{this.coins+=30;this.potions++;this.floatText(p.x,p.y-30,'+30','#b9e8c2');this.message('Baú aberto: +30 cristais e +1 poção.');}this.emit();}
 openDialog(title:string,text:string){this.dialogTitle=title;this.dialog=text;this.keys.clear();this.emit();}
 dismissDialog(){this.dialog='';this.dialogTitle='';this.keys.clear();this.emit();}
-changeZone(zone:Zone){this.zone=zone;this.entered=true;this.keys.clear();this.projectiles=[];this.player.x=center(zone==='temple'?12:26);this.player.y=center(zone==='temple'?16:7);this.player.dir=zone==='temple'?'up':'down';this.player.hurt=1.2;this.player.hp=Math.min(this.player.maxHp,this.player.hp+2);this.message(zone==='temple'?'Temple da Lua: ative os dois selos com E.':'Você voltou ao Bosque de Elara.');this.draw();}
-attack(){if(this.screen!=='playing'||this.dialog||this.player.cooldown>0)return;this.player.attack=.23;this.player.cooldown=.34;const d=dirs[this.player.dir];this.tone(220,.06,'triangle');for(const enemy of this.map.enemies){if(enemy.hp<=0||enemy.hit>0)continue;const dx=enemy.x-this.player.x,dy=enemy.y-this.player.y,dist=Math.hypot(dx,dy);if(dist<62&&(dx*d.x+dy*d.y)>-10){enemy.hp--;enemy.hit=.27;enemy.x+=d.x*(enemy.kind==='boss'?3:11);enemy.y+=d.y*(enemy.kind==='boss'?3:11);this.burst(enemy.x,enemy.y,enemy.kind==='boss'?'#edc67d':'#c4eeb1',10);if(enemy.hp<=0){this.defeated++;this.coins+=enemy.kind==='boss'?100:8;if(enemy.kind==='boss'){this.bossDead=true;this.projectiles=[];this.message('O guardião caiu! Recolha a relíquia no altar ao norte.');}else{this.player.hp=Math.min(this.player.maxHp,this.player.hp+1);this.message('+8 cristais · um coração recuperado');}}}}
-this.map.props=this.map.props.filter(p=>{if(p.kind!=='bush')return true;const dx=p.x-this.player.x,dy=p.y-this.player.y;if(Math.hypot(dx,dy)<57&&dx*d.x+dy*d.y>-5){this.burst(p.x,p.y,'#8dcd69',9);this.coins++;return false;}return true;});this.emit();}
-dash(){if(this.screen!=='playing'||this.dialog||this.player.dashCooldown>0)return;this.player.dash=.18;this.player.dashCooldown=.9;this.player.hurt=Math.max(this.player.hurt,.24);this.tone(330,.08);}
-heal(){if(this.screen!=='playing'||this.dialog)return;if(this.potions<=0){this.message('Sem poções.');return;}if(this.player.hp===this.player.maxHp){this.message('Sua vida já está completa.');return;}this.potions--;this.player.hp=this.player.maxHp;this.burst(this.player.x,this.player.y,'#e8acb4',18);this.message('Poção usada. Todos os corações foram recuperados.');this.tone(523,.18);}
-damage(){if(this.player.hurt>0||this.screen!=='playing'||this.dialog)return;this.player.hp--;this.player.hurt=1.25;this.burst(this.player.x,this.player.y,'#ef8b83',12);this.tone(110,.14,'sawtooth');if(this.player.hp<=0){this.screen='dead';this.keys.clear();}this.emit();}
-retry(){this.player.hp=this.player.maxHp;this.player.hurt=2;this.player.x=center(this.zone==='forest'?5:12);this.player.y=center(this.zone==='forest'?23:16);this.player.attack=0;this.player.cooldown=0;this.player.dash=0;this.player.dashCooldown=0;this.projectiles=[];this.map.enemies.forEach(e=>{if(e.hp>0){e.x=e.homeX;e.y=e.homeY;e.timer=0;}});this.potions=Math.max(1,this.potions);this.screen='playing';this.dialog='';this.keys.clear();this.message('Você se levantou. A aventura continua.');}
-restart(){this.maps={forest:makeMap('forest'),temple:makeMap('temple')};this.zone='forest';this.player={x:center(5),y:center(23),dir:'up',hp:6,maxHp:6,hurt:0,attack:0,cooldown:0,dash:0,dashCooldown:0,walk:0};this.coins=0;this.potions=2;this.hasKey=false;this.met=false;this.entered=false;this.levers.clear();this.bossDead=false;this.defeated=0;this.elapsed=0;this.particles=[];this.projectiles=[];this.dialog='';this.screen='playing';this.keys.clear();this.message('Uma nova jornada começa. Converse com Iris.');}
+changeZone(zone:Zone,ax:number,ay:number){this.zone=zone;if(zone!=='world')this.entered=true;this.deepest=Math.max(this.deepest,FLOOR[zone]);this.keys.clear();this.projectiles=[];this.effects=[];this.player.x=center(ax);this.player.y=center(ay);this.player.dir=zone==='world'?'down':'up';this.player.jump=0;this.player.vx=0;this.player.vy=0;this.player.hurt=1.2;this.player.hp=Math.min(this.player.maxHp,this.player.hp+2);this.checkpoint={x:this.player.x,y:this.player.y};this.message(zone==='world'?'Você voltou às Ruínas da Lua.':zone==='temple'?'Câmara do Guardião: ative os dois selos com E.':`${ZONE_NAME[zone]}. Use K para saltar os abismos.`);this.showBanner();this.draw();}
+showBanner(){this.banner=this.zone==='world'?BIOMES[this.region].name:ZONE_NAME[this.zone];this.bannerTime=2.6;}
+
+/* ---------- combate e movimento ---------- */
+attack(){const p=this.player;if(this.screen!=='playing'||this.dialog||p.cooldown>0||p.jump>0)return;p.attack=ATTACK_TIME;p.cooldown=.34;const d=dirs[p.dir];this.tone(220,.06,'triangle');let hits=0;
+for(const enemy of this.map.enemies){if(enemy.hp<=0||enemy.hit>0)continue;const dx=enemy.x-p.x,dy=enemy.y-p.y,dist=Math.hypot(dx,dy),heavy=enemy.kind==='boss'||enemy.kind==='golem';if(dist<(heavy?72:62)&&(dx*d.x+dy*d.y)>-10){hits++;enemy.hp--;enemy.hit=.27;enemy.flash=.12;const k=heavy?70:300;enemy.vx=d.x*k+(dist?dx/dist:0)*40;enemy.vy=d.y*k+(dist?dy/dist:0)*40;const ix=(p.x+enemy.x)/2,iy=(p.y+enemy.y)/2-14;this.impact(ix,iy,heavy?1.3:1);this.floatText(enemy.x,enemy.y-38,'-1','#fff1b7');this.burst(enemy.x,enemy.y,heavy?'#edc67d':'#c4eeb1',10);
+if(enemy.hp<=0){enemy.dying=.4;this.defeated++;this.coins+=enemy.kind==='boss'?100:enemy.kind==='golem'?40:8;this.ring(enemy.x,enemy.y-10,'#ffffff',heavy?90:50);if(enemy.kind==='boss'){this.bossDead=true;this.projectiles=[];this.message('O guardião caiu! Recolha a relíquia no altar ao norte.');}else if(enemy.kind==='golem'){this.burst(enemy.x,enemy.y,'#d9cfb4',40);this.message('O golem desmoronou! +40 cristais. O baú está livre.');}else{p.hp=Math.min(p.maxHp,p.hp+1);this.message('+8 cristais · um coração recuperado');}}}}
+if(hits){this.freeze=Math.max(this.freeze,hits>1?.09:.06);this.kick(hits>1?6:4,.16);this.tone(140,.08,'square');}
+const before=this.map.props.length;this.map.props=this.map.props.filter(q=>{if(q.kind!=='bush')return true;const dx=q.x-p.x,dy=q.y-p.y;if(Math.hypot(dx,dy)<57&&dx*d.x+dy*d.y>-5){this.burst(q.x,q.y,'#8dcd69',14);this.impact(q.x,q.y-12,.7);this.coins++;return false;}return true;});if(this.map.props.length!==before)this.rebuildGrid(this.zone);this.emit();}
+dash(){const p=this.player;if(this.screen!=='playing'||this.dialog||p.dashCooldown>0||p.jump>0)return;p.dash=.18;p.dashCooldown=.9;p.hurt=Math.max(p.hurt,.24);this.tone(330,.08);this.dust(p.x,p.y,6);}
+jump(){const p=this.player;if(this.screen!=='playing'||this.dialog||p.jump>0||p.jumpCooldown>0)return;p.jump=JUMP_TIME;p.jumpFromX=p.x;p.jumpFromY=p.y;p.attack=0;this.dust(p.x,p.y,8);this.tone(392,.1,'triangle');this.tone(587,.12);}
+land(){const p=this.player;p.jumpCooldown=.22;p.squash=.12;this.dust(p.x,p.y,10);this.tone(160,.06,'triangle');if(this.cheats.walls||!this.collides(p.x,p.y))return;p.x=p.jumpFromX;p.y=p.jumpFromY;this.message('Gregório caiu! Pule mais perto da borda.');this.ring(p.x,p.y,'#9fd8ff',40);if(!this.cheats.life){p.hp--;p.hurt=1.25;p.flash=.15;if(p.hp<=0){this.screen='dead';this.keys.clear();}}this.emit();}
+heal(){if(this.screen!=='playing'||this.dialog)return;if(this.potions<=0){this.message('Sem poções.');return;}if(this.player.hp===this.player.maxHp){this.message('Sua vida já está completa.');return;}this.potions--;this.player.hp=this.player.maxHp;this.burst(this.player.x,this.player.y,'#e8acb4',18);this.ring(this.player.x,this.player.y-16,'#f3b7c2',50);this.message('Poção usada. Todos os corações foram recuperados.');this.tone(523,.18);}
+damage(sx=this.player.x,sy=this.player.y+1){const p=this.player;if(p.hurt>0||p.jump>0||this.screen!=='playing'||this.dialog||this.cheats.life)return;p.hp--;p.hurt=1.25;p.flash=.14;p.squash=.14;const dx=p.x-sx,dy=p.y-sy,d=Math.hypot(dx,dy)||1;p.vx=dx/d*240;p.vy=dy/d*240;this.freeze=Math.max(this.freeze,.08);this.kick(7,.22);this.impact(p.x-dx/d*12,p.y-16-dy/d*12,1.1,'#ffb3a8');this.floatText(p.x,p.y-48,'-1','#ff8f8f');this.burst(p.x,p.y,'#ef8b83',12);this.tone(110,.14,'sawtooth');if(p.hp<=0){this.screen='dead';this.keys.clear();}this.emit();}
+retry(){const p=this.player;p.hp=p.maxHp;p.hurt=2;p.x=this.checkpoint.x;p.y=this.checkpoint.y;p.attack=0;p.cooldown=0;p.dash=0;p.dashCooldown=0;p.jump=0;p.vx=0;p.vy=0;this.projectiles=[];this.map.enemies.forEach(e=>{if(e.hp>0){e.x=e.homeX;e.y=e.homeY;e.timer=0;e.vx=0;e.vy=0;}});this.potions=Math.max(1,this.potions);this.screen='playing';this.dialog='';this.keys.clear();this.message('Você se levantou. A aventura continua.');}
+restart(){this.maps=freshMaps();this.indexMaps();this.zone='world';this.player=freshPlayer();this.coins=0;this.potions=2;this.hasKey=false;this.met=false;this.entered=false;this.levers.clear();this.bossDead=false;this.defeated=0;this.elapsed=0;this.particles=[];this.projectiles=[];this.effects=[];this.texts=[];this.dialog='';this.fragments.clear();this.bossKey=false;this.deepest=0;this.region='forest';this.checkpoint={...SPAWN};this.history=[];this.screen='playing';this.keys.clear();this.showBanner();this.message('Uma nova jornada começa. Converse com Iris.');}
+setCheat(name:keyof Cheats,on:boolean){this.cheats={...this.cheats,[name]:on};this.emit();}
+fillWallet(){this.coins=999;this.emit();}
+
+/* ---------- efeitos (quadros intermediários gerados por código) ---------- */
 burst(x:number,y:number,color:string,n:number){for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2,s=20+Math.random()*75;this.particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:.25+Math.random()*.5,color});}}
+impact(x:number,y:number,size=1,color='#fff6d0'){this.effects.push({x,y,life:.22,max:.22,kind:'impact',size,color});}
+ring(x:number,y:number,color:string,size:number){this.effects.push({x,y,life:.35,max:.35,kind:'ring',size,color});}
+dust(x:number,y:number,n:number){for(let i=0;i<n;i++)this.effects.push({x:x+(Math.random()-.5)*18,y:y+2+(Math.random()-.5)*6,life:.3+Math.random()*.2,max:.5,kind:'dust',size:3+Math.random()*4,color:this.zone==='world'&&this.region==='snow'?'#ffffff':'#d8c9a8'});}
+floatText(x:number,y:number,text:string,color:string){this.texts.push({x,y,text,life:.8,color});}
+kick(power:number,time:number){this.shakePower=Math.max(this.shakePower,power);this.shake=Math.max(this.shake,time);}
+
+/* ---------- saves e voltar no tempo ---------- */
+serialize(){const mapState=(z:Zone)=>{const ids=new Set(this.maps[z].props.map(p=>p.id));return{enemies:this.maps[z].enemies,opened:this.maps[z].props.filter(p=>p.open).map(p=>p.id),removed:this.base[z].filter(p=>!ids.has(p.id)).map(p=>p.id)};};
+return JSON.stringify({v:SAVE_VERSION,zone:this.zone,player:this.player,coins:this.coins,potions:this.potions,hasKey:this.hasKey,met:this.met,entered:this.entered,levers:[...this.levers],bossDead:this.bossDead,defeated:this.defeated,elapsed:this.elapsed,fragments:[...this.fragments],bossKey:this.bossKey,deepest:this.deepest,region:this.region,checkpoint:this.checkpoint,projectiles:this.projectiles,maps:Object.fromEntries(ZONES.map(z=>[z,mapState(z)]))});}
+private applyState(json:string){const s=JSON.parse(json);if(s?.v!==SAVE_VERSION||!ZONES.includes(s.zone)||typeof s.player?.x!=='number')throw new Error('Save inválido.');
+for(const z of ZONES){const st=s.maps[z],removed=new Set<string>(st.removed),opened=new Set<string>(st.opened);this.maps[z].props=this.base[z].filter(p=>!removed.has(p.id)).map(p=>({...p,open:opened.has(p.id)}));this.maps[z].enemies=(st.enemies as Entity[]).map(e=>({...e}));this.rebuildGrid(z);}
+this.zone=s.zone;this.player={...s.player};this.coins=s.coins;this.potions=s.potions;this.hasKey=s.hasKey;this.met=s.met;this.entered=s.entered;this.levers=new Set(s.levers);this.bossDead=s.bossDead;this.defeated=s.defeated;this.elapsed=s.elapsed;this.fragments=new Set(s.fragments);this.bossKey=!!s.bossKey;this.deepest=s.deepest|0;this.region=s.region in BIOMES?s.region:'forest';this.checkpoint={...s.checkpoint};this.projectiles=s.projectiles.map((p:Adventure['projectiles'][number])=>({...p}));}
+load(json:string){try{this.applyState(json);}catch{this.message('Não foi possível carregar este save.');return false;}this.history=[];this.effects=[];this.texts=[];this.dialog='';this.keys.clear();this.screen='playing';this.showBanner();this.message('Jornada carregada.');return true;}
+rewindBy(seconds:number){if(!this.history.length)return;const target=Math.max(0,this.history.length-Math.round(seconds/HISTORY_STEP));this.applyState(this.history[target]);this.history.length=target;this.player.hurt=1;this.screen='playing';this.dialog='';this.keys.clear();this.emit();}
+private rewindTick(){if(!this.history.length)return;this.rewindFrame++;if(this.rewindFrame%2)return;this.applyState(this.history.pop()!);this.player.hurt=Math.max(this.player.hurt,.5);if(this.screen==='dead')this.screen='playing';}
+private pollGamepad(){const gp=typeof navigator!=='undefined'?navigator.getGamepads?.().find(g=>g):null;if(!gp){if(this.padKeys.size){for(const k of this.padKeys)this.keyUp(k);this.padKeys=new Set();}return;}const b=gp.buttons.map(x=>x.pressed),ax=gp.axes[0]||0,ay=gp.axes[1]||0,want=new Set<string>();
+const map:[boolean,string][]=[[b[0],'j'],[b[1],'e'],[b[2],'shift'],[b[3],'q'],[b[4],'k'],[b[9],'escape'],[b[6]&&b[7],'r'],[b[5],'f'],[b[12]||ay<-.5,'arrowup'],[b[13]||ay>.5,'arrowdown'],[b[14]||ax<-.5,'arrowleft'],[b[15]||ax>.5,'arrowright']];
+for(const[on,k]of map)if(on)want.add(k);for(const k of want)if(!this.padKeys.has(k))this.keyDown(k);for(const k of this.padKeys)if(!want.has(k))this.keyUp(k);this.padKeys=want;}
+
+/* ---------- som ---------- */
 setSound(on:boolean){this.sound=on;if(on&&!this.audio){try{this.audio=new AudioContext();}catch{this.sound=false;}}if(on)this.audio?.resume();}
 tone(freq:number,duration:number,type:OscillatorType='sine'){if(!this.sound||!this.audio)return;const o=this.audio.createOscillator(),g=this.audio.createGain();o.type=type;o.frequency.value=freq;g.gain.setValueAtTime(.035,this.audio.currentTime);g.gain.exponentialRampToValueAtTime(.001,this.audio.currentTime+duration);o.connect(g);g.connect(this.audio.destination);o.start();o.stop(this.audio.currentTime+duration);}
-update(dt:number){if(this.screen!=='playing'||this.dialog)return;this.elapsed+=dt;const p=this.player;for(const k of['hurt','attack','cooldown','dash','dashCooldown'] as const)p[k]=Math.max(0,p[k]-dt);
-let dx=0,dy=0;for(const k of this.keys){const d=this.directionForKey(k);if(d){dx+=dirs[d].x;dy+=dirs[d].y;p.dir=d;}}
-if(p.dash>0){dx=dirs[p.dir].x;dy=dirs[p.dir].y;}const length=Math.hypot(dx,dy);if(length>0){const speed=p.dash>0?360:p.attack>0?72:125;this.move(dx/length*speed*dt,dy/length*speed*dt);p.walk+=dt;}else p.walk=0;
-for(const e of this.map.enemies){if(e.hp<=0)continue;e.hit=Math.max(0,e.hit-dt);e.timer+=dt;const ex=p.x-e.x,ey=p.y-e.y,d=Math.hypot(ex,ey),awake=e.kind==='boss'?this.levers.size===2&&p.y<9*T:d<190;if(awake&&e.hit===0){const charge=e.kind==='boss'&&e.timer%3.4>2.4;const speed=e.kind==='boss'?charge?112:22:e.kind==='bat'?67:42;if(d>20){const mx=ex/(d||1)*speed*dt,my=ey/(d||1)*speed*dt;if(!this.collides(e.x+mx,e.y,e.kind==='boss'?16:7))e.x+=mx;if(!this.collides(e.x,e.y+my,e.kind==='boss'?16:7))e.y+=my;}if(d<(e.kind==='boss'?30:21))this.damage();if(e.kind==='boss'&&e.timer>3.4){e.timer=0;for(const angle of[-.22,0,.22]){const a=Math.atan2(ey,ex)+angle;this.projectiles.push({x:e.x,y:e.y,vx:Math.cos(a)*105,vy:Math.sin(a)*105,life:3});}}}}
-for(const s of this.projectiles){s.x+=s.vx*dt;s.y+=s.vy*dt;s.life-=dt;if(Math.hypot(s.x-p.x,s.y-p.y)<14){this.damage();s.life=0;}if(this.collides(s.x,s.y,2))s.life=0;}this.projectiles=this.projectiles.filter(s=>s.life>0);
-this.noticeTime-=dt;if(this.noticeTime<=0)this.notice='';this.musicTimer-=dt;if(this.musicTimer<=0){this.musicTimer=.42;const notes=this.zone==='forest'?[261.63,329.63,392,523.25,440,392,329.63,293.66]:[220,261.63,329.63,293.66,246.94,220,196,246.94];this.tone(notes[this.musicStep++%notes.length],.3);}
+
+/* ---------- lógica ---------- */
+update(dt:number){if(this.screen!=='playing'||this.dialog)return;this.elapsed+=dt;const p=this.player;const wasJumping=p.jump>0;for(const k of['hurt','attack','cooldown','dash','dashCooldown','jump','jumpCooldown','flash','squash'] as const)p[k]=Math.max(0,p[k]-dt);
+let dx=0,dy=0;for(const k of this.keys){const d=this.directionForKey(k);if(d){dx+=dirs[d].x;dy+=dirs[d].y;if(!wasJumping)p.dir=d;}}
+if(p.dash>0||wasJumping){dx=dirs[p.dir].x;dy=dirs[p.dir].y;}const length=Math.hypot(dx,dy);if(length>0){const speed=wasJumping?JUMP_SPEED:p.dash>0?360:p.attack>0?72:125;this.move(dx/length*speed*dt,dy/length*speed*dt);p.walk+=dt;if(!wasJumping&&p.dash<=0){this.stepTimer-=dt;if(this.stepTimer<=0){this.stepTimer=.26;this.dust(p.x+(Math.random()-.5)*8,p.y,1);}}if(p.dash>0)this.effects.push({x:p.x,y:p.y,life:.18,max:.18,kind:'ghost',size:1,color:'',frame:1,row:dirs[p.dir].row});}else p.walk=0;
+if(wasJumping&&p.jump<=0)this.land();
+if(p.vx||p.vy){this.move(p.vx*dt,p.vy*dt);const f=Math.exp(-12*dt);p.vx*=f;p.vy*=f;if(Math.abs(p.vx)<4&&Math.abs(p.vy)<4){p.vx=0;p.vy=0;}}
+for(const e of this.map.enemies){if(e.dying>0){e.dying=Math.max(0,e.dying-dt);continue;}if(e.hp<=0)continue;const ex=p.x-e.x,ey=p.y-e.y;if(Math.abs(ex)>700||Math.abs(ey)>500)continue;e.hit=Math.max(0,e.hit-dt);e.flash=Math.max(0,e.flash-dt);e.timer+=dt;const heavy=e.kind==='boss'||e.kind==='golem',air=e.kind==='bat',r=heavy?16:7;
+if(e.vx||e.vy){const mx=e.vx*dt,my=e.vy*dt;if(!this.collides(e.x+mx,e.y,r,air))e.x+=mx;if(!this.collides(e.x,e.y+my,r,air))e.y+=my;const f=Math.exp(-10*dt);e.vx*=f;e.vy*=f;if(Math.abs(e.vx)<4&&Math.abs(e.vy)<4){e.vx=0;e.vy=0;}}
+const d=Math.hypot(ex,ey),awake=e.kind==='boss'?this.levers.size===2&&p.y<9*T:e.kind==='golem'?d<230:d<190;if(awake&&e.hit===0){const charge=e.kind==='boss'?e.timer%3.4>2.4:e.kind==='golem'&&e.timer%3>2.1;const speed=e.kind==='boss'?charge?112:22:e.kind==='golem'?charge?125:30:e.kind==='bat'?67:42;if(d>20){const mx=ex/(d||1)*speed*dt,my=ey/(d||1)*speed*dt;if(!this.collides(e.x+mx,e.y,r,air))e.x+=mx;if(!this.collides(e.x,e.y+my,r,air))e.y+=my;}if(d<(e.kind==='boss'?30:e.kind==='golem'?26:21))this.damage(e.x,e.y);if(e.kind==='boss'&&e.timer>3.4){e.timer=0;for(const angle of[-.22,0,.22]){const a=Math.atan2(ey,ex)+angle;this.projectiles.push({x:e.x,y:e.y,vx:Math.cos(a)*105,vy:Math.sin(a)*105,life:3});}}}}
+for(const s of this.projectiles){s.x+=s.vx*dt;s.y+=s.vy*dt;s.life-=dt;if(Math.hypot(s.x-p.x,s.y-p.y)<14&&p.jump<=0&&p.hurt<=0){this.damage(s.x,s.y);s.life=0;}if(this.collides(s.x,s.y,2,true))s.life=0;}this.projectiles=this.projectiles.filter(s=>s.life>0);
+if(this.zone==='world'){const b=this.map.biome?.[Math.floor(p.y/T)]?.[Math.floor(p.x/T)];if(b&&b!==this.region){this.region=b;this.checkpoint={x:p.x,y:p.y};this.showBanner();this.emit();}}
+this.noticeTime-=dt;if(this.noticeTime<=0)this.notice='';this.bannerTime=Math.max(0,this.bannerTime-dt);this.musicTimer-=dt;if(this.musicTimer<=0){this.musicTimer=.42;const notes=this.zone==='world'?BIOMES[this.region].music:this.zone==='temple'?TEMPLE_NOTES:CAVE_NOTES;this.tone(notes[this.musicStep++%notes.length],.3);}
+this.historyTimer+=dt;if(this.historyTimer>=HISTORY_STEP){this.historyTimer=0;this.history.push(this.serialize());if(this.history.length>HISTORY_MAX)this.history.shift();}
 }
-tick=(now:number)=>{if(this.disposed)return;const dt=Math.min(.035,(now-this.lastTime)/1000||.016);this.lastTime=now;this.update(dt);for(const p of this.particles){p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt;}this.particles=this.particles.filter(p=>p.life>0);this.draw();if(now-this.lastEmit>120){this.emit();this.lastEmit=now;}this.raf=requestAnimationFrame(this.tick);};
+tick=(now:number)=>{if(this.disposed)return;const dt=Math.min(.035,(now-this.lastTime)/1000||.016);this.lastTime=now;this.pollGamepad();
+if(this.rewinding&&(this.screen==='playing'||this.screen==='dead'))this.rewindTick();else if(this.freeze>0)this.freeze=Math.max(0,this.freeze-dt);else{const steps=this.fast?this.fastSpeed:1;for(let i=0;i<steps;i++)this.update(dt);}
+this.shake=Math.max(0,this.shake-dt);if(this.shake<=0)this.shakePower=0;for(const p of this.particles){p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt;}this.particles=this.particles.filter(p=>p.life>0);for(const e of this.effects){e.life-=dt;if(e.kind==='dust')e.y-=10*dt;}this.effects=this.effects.filter(e=>e.life>0);for(const t of this.texts){t.life-=dt;t.y-=38*dt;}this.texts=this.texts.filter(t=>t.life>0);
+this.draw();if(now-this.lastEmit>120){this.emit();this.lastEmit=now;}this.raf=requestAnimationFrame(this.tick);};
 run(){this.raf=requestAnimationFrame(this.tick);}
 destroy(){this.disposed=true;cancelAnimationFrame(this.raf);this.audio?.close();}
-drawTile(index:number,x:number,y:number,w=T,h=T){const img=this.assets.atlas,cw=img.width/4,ch=img.height/4;this.ctx.drawImage(img,(index%4)*cw,Math.floor(index/4)*ch,cw,ch,Math.round(x),Math.round(y),w,h);}
-drawSprite(index:number,x:number,y:number,size=48){this.drawTile(index,x-size/2,y-size*.8,size,size);}
-draw(){const c=this.ctx,p=this.player,m=this.map,W=this.canvas.width,H=this.canvas.height;c.imageSmoothingEnabled=false;this.camera.x=m.width*T<W?(m.width*T-W)/2:Math.max(0,Math.min(m.width*T-W,p.x-W/2));this.camera.y=m.height*T<H?(m.height*T-H)/2:Math.max(0,Math.min(m.height*T-H,p.y-H/2));c.fillStyle=this.zone==='forest'?'#285336':'#132338';c.fillRect(0,0,W,H);c.save();c.translate(-Math.round(this.camera.x),-Math.round(this.camera.y));
-for(let y=0;y<m.height;y++)for(let x=0;x<m.width;x++){const tile=m.tiles[y][x];this.drawTile(tile===4?7:tile,x*T,y*T);if(this.zone==='forest'&&tile===2){c.fillStyle='rgba(159,228,216,.13)';const wave=(Math.sin(this.elapsed*2+y+x)*3)|0;c.fillRect(x*T+4,y*T+14+wave,13,1);}}
-if(this.zone==='forest'){c.fillStyle='#bd995c';for(let y=14;y<=15;y++)for(let x=16;x<=18;x++){c.fillRect(x*T,y*T,T,T);c.fillStyle='#947449';c.fillRect(x*T,y*T+1,T,2);c.fillRect(x*T,y*T+30,T,2);c.fillStyle='#bd995c';}}
+
+/* ---------- desenho ---------- */
+// Cópia do atlas com filtro de cor, gerada uma vez. Sem suporte a ctx.filter, usa o atlas original.
+variant(filter:string):CanvasImageSource{if(filter==='none')return this.assets.atlas;const cached=this.variants.get(filter);if(cached)return cached;const img=this.assets.atlas,c=document.createElement('canvas');c.width=img.width;c.height=img.height;const x=c.getContext('2d')!;if(typeof x.filter!=='string'){this.variants.set(filter,img);return img;}x.filter=filter;x.drawImage(img,0,0);this.variants.set(filter,c);return c;}
+whiteHero(){if(this.heroWhite)return this.heroWhite;const img=this.assets.hero,c=document.createElement('canvas');c.width=img.width;c.height=img.height;const x=c.getContext('2d')!;x.drawImage(img,0,0);x.globalCompositeOperation='source-atop';x.fillStyle='#ffffff';x.fillRect(0,0,c.width,c.height);this.heroWhite=c;return c;}
+drawTile(index:number,x:number,y:number,w=T,h=T,src:CanvasImageSource=this.assets.atlas,ctx=this.ctx){const img=this.assets.atlas,cw=img.width/4,ch=img.height/4;ctx.drawImage(src,(index%4)*cw,Math.floor(index/4)*ch,cw,ch,Math.round(x),Math.round(y),w,h);}
+// sx/sy: deformação (squash & stretch) a partir dos pés do sprite.
+drawSprite(index:number,x:number,y:number,size=48,filter='none',sx=1,sy=1){if(sx===1&&sy===1){this.drawTile(index,x-size/2,y-size*.8,size,size,this.variant(filter));return;}const c=this.ctx;c.save();c.translate(Math.round(x),Math.round(y+size*.2));c.scale(sx,sy);this.drawTile(index,-size/2,-size,size,size,this.variant(filter));c.restore();}
+groundLayer(zone:Zone){const cached=this.ground.get(zone);if(cached)return cached;const m=this.maps[zone],c=document.createElement('canvas');c.width=m.width*T;c.height=m.height*T;const g=c.getContext('2d')!;g.imageSmoothingEnabled=false;
+for(let y=0;y<m.height;y++)for(let x=0;x<m.width;x++){const t=m.tiles[y][x],px=x*T,py=y*T;
+if(zone!=='world'){const f=this.variant(CAVE_FILTER[zone]);if(t===6){g.fillStyle='#04060b';g.fillRect(px,py,T,T);if(m.tiles[y-1]?.[x]!==6){g.fillStyle='#2a3247';g.fillRect(px,py,T,6);g.fillStyle='#151b29';g.fillRect(px,py+6,T,5);}}else if(t===2)this.drawTile(2,px,py,T,T,this.variant('brightness(.7) saturate(.9)'),g);else this.drawTile(t===4?7:t,px,py,T,T,t===3?this.variant(CAVE_FLOOR[zone]):f,g);continue;}
+const b=BIOMES[m.biome![y][x]];
+if(t===0)this.drawTile(b.ground,px,py,T,T,this.variant(b.filter),g);else if(t===1)this.drawTile(1,px,py,T,T,this.variant(b.pathFilter),g);else if(t===4)this.drawTile(7,px,py,T,T,this.variant(b.wallFilter),g);else{this.drawTile(2,px,py,T,T,this.variant(b.waterFilter),g);if(t===5){const horizontal=[1,5].includes(m.tiles[y][x-1])||[1,5].includes(m.tiles[y][x+1]);g.fillStyle='#bd995c';g.fillRect(px,py,T,T);g.fillStyle='#947449';if(horizontal){g.fillRect(px,py+1,T,2);g.fillRect(px,py+29,T,2);for(let i=6;i<T;i+=8)g.fillRect(px+i,py+3,1,26);}else{g.fillRect(px+1,py,2,T);g.fillRect(px+29,py,2,T);for(let i=6;i<T;i+=8)g.fillRect(px+3,py+i,26,1);}}}}
+this.ground.set(zone,c);return c;}
+minimapLayer(){if(this.minimap)return this.minimap;const m=this.maps.world,c=document.createElement('canvas');c.width=m.width*2;c.height=m.height*2;const g=c.getContext('2d')!;
+for(let y=0;y<m.height;y++)for(let x=0;x<m.width;x++){const t=m.tiles[y][x],b=m.biome![y][x];g.fillStyle=t===1?'#c8a86a':t===5?'#9a7748':t===4?(b==='canyon'?'#6e3b22':b==='snow'?'#9aa7b4':'#3a3f4a'):t===2?(b==='swamp'?'#3f5f45':'#3f8fc4'):BIOMES[b].mini;g.fillRect(x*2,y*2,2,2);}
+g.fillStyle='#0003';for(const p of this.base.world)if(p.kind==='tree')g.fillRect(Math.floor(p.x/T)*2,Math.floor(p.y/T)*2,2,2);this.minimap=c;return c;}
+drawWeather(c:CanvasRenderingContext2D,W:number,H:number){const t=this.elapsed;if(this.region==='snow'){c.fillStyle='#ffffffcc';for(let i=0;i<70;i++){const x=(i*137.5+Math.sin(t+i)*20+t*14)%W,y=(i*91.3+t*(38+i%5*8))%H;c.fillRect(x,y,2+i%2,2+i%2);}}
+else if(this.region==='autumn'){for(let i=0;i<26;i++){c.fillStyle=i%3?'#d9822b':'#b8452a';const x=(i*173.1+Math.sin(t*1.3+i)*30+t*22)%W,y=(i*67.7+t*(30+i%4*6))%H;c.fillRect(x,y,4,3);}}
+else if(this.region==='swamp'){const g=c.createRadialGradient(W/2,H/2,120,W/2,H/2,620);g.addColorStop(0,'rgba(20,35,20,0)');g.addColorStop(1,'rgba(10,22,12,.55)');c.fillStyle=g;c.fillRect(0,0,W,H);}
+else if(this.region==='desert'){c.fillStyle='rgba(255,210,140,.07)';c.fillRect(0,0,W,H);}}
+drawMinimap(c:CanvasRenderingContext2D,W:number){const mm=this.minimapLayer(),x0=W-mm.width-14,y0=14,p=this.player;c.globalAlpha=.88;c.fillStyle='#101a20';c.fillRect(x0-4,y0-4,mm.width+8,mm.height+8);c.drawImage(mm,x0,y0);c.globalAlpha=1;c.strokeStyle='#d4bd84';c.lineWidth=1;c.strokeRect(x0-4.5,y0-4.5,mm.width+9,mm.height+9);
+const dot=(px:number,py:number,color:string,s=4)=>{c.fillStyle=color;c.fillRect(x0+Math.floor(px/T)*2-s/2,y0+Math.floor(py/T)*2-s/2,s,s);};
+for(const q of this.maps.world.props){if(q.kind==='chest'&&!q.open&&(q.item==='fragment'||q.item==='heart'||q.item==='key'))dot(q.x,q.y,q.item==='heart'?'#ff8f8f':'#ffe28a');if(q.kind==='door')dot(q.x,q.y,'#c9a6ff',5);if(q.id==='iris')dot(q.x,q.y,'#e8d2ff');}
+if(Math.floor(this.elapsed*4)%2===0)dot(p.x,p.y,'#ffffff',5);}
+drawBanner(c:CanvasRenderingContext2D,W:number){if(this.bannerTime<=0)return;const a=Math.min(1,this.bannerTime,(2.6-this.bannerTime)*3);c.globalAlpha=a;c.font='28px Georgia, serif';const w=c.measureText(this.banner).width+90;c.fillStyle='#15242be6';c.fillRect(W/2-w/2,64,w,50);c.strokeStyle='#c8ba84';c.strokeRect(W/2-w/2+.5,64.5,w-1,49);c.fillStyle='#f3dbac';c.textAlign='center';c.textBaseline='middle';c.fillText(`✦  ${this.banner}  ✦`,W/2,90);c.textAlign='start';c.textBaseline='alphabetic';c.globalAlpha=1;}
+drawEffects(c:CanvasRenderingContext2D,below:boolean){for(const e of this.effects){const t=1-e.life/e.max;if(below!==(e.kind==='dust'||e.kind==='ghost'))continue;
+if(e.kind==='dust'){c.globalAlpha=.55*(1-t);c.fillStyle=e.color;const s=e.size*(1+t);c.beginPath();c.arc(e.x,e.y,s,0,Math.PI*2);c.fill();}
+else if(e.kind==='ghost'){const img=this.assets.hero,cw=img.width/4,ch=img.height/4;c.globalAlpha=.35*(1-t);c.drawImage(this.whiteHero(),(e.frame??1)*cw,(e.row??0)*ch,cw,ch,Math.round(e.x-25),Math.round(e.y-42),50,50);}
+else if(e.kind==='ring'){c.globalAlpha=1-t;c.strokeStyle=e.color;c.lineWidth=3*(1-t)+1;c.beginPath();c.ellipse(e.x,e.y,e.size*t,e.size*t*.55,0,0,Math.PI*2);c.stroke();}
+else{// estrela de impacto: 3 quadros (flash, estrela, faíscas)
+const s=e.size,r=(10+26*t)*s;c.globalAlpha=1-t*.6;if(t<.3){c.fillStyle='#ffffff';c.beginPath();c.arc(e.x,e.y,(9+20*t)*s,0,Math.PI*2);c.fill();}c.fillStyle=e.color;c.beginPath();for(let i=0;i<16;i++){const a=i*Math.PI/8+e.x,rr=i%2?r*.38:r;c.lineTo(e.x+Math.cos(a)*rr,e.y+Math.sin(a)*rr*.85);}c.closePath();c.fill();if(t>.35){c.strokeStyle='#fff1b7';c.lineWidth=2;for(let i=0;i<6;i++){const a=i*Math.PI/3+e.y;c.beginPath();c.moveTo(e.x+Math.cos(a)*r*.9,e.y+Math.sin(a)*r*.9);c.lineTo(e.x+Math.cos(a)*r*1.35,e.y+Math.sin(a)*r*1.35);c.stroke();}}}}c.globalAlpha=1;}
+drawHero(c:CanvasRenderingContext2D){const p=this.player,img=this.assets.hero,cw=img.width/4,ch=img.height/4,d=dirs[p.dir],row=d.row;
+const at=p.attack>0?1-p.attack/ATTACK_TIME:-1;// 0..1 durante o golpe: antecipação, corte, recuperação
+const windup=at>=0&&at<.22,swing=at>=.22&&at<.78;
+const frame=at>=0?(windup?0:3):p.walk>0?[1,0,2,0][Math.floor(p.walk*9)%4]:0;
+const bob=p.walk>0&&at<0?-Math.abs(Math.sin(p.walk*Math.PI*4.5))*2:0,lift=p.jump>0?Math.sin((1-p.jump/JUMP_TIME)*Math.PI)*JUMP_HEIGHT:0;
+const lunge=at<0?0:windup?-3*(at/.22):swing?5:5*(1-(at-.78)/.22);
+let sx=1,sy=1;if(p.squash>0){const k=p.squash/.14;sx=1+.16*k;sy=1-.14*k;}else if(p.jump>0){sx=.92;sy=1.1;}else if(windup){sx=1.05;sy=.96;}
+const x=p.x+d.x*lunge,y=p.y+d.y*lunge+bob-lift;
+c.globalAlpha=.28;c.fillStyle='#000';c.beginPath();c.ellipse(p.x,p.y+5,(14-lift*.18),(5-lift*.06),0,0,Math.PI*2);c.fill();c.globalAlpha=1;
+if(p.hurt>0&&p.flash<=0&&Math.floor(this.elapsed*14)%2===0)c.globalAlpha=.45;
+const blit=(src:CanvasImageSource)=>{c.save();c.translate(Math.round(x),Math.round(y+8));c.scale(sx,sy);c.drawImage(src,frame*cw,row*ch,cw,ch,-25,-50,50,50);c.restore();};
+blit(img);if(p.flash>0){c.globalAlpha=Math.min(1,p.flash/.14);blit(this.whiteHero());}c.globalAlpha=1;
+if(swing||(at>=.78)){const k=swing?(at-.22)/.56:1,fade=at>=.78?1-(at-.78)/.22:1,from=d.angle-1.15,to=from+2.3*Math.min(1,k*1.15);for(let i=0;i<4;i++){c.globalAlpha=fade*(1-i*.22);c.strokeStyle=i?'#f5cb69':'#fff8d8';c.lineWidth=(5-i)*1.1;c.beginPath();c.arc(p.x,p.y-9-lift,33+i*4,Math.max(from,to-1.2+i*.12),to-i*.18);c.stroke();}c.globalAlpha=fade;c.fillStyle='#ffffff';c.beginPath();c.arc(p.x+Math.cos(to)*37,p.y-9-lift+Math.sin(to)*37,3,0,Math.PI*2);c.fill();c.globalAlpha=1;}}
+drawEnemy(c:CanvasRenderingContext2D,e:Entity){const index=e.kind==='slime'?12:e.kind==='bat'?13:14,size=e.kind==='boss'?87:e.kind==='golem'?66:42;let sx=1,sy=1,yo=0,alpha=1;
+if(e.kind==='slime'){const s=Math.sin(e.timer*7);sx=1+s*.08;sy=1-s*.08;}else if(e.kind==='bat'){sx=1-Math.abs(Math.sin(e.timer*12))*.28;yo=Math.sin(e.timer*6)*4;}else{yo=Math.sin(e.timer*6);if(e.kind==='golem'&&e.timer%3>2.1){sx=1.06;sy=.95;}}
+if(e.flash>0){const k=e.flash/.12;sx*=1+.22*k;sy*=1-.2*k;}
+if(e.dying>0){const t=1-e.dying/.4;sx*=1+t*.5;sy*=Math.max(.05,1-t);alpha=1-t;}
+c.globalAlpha=.25*alpha;c.fillStyle='#000';c.beginPath();c.ellipse(e.x,e.y+5,size*.28,size*.09,0,0,Math.PI*2);c.fill();
+c.globalAlpha=alpha*(e.hit>0&&e.flash<=0&&Math.floor(this.elapsed*30)%2===0?.7:1);this.drawSprite(index,e.x,e.y+yo,size,e.tint??'none',sx,sy);
+if(e.flash>0||e.dying>.25){c.globalAlpha=e.dying>0?Math.min(1,(e.dying-.25)/.15):Math.min(1,e.flash/.12);this.drawSprite(index,e.x,e.y+yo,size,WHITE,sx,sy);}c.globalAlpha=1;
+if(e.dying<=0&&(e.hp<e.maxHp||e.kind==='boss'&&this.levers.size===2||e.kind==='golem')){const by=e.y-(e.kind==='golem'?58:e.kind==='boss'?62:38);c.fillStyle='#1e2429';c.fillRect(e.x-17,by,34,4);c.fillStyle='#e6aa80';c.fillRect(e.x-17,by,34*e.hp/e.maxHp,4);}}
+draw(){const c=this.ctx,p=this.player,m=this.map,W=this.canvas.width,H=this.canvas.height;c.imageSmoothingEnabled=false;this.camera.x=m.width*T<W?(m.width*T-W)/2:Math.max(0,Math.min(m.width*T-W,p.x-W/2));this.camera.y=m.height*T<H?(m.height*T-H)/2:Math.max(0,Math.min(m.height*T-H,p.y-H/2));c.fillStyle=this.zone==='world'?'#285336':'#0d1420';c.fillRect(0,0,W,H);c.save();
+const sk=this.shake>0?this.shakePower*(this.shake/.22):0;c.translate(-Math.round(this.camera.x)+Math.round((Math.random()-.5)*sk),-Math.round(this.camera.y)+Math.round((Math.random()-.5)*sk));
+c.drawImage(this.groundLayer(this.zone),0,0);
+const x0=Math.max(0,Math.floor(this.camera.x/T)),x1=Math.min(m.width,Math.ceil((this.camera.x+W)/T)+1),y0=Math.max(0,Math.floor(this.camera.y/T)),y1=Math.min(m.height,Math.ceil((this.camera.y+H)/T)+1);
+if(this.zone!=='temple'){c.fillStyle='rgba(159,228,216,.13)';for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++)if(m.tiles[y][x]===2){const wave=(Math.sin(this.elapsed*2+y+x)*3)|0;c.fillRect(x*T+4,y*T+14+wave,13,1);}}
 if(this.zone==='temple'){if(this.levers.size<2){c.fillStyle='#b58b52';c.fillRect(12*T,8*T,2*T,T);c.fillStyle='#684c3f';for(let x=12*T+4;x<14*T;x+=8)c.fillRect(x,8*T,3,T);}for(const prop of m.props.filter(a=>a.kind==='lever')){c.fillStyle=this.levers.has(prop.id)?'#7fdcc3':'#9e7cb0';c.fillRect(prop.x-12,prop.y-7,24,14);c.strokeStyle=this.levers.has(prop.id)?'#b6ffe8':'#dbc1e8';c.lineWidth=2;c.strokeRect(prop.x-13,prop.y-8,26,16);}}
-const drawable:{y:number;render:()=>void}[]=m.props.filter(a=>a.kind!=='lever').map(o=>({y:o.y,render:()=>{const index={tree:4,rock:5,bush:6,npc:10,chest:o.open?9:8,door:15,exit:15,relic:11}[o.kind as Exclude<Prop['kind'],'lever'>];if(o.kind==='relic'&&!this.bossDead){c.globalAlpha=.35;this.drawSprite(index,o.x,o.y,44);c.globalAlpha=1;}else this.drawSprite(index,o.x,o.y,o.kind==='tree'?68:o.kind==='door'||o.kind==='exit'?66:o.kind==='npc'?47:42);}}));
-for(const e of m.enemies){if(e.hp<=0)continue;drawable.push({y:e.y,render:()=>{if(e.hit>0&&Math.floor(this.elapsed*30)%2===0)c.globalAlpha=.6;const index=e.kind==='slime'?12:e.kind==='bat'?13:14;this.drawSprite(index,e.x,e.y+Math.sin(e.timer*6)*(e.kind==='bat'?4:1),e.kind==='boss'?87:42);c.globalAlpha=1;if(e.hp<e.maxHp||e.kind==='boss'&&this.levers.size===2){c.fillStyle='#1e2429';c.fillRect(e.x-17,e.y-38,34,4);c.fillStyle='#e6aa80';c.fillRect(e.x-17,e.y-38,34*e.hp/e.maxHp,4);}}});}
-drawable.push({y:p.y,render:()=>{if(p.hurt>0&&Math.floor(this.elapsed*14)%2===0)c.globalAlpha=.45;const cw=this.assets.hero.width/4,ch=this.assets.hero.height/4,frame=p.attack>0?3:p.walk>0?Math.floor(p.walk*8)%2+1:0;const row=dirs[p.dir].row;c.drawImage(this.assets.hero,frame*cw,row*ch,cw,ch,Math.round(p.x-25),Math.round(p.y-42),50,50);c.globalAlpha=1;if(p.attack>0){const d=dirs[p.dir];c.strokeStyle='#fff1b7';c.lineWidth=4;c.beginPath();c.arc(p.x,p.y-9,35,d.angle-.95,d.angle+.95);c.stroke();c.strokeStyle='#f5cb69';c.lineWidth=2;c.beginPath();c.arc(p.x,p.y-9,43,d.angle-.6,d.angle+.6);c.stroke();}}});drawable.sort((a,b)=>a.y-b.y).forEach(d=>d.render());
-for(const s of this.projectiles){c.fillStyle='#e4ad59';c.fillRect(s.x-4,s.y-4,8,8);c.fillStyle='#fff0b1';c.fillRect(s.x-2,s.y-2,4,4);}for(const f of this.particles){c.globalAlpha=Math.min(1,f.life*3);c.fillStyle=f.color;c.fillRect(f.x,f.y,3,3);}c.globalAlpha=1;c.restore();
-if(this.zone==='temple'){const gradient=c.createRadialGradient(W/2,H/2,80,W/2,H/2,600);gradient.addColorStop(0,'rgba(5,10,26,0)');gradient.addColorStop(1,'rgba(5,10,26,.5)');c.fillStyle=gradient;c.fillRect(0,0,W,H);}
+this.drawEffects(c,true);
+const visible=(x:number,y:number)=>x>this.camera.x-90&&x<this.camera.x+W+90&&y>this.camera.y-60&&y<this.camera.y+H+110;
+const tintAt=(x:number,y:number)=>this.zone==='world'?BIOMES[m.biome![Math.floor(y/T)]?.[Math.floor(x/T)]??'forest'].propFilter:this.zone==='temple'?'none':CAVE_FILTER[this.zone];
+const drawable:{y:number;render:()=>void}[]=m.props.filter(a=>a.kind!=='lever'&&visible(a.x,a.y)).map(o=>({y:o.y,render:()=>{const index={tree:4,rock:5,bush:6,npc:10,chest:o.open?9:8,door:15,exit:15,stairs:15,relic:11}[o.kind as Exclude<Prop['kind'],'lever'>];const filter=o.kind==='npc'?NPCS[o.id]?.tint??'none':o.kind==='door'?'none':o.kind==='stairs'&&o.needs==='bosskey'&&!this.bossKey?'brightness(.6) sepia(.4)':tintAt(o.x,o.y);if(o.kind==='relic'&&!this.bossDead){c.globalAlpha=.35;this.drawSprite(index,o.x,o.y,44);c.globalAlpha=1;}else this.drawSprite(index,o.x,o.y,o.kind==='tree'?68:o.kind==='door'||o.kind==='exit'||o.kind==='stairs'?66:o.kind==='npc'?47:42,filter,o.kind==='npc'?1:1,o.kind==='npc'?1+Math.sin(this.elapsed*2.4+o.x)*.02:1);if(o.kind==='chest'&&!o.open&&(o.item==='fragment'||o.item==='bosskey'||o.item==='heart')){c.globalAlpha=.5+.3*Math.sin(this.elapsed*4);c.fillStyle='#fff3b0';c.fillRect(o.x-2,o.y-44,4,4);c.globalAlpha=1;}}}));
+for(const e of m.enemies){if((e.hp<=0&&e.dying<=0)||!visible(e.x,e.y))continue;drawable.push({y:e.y,render:()=>this.drawEnemy(c,e)});}
+drawable.push({y:p.y,render:()=>this.drawHero(c)});drawable.sort((a,b)=>a.y-b.y).forEach(d=>d.render());
+for(const s of this.projectiles){c.fillStyle='#e4ad59';c.fillRect(s.x-4,s.y-4,8,8);c.fillStyle='#fff0b1';c.fillRect(s.x-2,s.y-2,4,4);}for(const f of this.particles){c.globalAlpha=Math.min(1,f.life*3);c.fillStyle=f.color;c.fillRect(f.x,f.y,3,3);}c.globalAlpha=1;
+this.drawEffects(c,false);
+c.font='bold 16px Georgia, serif';c.textAlign='center';for(const t of this.texts){c.globalAlpha=Math.min(1,t.life*2.5);c.fillStyle='#1a1410';c.fillText(t.text,t.x+1,t.y+1);c.fillStyle=t.color;c.fillText(t.text,t.x,t.y);}c.textAlign='start';c.globalAlpha=1;
+c.restore();
+if(this.zone!=='world'){const gradient=c.createRadialGradient(W/2,H/2,80,W/2,H/2,600);gradient.addColorStop(0,'rgba(5,10,26,0)');gradient.addColorStop(1,`rgba(5,10,26,${this.zone==='temple'?.5:.62})`);c.fillStyle=gradient;c.fillRect(0,0,W,H);}
+if(this.zone==='world'){this.drawWeather(c,W,H);if(this.screen!=='ready')this.drawMinimap(c,W);}
+if(p.flash>0){c.fillStyle=`rgba(200,40,40,${p.flash})`;c.fillRect(0,0,W,H);}
+this.drawBanner(c,W);
+if(this.rewinding&&this.history.length){c.fillStyle='rgba(60,40,110,.18)';c.fillRect(0,0,W,H);}
 }
 }

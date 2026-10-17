@@ -47,3 +47,4 @@ next-env.d.ts
 
 # referência externa (não versionar)
 moonpearl-main/
+/dist-pages/
