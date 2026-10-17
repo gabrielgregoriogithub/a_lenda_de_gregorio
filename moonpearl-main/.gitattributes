@@ -1,0 +1,7 @@
+* text=auto
+gradlew text eol=lf
+*.bat text eol=crlf
+*.bps binary
+*.jar binary
+*.patch text eol=lf
+app/src/main/assets/shaders/** text eol=lf
