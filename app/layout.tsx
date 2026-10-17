@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Vale da Lua — A Relíquia",
+  title: "A Lenda de Gregório — A Relíquia",
   description: "Uma aventura original em pixel art. Explore Elara, encontre a chave e recupere a Relíquia Lunar.",
   robots: { index: false, follow: false },
   icons: {
