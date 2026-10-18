@@ -171,7 +171,7 @@ for(let y=10;y<22;y++)if(y!==16)tiles[y][14]=4;
 props.push({kind:'stairs',id:'cit2-down',x:center(15),y:center(21),solid:true,to:'citadel1',ax:15,ay:3,label:'Descer à Galeria dos Ecos'});
 props.push({kind:'stairs',id:'cit2-up',x:center(15),y:center(2),solid:true,to:'citadel',ax:15,ay:22,label:'Entrar na Arena do Colosso'});
 props.push({kind:'lever',id:'cit2-lever-a',x:center(10),y:center(12),solid:false},{kind:'lever',id:'cit2-lever-b',x:center(20),y:center(12),solid:false},{kind:'barrier',id:'cit2-barrier',x:center(15),y:center(8),solid:true,by:['cit2-lever-a','cit2-lever-b']});
-props.push({kind:'chest',id:'cit2-crystals',x:center(25),y:center(18),solid:true,item:'crystals'},{kind:'shell',id:'cit2-shell',x:center(5),y:center(18),solid:false});
+props.push({kind:'chest',id:'cit2-crystals',x:center(25),y:center(18),solid:true,item:'crystals'});
 return{width,height,tiles,props,enemies:[entity('cit2-golem',22,5,'golem','sepia(.7) saturate(2) hue-rotate(-20deg)'),entity('cit2-wisp-a',7,14,'wisp',WISP_TINT),entity('cit2-wisp-b',22,16,'wisp',WISP_TINT),entity('cit2-spitter',9,18,'spitter',FIRE_SPITTER_TINT),entity('cit2-slime-a',10,17,'slime','sepia(.6) saturate(1.8) hue-rotate(-25deg)'),entity('cit2-slime-b',20,18,'slime','sepia(.6) saturate(1.8) hue-rotate(-25deg)')]};
 }
 export function makeMap(zone:Zone):GameMap{return zone==='world'?makeWorld(entity):zone==='north'?makeNorth(entity):zone==='citadel'?makeCitadel(entity,blankFloor):zone==='citadel1'?makeCitadel1():zone==='citadel2'?makeCitadel2():zone==='grotto'?makeGrotto():zone==='eclipse'?makeEclipse():zone==='bastion'?makeBastion():zone==='sanctum'?makeSanctum():zone==='aerie'?makeAerie():zone==='cave1'?makeCave1():zone==='cave2'?makeCave2():makeTemple();}
