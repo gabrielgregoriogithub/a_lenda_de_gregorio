@@ -39,7 +39,7 @@ export function makeNorth(entity:MakeEntity):GameMap{
   const props:Prop[]=[];const pois:{x:number;y:number;r:number}[]=[];
   const add=(kind:Prop['kind'],x:number,y:number,id:string,extra:Partial<Prop>={})=>{props.push({kind,x:center(x),y:center(y),id,solid:kind!=='relic',...extra});pois.push({x:Math.round(x),y:Math.round(y),r:kind==='npc'?2:3});};
   add('stairs',15,46,'north-exit',{to:'world',ax:NORTH_GATE.x,ay:NORTH_GATE.y+1.6,label:'Voltar ao Vale de Elara'});
-  add('stairs',48,9,'citadel-door',{to:'citadel',ax:15,ay:22.5,label:'Entrar na Cidadela da Aurora'});
+  add('stairs',48,9,'citadel-door',{to:'citadel1',ax:15,ay:21,label:'Entrar na Cidadela da Aurora'});
   add('stairs',8,20,'grotto-door',{to:'grotto',ax:4,ay:20,label:'Descer à Gruta da Maré'});
   add('npc',18,42,'guardia');add('npc',44,37,'astronomo');
   add('chest',6,31,'boots-chest',{item:'boots',guard:'k-boots'});
