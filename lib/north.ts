@@ -75,10 +75,11 @@ export function makeCitadel(entity:MakeEntity,blankFloor:(w:number,h:number)=>nu
   const W=30,H=26,tiles=blankFloor(W,H),props:Prop[]=[];
   const fill=(x0:number,y0:number,x1:number,y1:number,t:number)=>{for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++)tiles[y][x]=t;};
   for(let x=1;x<W-1;x++)if(x!==14&&x!==15)tiles[10][x]=4;
-  fill(9,14,20,16,6);fill(23,11,24,24,2);fill(1,17,5,18,7);fill(4,3,6,5,7);fill(23,3,25,5,7);
+  fill(9,14,20,16,6);fill(23,11,24,24,2);fill(5,7,24,8,2);fill(1,17,5,18,7);fill(4,3,6,5,7);fill(23,3,25,5,7);
   props.push({kind:'stairs',id:'citadel-exit',x:center(14.5),y:center(24),solid:true,to:'north',ax:48,ay:12.5,label:'Sair da Cidadela'});
   props.push({kind:'torch',id:'cit-brazier-a',x:center(3),y:center(12),solid:true},{kind:'torch',id:'cit-brazier-b',x:center(27),y:center(12),solid:true});
   props.push({kind:'barrier',id:'cit-barrier',x:center(14),y:center(10),solid:true,by:['cit-brazier-a','cit-brazier-b']},{kind:'barrier',id:'cit-barrier-b',x:center(15),y:center(10),solid:true,by:['cit-brazier-a','cit-brazier-b']});
+  props.push({kind:'iceSeal',id:'cit-ice-core',x:center(14.5),y:center(8),solid:true},{kind:'barrier',id:'cit-ice-bridge',x:center(14.5),y:center(8),solid:true,by:['cit-ice-core']});
   props.push({kind:'chest',id:'cit-heart',x:center(2),y:center(23),solid:true,item:'heart'},{kind:'chest',id:'cit-potion',x:center(27),y:center(23),solid:true,item:'potion'});
   props.push({kind:'relic',id:'aurora-crown',x:center(14.5),y:center(2),solid:false});
   props.push({kind:'rock',id:'cit-pillar-a',x:center(9),y:center(6),solid:true},{kind:'rock',id:'cit-pillar-b',x:center(20),y:center(6),solid:true});
