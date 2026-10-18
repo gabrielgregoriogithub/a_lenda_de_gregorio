@@ -3,7 +3,7 @@
 import type {Entity,GameMap,Prop} from './adventure';
 import {hash,smooth,type Biome} from './world';
 
-type MakeEntity=(id:string,x:number,y:number,kind:Entity['kind'],tint?:string)=>Entity;
+type MakeEntity=(id:string,x:number,y:number,kind:Entity['kind'],tint?:string,bossAsset?:number)=>Entity;
 export const NORTH_W=64,NORTH_H=48;
 export const FIRE_SPITTER_TINT='hue-rotate(-60deg) saturate(2.2) brightness(1.05)';
 export const KNIGHT_TINT='grayscale(.85) brightness(1.35) contrast(1.1)';
@@ -83,5 +83,5 @@ export function makeCitadel(entity:MakeEntity,blankFloor:(w:number,h:number)=>nu
   props.push({kind:'chest',id:'cit-heart',x:center(2),y:center(23),solid:true,item:'heart'},{kind:'chest',id:'cit-potion',x:center(27),y:center(23),solid:true,item:'potion'});
   props.push({kind:'relic',id:'aurora-crown',x:center(14.5),y:center(2),solid:false});
   props.push({kind:'rock',id:'cit-pillar-a',x:center(9),y:center(6),solid:true},{kind:'rock',id:'cit-pillar-b',x:center(20),y:center(6),solid:true});
-  return{width:W,height:H,tiles,props,enemies:[entity('cit-knight-a',6,20,'knight',KNIGHT_TINT),entity('cit-knight-b',20,20,'knight',KNIGHT_TINT),entity('cit-wisp-a',8,12,'wisp',WISP_TINT),entity('cit-wisp-b',21,12,'wisp',WISP_TINT),entity('cit-spitter',4,21,'spitter',FIRE_SPITTER_TINT),entity('colossus',14.5,4.5,'colossus',COLOSSUS_TINT)]};
+  return{width:W,height:H,tiles,props,enemies:[entity('cit-knight-a',6,20,'knight',KNIGHT_TINT),entity('cit-knight-b',20,20,'knight',KNIGHT_TINT),entity('cit-wisp-a',8,12,'wisp',WISP_TINT),entity('cit-wisp-b',21,12,'wisp',WISP_TINT),entity('cit-spitter',4,21,'spitter',FIRE_SPITTER_TINT),entity('colossus',14.5,4.5,'colossus',COLOSSUS_TINT,0)]};
 }
