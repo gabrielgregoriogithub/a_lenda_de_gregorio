@@ -111,6 +111,7 @@ for(let y=2;y<22;y++){tiles[y][9]=y%3===0?4:2;tiles[y][24]=y%4===0?4:2;}
 for(let x=10;x<24;x++)tiles[6][x]=x%3===0?4:7;
 for(let x=3;x<31;x++)if(x!==17&&x!==18)tiles[17][x]=4;
 fill(tiles,12,19,21,21,6);
+for(const [x,y] of [[4,4],[5,4],[4,5],[29,8],[30,8],[29,9],[5,14],[6,14],[28,14],[29,14]])tiles[y][x]=4;
 props.push({kind:'stairs',id:'eclipse-return',x:center(3),y:center(21),solid:true,to:'citadel',ax:15,ay:22,label:'Voltar à Arena do Colosso'});
 props.push({kind:'chest',id:'eclipse-light',x:center(6),y:center(20),solid:true,item:'light'},{kind:'chest',id:'eclipse-boots',x:center(6),y:center(4),solid:true,item:'swift-boots'},{kind:'chest',id:'eclipse-lightning',x:center(28),y:center(4),solid:true,item:'wand-lightning'});
 props.push({kind:'totem',id:'eclipse-mirror-a',x:center(10),y:center(4),solid:true,target:'eclipse-mirror-b',mirrorAngle:45},{kind:'totem',id:'eclipse-mirror-b',x:center(15),y:center(8),solid:true,target:'eclipse-mirror-c',mirrorAngle:45},{kind:'totem',id:'eclipse-mirror-c',x:center(20),y:center(4),solid:true,target:'eclipse-totem',mirrorAngle:45},{kind:'totem',id:'eclipse-totem',x:center(24),y:center(4),solid:true});
@@ -123,6 +124,7 @@ for(let x=2;x<34;x++)if(x!==10&&x!==11&&x!==25&&x!==26)tiles[8][x]=4;
 for(let y=2;y<23;y++)if(y!==14)tiles[y][18]=4;
 for(let x=4;x<32;x++)if(x!==18&&x!==19)tiles[18][x]=2;
 fill(tiles,23,20,31,22,6);
+for(const [x,y] of [[4,3],[5,3],[4,4],[31,3],[32,3],[31,4],[5,21],[6,21],[30,21],[31,21]])tiles[y][x]=4;
 props.push({kind:'stairs',id:'bastion-return',x:center(3),y:center(22),solid:true,to:'eclipse',ax:3,ay:20,label:'Voltar ao Caminho do Eclipse'});
 props.push({kind:'chest',id:'bastion-armor',x:center(6),y:center(4),solid:true,item:'armor'},{kind:'chest',id:'bastion-gloves',x:center(29),y:center(4),solid:true,item:'gloves'},{kind:'chest',id:'bastion-cloak',x:center(6),y:center(14),solid:true,item:'cloak'},{kind:'chest',id:'bastion-heart',x:center(30),y:center(14),solid:true,item:'heart'});
 for(const [id,x,y] of [['bastion-rock-a',12,5],['bastion-rock-b',13,5],['bastion-rock-c',22,14],['bastion-rock-d',23,14]] as const)props.push({kind:'rock',id,x:center(x),y:center(y),solid:true,pushable:true});
@@ -134,6 +136,7 @@ const width=32,height=23,tiles:number[][]=blankFloor(width,height),props:Prop[]=
 for(let x=3;x<29;x++)if(x!==15&&x!==16)tiles[7][x]=4;
 for(let y=3;y<20;y++)if(y!==11&&y!==12)tiles[y][15]=4;
 fill(tiles,4,16,12,18,6);fill(tiles,20,3,27,5,2);
+for(const [x,y] of [[4,5],[5,5],[26,5],[27,5],[4,17],[5,17],[27,18],[28,18]])tiles[y][x]=4;
 props.push({kind:'stairs',id:'sanctum-return',x:center(3),y:center(20),solid:true,to:'bastion',ax:3,ay:22,label:'Voltar ao Bastião das Pedras'});
 props.push({kind:'chest',id:'sanctum-repulse',x:center(6),y:center(4),solid:true,item:'wand-repulse'});
 props.push({kind:'rock',id:'sanctum-orb',x:center(10),y:center(11),solid:true,pushable:true,target:'sanctum-button'});
@@ -147,6 +150,7 @@ const width=34,height=23,tiles:number[][]=blankFloor(width,height),props:Prop[]=
 for(let x=3;x<31;x++)tiles[11][x]=2;
 for(let y=2;y<21;y++)if(y!==11){tiles[y][3]=4;tiles[y][30]=4;}
 fill(tiles,5,3,11,5,6);fill(tiles,23,16,29,19,6);
+for(const [x,y] of [[5,7],[6,7],[27,7],[28,7],[8,18],[9,18],[24,20],[25,20]])tiles[y][x]=4;
 props.push({kind:'stairs',id:'aerie-return',x:center(3),y:center(20),solid:true,to:'sanctum',ax:3,ay:20,label:'Voltar ao Santuário da Repulsão'});
 props.push({kind:'chest',id:'aerie-missile',x:center(7),y:center(4),solid:true,item:'wand-missile'});
 for(let x=13;x<=21;x++)props.push({kind:'barrier',id:`aerie-bridge-${x}`,x:center(x),y:center(11),solid:false,open:false});
