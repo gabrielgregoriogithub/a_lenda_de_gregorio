@@ -16,7 +16,7 @@ Gregório começa no **Bosque de Elara**. Ao redor dele ficam as **Ruínas da Lu
 
 | Ação | Teclado | Controle |
 |---|---|---|
-| Mover | WASD / setas | Analógico / direcional |
+| Mover | WASD / setas (no celular: joystick) | Analógico / direcional |
 | Espada | J / Espaço | A |
 | Golpe giratório | segurar J e soltar | segurar A |
 | Atirar flecha (depois de achar o arco) | L | clique do analógico direito |

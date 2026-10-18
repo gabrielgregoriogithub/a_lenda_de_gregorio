@@ -19,6 +19,7 @@ export const BIOMES:Record<Biome,BiomeStyle>={
   ruins:{name:'Ruínas da Lua',ground:3,filter:'brightness(1.45) saturate(.65) sepia(.18)',pathFilter:NONE,propFilter:'saturate(.8)',enemyFilter:'grayscale(.5)',waterFilter:NONE,wallFilter:'brightness(.9)',mini:'#7d8396',music:[220,261.63,329.63,293.66,246.94,220,196,246.94]},
   canyon:{name:'Desfiladeiro Rubro',ground:1,filter:'sepia(.6) saturate(1.55) hue-rotate(-22deg) brightness(.9)',pathFilter:'sepia(.3) brightness(.95)',propFilter:'sepia(.6) saturate(1.3) hue-rotate(-20deg)',enemyFilter:'hue-rotate(-115deg) saturate(1.3)',waterFilter:NONE,wallFilter:'sepia(1) saturate(1.4) hue-rotate(-18deg) brightness(.82)',mini:'#a9643b',music:[207.65,246.94,311.13,277.18,246.94,207.65,185,207.65]},
 };
+export const SPITTER_TINT='hue-rotate(250deg) saturate(1.7) brightness(.9)';
 const LAYOUT:Biome[][]=[['snow','ruins','autumn'],['desert','forest','lake'],['canyon','village','swamp']];
 
 // Ruído determinístico (sem Math.random) para o mundo ser sempre o mesmo e caber num save.
@@ -36,7 +37,7 @@ export const NPCS:Record<string,NpcInfo>={
   iris:{name:'Iris, guardiã do vale',tint:NONE,talk:({hasKey,fragments})=>!hasKey?'Gregório, o brilho da lua sumiu do vale. A Chave Lunar está num baú aqui no Bosque de Elara, a leste da estrada. Use K para dar um salto longo sobre a água. Depois, recupere os três Fragmentos Lunares espalhados pelo mundo: no Deserto do Sol, nas Montanhas Geladas e no Pântano Sombrio.':fragments<3?`Você tem a chave! Agora faltam ${3-fragments} Fragmento(s) Lunar(es). Golems de pedra guardam cada um deles. Use a esquiva (Shift) quando eles avançarem.`:'Os três fragmentos brilham com você. Siga a estrada para o norte até as Ruínas da Lua e desça pelos três andares do Templo.'},
   ferreiro:{name:'Ferreiro da Vila',tint:'hue-rotate(-150deg) saturate(.7)',talk:()=>'Seu pai forjou essa espada, Gregório! Ao sul do mundo fica o Pântano a leste e o Desfiladeiro a oeste. Há baús escondidos em cada canto do vale.'},
   sabio:{name:'Sábio do Oásis',tint:'hue-rotate(150deg) saturate(.8)',talk:({fragments})=>fragments<3?'O Fragmento do Sol está nas ruínas a sudoeste do oásis. Um golem de areia não dorme nunca.':'O sol do deserto agradece, jovem.'},
-  pescadora:{name:'Pescadora do Lago',tint:'hue-rotate(-120deg)',talk:()=>'Há um baú na ilha no meio do lago. Atravesse a ponte e pegue o Coração Lunar: sua vida vai aumentar.'},
+  pescadora:{name:'Pescadora do Lago',tint:'hue-rotate(-120deg)',talk:()=>'Há um baú na ilha no meio do lago. Atravesse a ponte e pegue o Coração Lunar: sua vida vai aumentar. E se achar Conchas Lunares brilhando pelo vale, traga para mim!'},
   eremita:{name:'Eremita da Neve',tint:'hue-rotate(60deg) brightness(1.1)',talk:()=>'Brrr... o Fragmento do Gelo fica no topo das montanhas, a noroeste. Leve poções, o frio não perdoa.'},
   guarda:{name:'Guardião das Ruínas',tint:'hue-rotate(-40deg) saturate(.6)',talk:({hasKey,fragments})=>hasKey&&fragments===3?'A porta reconhece a Chave Lunar e os três fragmentos. Entre, herói.':'O Templo só se abre para quem traz a Chave Lunar e os três Fragmentos Lunares.'},
   lenhadora:{name:'Lenhadora do Outono',tint:'hue-rotate(95deg)',talk:()=>'Deixei o arco do meu pai num baú perto da estrada, a noroeste daqui. Fica com ele, Gregório: lá no templo vai fazer falta. E há outro baú com poções no fundo da floresta, a nordeste.'},
@@ -93,6 +94,12 @@ export function makeWorld(entity:(id:string,x:number,y:number,kind:Entity['kind'
   add('door',47,4,'temple-door',{solid:true});
   pois.push({x:48,y:60,r:5},{x:46,y:42,r:4});
   for(const p of pois)for(let y=p.y-1;y<=p.y+1;y++)for(let x=p.x-1;x<=p.x+1;x++)if(inside(x,y)&&(tiles[y][x]===4||tiles[y][x]===2)&&!(p.x===80&&p.y===36))tiles[y][x]=biome[y][x]==='ruins'?0:1;
+  // 4b. Conchas Lunares: a da ilha do lago e uma em chão livre de cada região (mais duas extras), longe das estradas
+  const shellSpots:number[][]=[[81,37]];
+  const roadless=(x:number,y:number)=>[-2,-1,0,1,2].every(dy=>[-2,-1,0,1,2].every(dx=>{const t=tiles[y+dy]?.[x+dx];return t!==1&&t!==5;}));
+  const free=(x:number,y:number)=>tiles[y]?.[x]===0&&!(x>=38&&x<=58&&y<=14)&&roadless(x,y)&&pois.every(p=>Math.abs(p.x-x)>4||Math.abs(p.y-y)>4)&&shellSpots.every(([sx,sy])=>Math.abs(sx-x)+Math.abs(sy-y)>10);
+  ([...LAYOUT.flat(),'canyon','snow'] as Biome[]).forEach((b,i)=>{const ry=LAYOUT.findIndex(r=>r.includes(b)),rx=LAYOUT[ry].indexOf(b);for(let k=0;k<600;k++){const x=rx*CELL_W+3+Math.floor(hash(k,i,11)*(CELL_W-6)),y=ry*CELL_H+3+Math.floor(hash(k,i,12)*(CELL_H-6));if(biome[y][x]===b&&free(x,y)){shellSpots.push([x,y]);break;}}});
+  shellSpots.forEach(([x,y],i)=>{props.push({kind:'shell',x:center(x),y:center(y),id:`shell-${i}`,solid:false});pois.push({x,y,r:1});});
   // 5. borda de árvores e vegetação por região
   for(let x=1;x<W-1;x++){if(Math.abs(x-48)>2){props.push({kind:'tree',x:center(x),y:center(1),id:`border-n-${x}`,solid:true});}props.push({kind:'tree',x:center(x),y:center(H-2),id:`border-s-${x}`,solid:true});}
   for(let y=3;y<H-2;y+=2){props.push({kind:'tree',x:center(1),y:center(y),id:`border-w-${y}`,solid:true});props.push({kind:'tree',x:center(W-2),y:center(y),id:`border-e-${y}`,solid:true});}
@@ -109,8 +116,8 @@ export function makeWorld(entity:(id:string,x:number,y:number,kind:Entity['kind'
   for(const[x,y]of[[47,20],[48,20],[47,44],[48,44],[24,36],[25,36],[62,28],[63,28]])props.push({kind:'bush',x:center(x),y:center(y),id:`gate-bush-${x}-${y}`,solid:true});
   // 6. inimigos: slimes e morcegos tingidos pela região, golems guardando os fragmentos
   const enemies:Entity[]=[];
-  const counts:Record<Biome,[number,number]>={village:[0,0],forest:[5,1],lake:[3,1],desert:[4,0],snow:[3,2],autumn:[4,1],swamp:[3,3],ruins:[2,2],canyon:[2,3]};
-  LAYOUT.forEach((row,ry)=>row.forEach((b,rx)=>{const[slimes,bats]=counts[b];let placed=0;for(let i=0;placed<slimes+bats&&i<400;i++){const x=rx*CELL_W+3+Math.floor(hash(i,ry*3+rx,8)*(CELL_W-6)),y=ry*CELL_H+3+Math.floor(hash(i,ry*3+rx,9)*(CELL_H-6));if(tiles[y][x]!==0&&tiles[y][x]!==1&&tiles[y][x]!==3)continue;if(Math.abs(x-46)<10&&Math.abs(y-42)<8)continue;if(biome[y][x]!==b||props.some(p=>p.solid&&Math.abs(p.x-center(x))<40&&Math.abs(p.y-center(y))<40))continue;const kind=placed<slimes?'slime':'bat';enemies.push(entity(`${b}-${kind}-${placed}`,x,y,kind,BIOMES[b].enemyFilter));placed++;}}));
+  const counts:Record<Biome,[number,number,number]>={village:[0,0,0],forest:[5,1,0],lake:[3,1,1],desert:[4,0,2],snow:[3,2,1],autumn:[4,1,1],swamp:[3,3,2],ruins:[2,2,2],canyon:[2,3,2]};
+  LAYOUT.forEach((row,ry)=>row.forEach((b,rx)=>{const[slimes,bats,spitters]=counts[b];let placed=0;for(let i=0;placed<slimes+bats+spitters&&i<400;i++){const x=rx*CELL_W+3+Math.floor(hash(i,ry*3+rx,8)*(CELL_W-6)),y=ry*CELL_H+3+Math.floor(hash(i,ry*3+rx,9)*(CELL_H-6));if(tiles[y][x]!==0&&tiles[y][x]!==1&&tiles[y][x]!==3)continue;if(Math.abs(x-46)<10&&Math.abs(y-42)<8)continue;if(biome[y][x]!==b||props.some(p=>p.solid&&Math.abs(p.x-center(x))<40&&Math.abs(p.y-center(y))<40))continue;const kind=placed<slimes?'slime':placed<slimes+bats?'bat':'spitter';enemies.push(entity(`${b}-${kind}-${placed}`,x,y,kind,kind==='spitter'?SPITTER_TINT:BIOMES[b].enemyFilter));placed++;}}));
   enemies.push(entity('golem-desert',12,44,'golem',BIOMES.desert.wallFilter),entity('golem-snow',13,7,'golem',BIOMES.snow.wallFilter),entity('golem-swamp',86,66,'golem',BIOMES.swamp.wallFilter));
   return{width:W,height:H,tiles,props,enemies,biome};
 }
