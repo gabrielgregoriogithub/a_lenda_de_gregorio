@@ -37,7 +37,7 @@ function setHelpOpen(on:boolean){if(on){wasPlaying.current=engine.current?.scree
 function openMenu(){if(!engine.current||!['playing','paused'].includes(engine.current.screen))return;wasPlaying.current=engine.current.screen==='playing';engine.current.pause();setSlots([1,2,3].map(i=>readStore<SaveMeta>(`slot${i}`)));setMenu(true);}
 function closeMenu(){setMenu(false);if(wasPlaying.current)engine.current?.resume();canvas.current?.focus();}
 function toggleMenu(){if(menu)closeMenu();else openMenu();}
-function openInventory(){if(!menu)openMenu();setTab('inventory');}
+function openInventory(){if(menu&&tab==='inventory'){closeMenu();return;}if(!menu)openMenu();setTab('inventory');}
 function saveSlot(i:number){const meta=snapshotMeta();if(!meta)return;if(writeStore(`slot${i}`,meta)){setSlots(s=>s.map((v,j)=>j===i-1?meta:v));engine.current?.message(`Jornada salva no espaço ${i}.`);}else engine.current?.message('Não foi possível salvar neste navegador.');}
 function loadSave(meta:SaveMeta|null){if(!meta||!engine.current)return;if(engine.current.load(meta.data)){wasPlaying.current=false;setMenu(false);canvas.current?.focus();}}
 function deleteSlot(i:number){removeStore(`slot${i}`);setSlots(s=>s.map((v,j)=>j===i-1?null:v));}
