@@ -1,5 +1,6 @@
 import {BIOMES,NPCS,makeWorld,type Biome} from './world';
 export const T=32;
+const ZOOM=1.3;
 export type Direction='up'|'down'|'left'|'right';
 export type Zone='world'|'cave1'|'cave2'|'temple';
 export type Entity={id:string;x:number;y:number;hp:number;maxHp:number;kind:'slime'|'bat'|'boss'|'golem';timer:number;hit:number;homeX:number;homeY:number;tint?:string;vx:number;vy:number;flash:number;dying:number};
@@ -242,8 +243,8 @@ c.globalAlpha=.25*alpha;c.fillStyle='#000';c.beginPath();c.ellipse(e.x,e.y+5,siz
 c.globalAlpha=alpha*(e.hit>0&&e.flash<=0&&Math.floor(this.elapsed*30)%2===0?.7:1);this.drawSprite(index,e.x,e.y+yo,size,e.tint??'none',sx,sy);
 if(e.flash>0||e.dying>.25){c.globalAlpha=e.dying>0?Math.min(1,(e.dying-.25)/.15):Math.min(1,e.flash/.12);this.drawSprite(index,e.x,e.y+yo,size,WHITE,sx,sy);}c.globalAlpha=1;
 if(e.dying<=0&&(e.hp<e.maxHp||e.kind==='boss'&&this.levers.size===2||e.kind==='golem')){const by=e.y-(e.kind==='golem'?58:e.kind==='boss'?62:38);c.fillStyle='#1e2429';c.fillRect(e.x-17,by,34,4);c.fillStyle='#e6aa80';c.fillRect(e.x-17,by,34*e.hp/e.maxHp,4);}}
-draw(){const c=this.ctx,p=this.player,m=this.map,W=this.canvas.width,H=this.canvas.height;c.imageSmoothingEnabled=false;this.camera.x=m.width*T<W?(m.width*T-W)/2:Math.max(0,Math.min(m.width*T-W,p.x-W/2));this.camera.y=m.height*T<H?(m.height*T-H)/2:Math.max(0,Math.min(m.height*T-H,p.y-H/2));c.fillStyle=this.zone==='world'?'#285336':'#0d1420';c.fillRect(0,0,W,H);c.save();
-const sk=this.shake>0?this.shakePower*(this.shake/.22):0;c.translate(-Math.round(this.camera.x)+Math.round((Math.random()-.5)*sk),-Math.round(this.camera.y)+Math.round((Math.random()-.5)*sk));
+draw(){const c=this.ctx,p=this.player,m=this.map,W=this.canvas.width/ZOOM,H=this.canvas.height/ZOOM;c.imageSmoothingEnabled=false;this.camera.x=m.width*T<W?(m.width*T-W)/2:Math.max(0,Math.min(m.width*T-W,p.x-W/2));this.camera.y=m.height*T<H?(m.height*T-H)/2:Math.max(0,Math.min(m.height*T-H,p.y-H/2));c.fillStyle=this.zone==='world'?'#285336':'#0d1420';c.fillRect(0,0,this.canvas.width,this.canvas.height);c.save();c.scale(ZOOM,ZOOM);
+const sk=this.shake>0?this.shakePower*(this.shake/.22):0;c.translate(-Math.round(this.camera.x*ZOOM)/ZOOM+Math.round((Math.random()-.5)*sk),-Math.round(this.camera.y*ZOOM)/ZOOM+Math.round((Math.random()-.5)*sk));
 c.drawImage(this.groundLayer(this.zone),0,0);
 const x0=Math.max(0,Math.floor(this.camera.x/T)),x1=Math.min(m.width,Math.ceil((this.camera.x+W)/T)+1),y0=Math.max(0,Math.floor(this.camera.y/T)),y1=Math.min(m.height,Math.ceil((this.camera.y+H)/T)+1);
 if(this.zone!=='temple'){c.fillStyle='rgba(159,228,216,.13)';for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++)if(m.tiles[y][x]===2){const wave=(Math.sin(this.elapsed*2+y+x)*3)|0;c.fillRect(x*T+4,y*T+14+wave,13,1);}}
@@ -258,10 +259,11 @@ for(const s of this.projectiles){c.fillStyle='#e4ad59';c.fillRect(s.x-4,s.y-4,8,
 this.drawEffects(c,false);
 c.font='bold 16px Georgia, serif';c.textAlign='center';for(const t of this.texts){c.globalAlpha=Math.min(1,t.life*2.5);c.fillStyle='#1a1410';c.fillText(t.text,t.x+1,t.y+1);c.fillStyle=t.color;c.fillText(t.text,t.x,t.y);}c.textAlign='start';c.globalAlpha=1;
 c.restore();
+{const W=this.canvas.width,H=this.canvas.height;
 if(this.zone!=='world'){const gradient=c.createRadialGradient(W/2,H/2,80,W/2,H/2,600);gradient.addColorStop(0,'rgba(5,10,26,0)');gradient.addColorStop(1,`rgba(5,10,26,${this.zone==='temple'?.5:.62})`);c.fillStyle=gradient;c.fillRect(0,0,W,H);}
 if(this.zone==='world'){this.drawWeather(c,W,H);if(this.screen!=='ready')this.drawMinimap(c,W);}
 if(p.flash>0){c.fillStyle=`rgba(200,40,40,${p.flash})`;c.fillRect(0,0,W,H);}
 this.drawBanner(c,W);
 if(this.rewinding&&this.history.length){c.fillStyle='rgba(60,40,110,.18)';c.fillRect(0,0,W,H);}
-}
+}}
 }
