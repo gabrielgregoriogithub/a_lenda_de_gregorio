@@ -39,7 +39,7 @@ export const NPCS:Record<string,NpcInfo>={
   pescadora:{name:'Pescadora do Lago',tint:'hue-rotate(-120deg)',talk:()=>'Há um baú na ilha no meio do lago. Atravesse a ponte e pegue o Coração Lunar: sua vida vai aumentar.'},
   eremita:{name:'Eremita da Neve',tint:'hue-rotate(60deg) brightness(1.1)',talk:()=>'Brrr... o Fragmento do Gelo fica no topo das montanhas, a noroeste. Leve poções, o frio não perdoa.'},
   guarda:{name:'Guardião das Ruínas',tint:'hue-rotate(-40deg) saturate(.6)',talk:({hasKey,fragments})=>hasKey&&fragments===3?'A porta reconhece a Chave Lunar e os três fragmentos. Entre, herói.':'O Templo só se abre para quem traz a Chave Lunar e os três Fragmentos Lunares.'},
-  lenhadora:{name:'Lenhadora do Outono',tint:'hue-rotate(95deg)',talk:()=>'Escondi um baú com poções no fundo da floresta, a nordeste. Pode pegar, você vai precisar.'},
+  lenhadora:{name:'Lenhadora do Outono',tint:'hue-rotate(95deg)',talk:()=>'Deixei o arco do meu pai num baú perto da estrada, a noroeste daqui. Fica com ele, Gregório: lá no templo vai fazer falta. E há outro baú com poções no fundo da floresta, a nordeste.'},
   bruxa:{name:'Bruxa do Pântano',tint:'hue-rotate(200deg) brightness(.85)',talk:({fragments})=>fragments<3?'Hihihi... o Fragmento da Névoa está a leste, além dos charcos. Cuidado com os morcegos.':'Hihihi... vá logo, a lua não espera.'},
 };
 
@@ -87,6 +87,7 @@ export function makeWorld(entity:(id:string,x:number,y:number,kind:Entity['kind'
   add('chest',88,66,'frag-swamp',{item:'fragment',guard:'golem-swamp'});
   add('chest',80,36,'heart-chest',{item:'heart'});
   add('chest',84,7,'potion-chest',{item:'potion'});
+  add('chest',72,19,'bow-chest',{item:'bow'});
   add('chest',7,66,'crystal-chest',{item:'crystals'});
   add('chest',24,50,'canyon-chest',{item:'potion'});
   add('door',47,4,'temple-door',{solid:true});

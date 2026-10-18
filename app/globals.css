@@ -19,3 +19,6 @@
 @media(max-width:600px){.hearts{display:grid;grid-template-columns:repeat(7,13px);gap:1px}.hearts svg{width:13px;height:13px}.shop-item{flex-wrap:nowrap}.shop-item .ghost-button{min-width:70px;padding:6px 8px}}
 .zoom-controls{position:absolute;right:10px;bottom:10px;z-index:2;display:flex;align-items:center;gap:2px;background:#15242bd9;border:1px solid #8b9879;border-radius:6px;padding:2px}.zoom-controls button{width:32px;height:30px;display:grid;place-items:center;background:transparent;border:0;border-radius:4px;color:#e8e7d2;touch-action:manipulation}.zoom-controls button:hover:not(:disabled){background:#2c3d3a}.zoom-controls button:disabled{opacity:.35;cursor:default}.zoom-controls span{font-family:monospace;font-size:11px;color:#c9d3c4;min-width:34px;text-align:center}
 @media(max-width:600px){.zoom-controls{right:6px;bottom:6px}.zoom-controls button{width:34px;height:32px}.zoom-controls span{min-width:30px;font-size:10px}}
+.arrow-badge{filter:drop-shadow(0 0 3px currentColor)}.touch-actions button:disabled{opacity:.4}
+@media(max-width:600px){.hud{gap:5px;padding:0 6px}.hud-items{gap:5px}.hud-items>span{gap:3px}.hud-controls{gap:4px}}
+@media(max-width:380px){.hearts{grid-template-columns:repeat(7,11px)}.hearts svg{width:11px;height:11px}.hud-items svg{width:12px}.hud-items b{font-size:11px}.hud-controls>button{padding:1px}}
