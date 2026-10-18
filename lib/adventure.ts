@@ -1,6 +1,6 @@
 import {BIOMES,NPCS,makeWorld,type Biome} from './world';
 export const T=32;
-const ZOOM=1.3;
+export const ZOOM_STEPS=[1,1.15,1.3,1.5,1.75,2];
 export type Direction='up'|'down'|'left'|'right';
 export type Zone='world'|'cave1'|'cave2'|'temple';
 export type Entity={id:string;x:number;y:number;hp:number;maxHp:number;kind:'slime'|'bat'|'boss'|'golem';timer:number;hit:number;homeX:number;homeY:number;tint?:string;vx:number;vy:number;flash:number;dying:number};
@@ -81,7 +81,7 @@ player=freshPlayer();
 camera={x:0,y:0};keys=new Set<string>();coins=0;potions=2;hasKey=false;met=false;entered=false;levers=new Set<string>();bossDead=false;defeated=0;elapsed=0;notice='';noticeTime=0;dialog='';dialogTitle='';
 fragments=new Set<string>();bossKey=false;deepest=0;region:Biome='forest';banner='';bannerTime=0;checkpoint={...SPAWN};
 cheats:Cheats={life:false,walls:false};history:string[]=[];historyTimer=0;rewinding=false;rewindFrame=0;fast=false;fastSpeed=3;padKeys=new Set<string>();
-freeze=0;shake=0;shakePower=0;stepTimer=0;shopOpen=false;sword=1;heartsBought=0;pickups:Pickup[]=[];
+freeze=0;shake=0;shakePower=0;stepTimer=0;shopOpen=false;sword=1;heartsBought=0;pickups:Pickup[]=[];zoom=1.3;
 particles:{x:number;y:number;vx:number;vy:number;life:number;color:string}[]=[];projectiles:{x:number;y:number;vx:number;vy:number;life:number}[]=[];effects:Effect[]=[];texts:FloatText[]=[];
 variants=new Map<string,CanvasImageSource>();ground=new Map<Zone,HTMLCanvasElement>();minimap:HTMLCanvasElement|null=null;heroWhite:HTMLCanvasElement|null=null;
 raf=0;lastTime=0;lastEmit=0;disposed=false;audio:AudioContext|null=null;sound=false;musicTimer=0;musicStep=0;
@@ -165,6 +165,7 @@ retry(){const p=this.player;p.hp=p.maxHp;p.hurt=2;p.x=this.checkpoint.x;p.y=this
 restart(){this.maps=freshMaps();this.indexMaps();this.zone='world';this.player=freshPlayer();this.coins=0;this.potions=2;this.hasKey=false;this.met=false;this.entered=false;this.levers.clear();this.bossDead=false;this.defeated=0;this.elapsed=0;this.particles=[];this.projectiles=[];this.effects=[];this.texts=[];this.dialog='';this.shopOpen=false;this.sword=1;this.heartsBought=0;this.pickups=[];this.fragments.clear();this.bossKey=false;this.deepest=0;this.region='forest';this.checkpoint={...SPAWN};this.history=[];this.screen='playing';this.keys.clear();this.showBanner();this.message('Uma nova jornada começa. Converse com Iris.');}
 setCheat(name:keyof Cheats,on:boolean){this.cheats={...this.cheats,[name]:on};this.emit();}
 fillWallet(){this.coins=999;this.emit();}
+setZoom(z:number){this.zoom=Math.min(2,Math.max(1,z));this.draw();}
 
 /* ---------- efeitos (quadros intermediários gerados por código) ---------- */
 burst(x:number,y:number,color:string,n:number){for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2,s=20+Math.random()*75;this.particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:.25+Math.random()*.5,color});}}
@@ -270,8 +271,8 @@ c.globalAlpha=.25*alpha;c.fillStyle='#000';c.beginPath();c.ellipse(e.x,e.y+5,siz
 c.globalAlpha=alpha*(e.hit>0&&e.flash<=0&&Math.floor(this.elapsed*30)%2===0?.7:1);this.drawSprite(index,e.x,e.y+yo,size,e.tint??'none',sx,sy);
 if(e.flash>0||e.dying>.25){c.globalAlpha=e.dying>0?Math.min(1,(e.dying-.25)/.15):Math.min(1,e.flash/.12);this.drawSprite(index,e.x,e.y+yo,size,WHITE,sx,sy);}c.globalAlpha=1;
 if(e.dying<=0&&(e.hp<e.maxHp||e.kind==='boss'&&this.levers.size===2||e.kind==='golem')){const by=e.y-(e.kind==='golem'?58:e.kind==='boss'?62:38);c.fillStyle='#1e2429';c.fillRect(e.x-17,by,34,4);c.fillStyle='#e6aa80';c.fillRect(e.x-17,by,34*e.hp/e.maxHp,4);}}
-draw(){const c=this.ctx,p=this.player,m=this.map,W=this.canvas.width/ZOOM,H=this.canvas.height/ZOOM;c.imageSmoothingEnabled=false;this.camera.x=m.width*T<W?(m.width*T-W)/2:Math.max(0,Math.min(m.width*T-W,p.x-W/2));this.camera.y=m.height*T<H?(m.height*T-H)/2:Math.max(0,Math.min(m.height*T-H,p.y-H/2));c.fillStyle=this.zone==='world'?'#285336':'#0d1420';c.fillRect(0,0,this.canvas.width,this.canvas.height);c.save();c.scale(ZOOM,ZOOM);
-const sk=this.shake>0?this.shakePower*(this.shake/.22):0;c.translate(-Math.round(this.camera.x*ZOOM)/ZOOM+Math.round((Math.random()-.5)*sk),-Math.round(this.camera.y*ZOOM)/ZOOM+Math.round((Math.random()-.5)*sk));
+draw(){const c=this.ctx,p=this.player,m=this.map,W=this.canvas.width/this.zoom,H=this.canvas.height/this.zoom;c.imageSmoothingEnabled=false;this.camera.x=m.width*T<W?(m.width*T-W)/2:Math.max(0,Math.min(m.width*T-W,p.x-W/2));this.camera.y=m.height*T<H?(m.height*T-H)/2:Math.max(0,Math.min(m.height*T-H,p.y-H/2));c.fillStyle=this.zone==='world'?'#285336':'#0d1420';c.fillRect(0,0,this.canvas.width,this.canvas.height);c.save();c.scale(this.zoom,this.zoom);
+const sk=this.shake>0?this.shakePower*(this.shake/.22):0;c.translate(-Math.round(this.camera.x*this.zoom)/this.zoom+Math.round((Math.random()-.5)*sk),-Math.round(this.camera.y*this.zoom)/this.zoom+Math.round((Math.random()-.5)*sk));
 c.drawImage(this.groundLayer(this.zone),0,0);
 const x0=Math.max(0,Math.floor(this.camera.x/T)),x1=Math.min(m.width,Math.ceil((this.camera.x+W)/T)+1),y0=Math.max(0,Math.floor(this.camera.y/T)),y1=Math.min(m.height,Math.ceil((this.camera.y+H)/T)+1);
 if(this.zone!=='temple'){c.fillStyle='rgba(159,228,216,.13)';for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++)if(m.tiles[y][x]===2){const wave=(Math.sin(this.elapsed*2+y+x)*3)|0;c.fillRect(x*T+4,y*T+14+wave,13,1);}}
