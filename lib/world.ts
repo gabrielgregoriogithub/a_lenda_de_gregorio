@@ -106,7 +106,7 @@ export function makeWorld(entity:(id:string,x:number,y:number,kind:Entity['kind'
   const roadless=(x:number,y:number)=>[-2,-1,0,1,2].every(dy=>[-2,-1,0,1,2].every(dx=>{const t=tiles[y+dy]?.[x+dx];return t!==1&&t!==5;}));
   const free=(x:number,y:number)=>tiles[y]?.[x]===0&&!(x>=38&&x<=58&&y<=14)&&roadless(x,y)&&pois.every(p=>Math.abs(p.x-x)>4||Math.abs(p.y-y)>4)&&shellSpots.every(([sx,sy])=>Math.abs(sx-x)+Math.abs(sy-y)>10);
   ([...LAYOUT.flat(),'canyon','snow'] as Biome[]).forEach((b,i)=>{const ry=LAYOUT.findIndex(r=>r.includes(b)),rx=LAYOUT[ry].indexOf(b);for(let k=0;k<600;k++){const x=rx*CELL_W+3+Math.floor(hash(k,i,11)*(CELL_W-6)),y=ry*CELL_H+3+Math.floor(hash(k,i,12)*(CELL_H-6));if(biome[y][x]===b&&free(x,y)){shellSpots.push([x,y]);break;}}});
-  shellSpots.forEach(([x,y],i)=>{props.push({kind:'shell',x:center(x),y:center(y),id:`shell-${i}`,solid:false});pois.push({x,y,r:1});});
+  shellSpots.slice(0,6).forEach(([x,y],i)=>{props.push({kind:'shell',x:center(x),y:center(y),id:`shell-${i}`,solid:false});pois.push({x,y,r:1});});
   // 5. borda de árvores e vegetação por região
   for(let x=1;x<W-1;x++){if(Math.abs(x-48)>2){props.push({kind:'tree',x:center(x),y:center(1),id:`border-n-${x}`,solid:true});}props.push({kind:'tree',x:center(x),y:center(H-2),id:`border-s-${x}`,solid:true});}
   for(let y=3;y<H-2;y+=2){props.push({kind:'tree',x:center(1),y:center(y),id:`border-w-${y}`,solid:true});props.push({kind:'tree',x:center(W-2),y:center(y),id:`border-e-${y}`,solid:true});}
