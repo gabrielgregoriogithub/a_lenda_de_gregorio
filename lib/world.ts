@@ -44,7 +44,7 @@ export const NPCS:Record<string,NpcInfo>={
   pescadora:{name:'Pescadora do Lago',tint:'hue-rotate(-120deg)',talk:()=>'Há um baú na ilha no meio do lago. Atravesse a ponte e pegue o Coração Lunar: sua vida vai aumentar. E se achar Conchas Lunares brilhando pelo vale, traga para mim!'},
   eremita:{name:'Eremita da Neve',tint:'hue-rotate(60deg) brightness(1.1)',talk:()=>'Brrr... o Fragmento do Gelo fica no topo das montanhas, a noroeste. Leve poções, o frio não perdoa.'},
   guarda:{name:'Guardião das Ruínas',tint:'hue-rotate(-40deg) saturate(.6)',talk:({hasKey,fragments})=>hasKey&&fragments===3?'A porta reconhece a Chave Lunar e os três fragmentos. Entre, herói.':'O Templo só se abre para quem traz a Chave Lunar e os três Fragmentos Lunares.'},
-  lenhadora:{name:'Lenhadora do Outono',tint:'hue-rotate(95deg)',talk:()=>'Deixei o arco do meu pai num baú perto da estrada, a noroeste daqui. Fica com ele, Gregório: lá no templo vai fazer falta. E há outro baú com poções no fundo da floresta, a nordeste.'},
+  lenhadora:{name:'Lenhadora do Outono',tint:'hue-rotate(95deg)',talk:()=>'Deixei o arco do meu pai num baú perto da estrada, a noroeste daqui, mas um golem de pedra se instalou ao lado dele. Derrote-o e fique com o arco, Gregório: lá no templo vai fazer falta. E há outro baú com poções no fundo da floresta, a nordeste.'},
   guardia:{name:'Guardiã do Portão',tint:'hue-rotate(30deg) brightness(1.2)',talk:()=>'Bem-vinda a luz da aurora, herói. A Cidadela da Aurora fica além do mar de lava, a nordeste. Você vai precisar das Botas Aladas, guardadas por um cavaleiro aqui no Bosque de Cristal, e do Amuleto da Brasa, nos Picos do Céu, do outro lado do abismo ao norte.'},
   astronomo:{name:'Astrônomo Errante',tint:'hue-rotate(260deg)',talk:()=>'Os fogos-fátuos somem e reaparecem: quando estão transparentes, só a luz os toca. E os cavaleiros de pedra? Espere a investida passar e golpeie enquanto descansam, gire a espada ou queime o escudo com fogo. Dizem que o Colosso de Cinzas teme o gelo.'},
   bruxa:{name:'Bruxa do Pântano',tint:'hue-rotate(200deg) brightness(.85)',talk:({fragments})=>fragments<3?'Hihihi... o Fragmento da Névoa está a leste, além dos charcos. Cuidado com os morcegos.':'Hihihi... vá logo, a lua não espera.'},
@@ -89,13 +89,13 @@ export function makeWorld(entity:(id:string,x:number,y:number,kind:Entity['kind'
   const add=(kind:Prop['kind'],x:number,y:number,id:string,extra:Partial<Prop>={})=>{props.push({kind,x:center(x),y:center(y),id,solid:kind!=='exit'&&kind!=='lever'&&kind!=='relic',...extra});pois.push({x,y,r:kind==='door'?4:kind==='npc'?2:3});};
   add('npc',44,40,'iris');add('npc',54,5,'ferreiro');add('npc',18,40,'sabio');add('npc',68,40,'pescadora');add('npc',20,14,'eremita');add('npc',50,14,'guarda');add('npc',78,25,'lenhadora');add('npc',72,58,'bruxa');
   add('chest',54,30,'key-chest',{item:'key'});add('chest',38,30,'coin-chest',{item:'coins'});
-  add('rock',50,5,'lake-sword-stone',{solid:true});add('relic',50,4,'lake-sword',{solid:true,label:'Espada Lunar do Lago'});
+  add('rock',50,5,'lake-sword-stone',{solid:true});add('relic',50,4,'lake-sword',{solid:true,label:'Espada Lunar do Lago',guard:'golem-ruins'});
   add('chest',10,45,'frag-desert',{item:'fragment',guard:'golem-desert'});
   add('chest',11,6,'frag-snow',{item:'fragment',guard:'golem-snow'});
   add('chest',88,66,'frag-swamp',{item:'fragment',guard:'golem-swamp'});
-  add('chest',80,36,'heart-chest',{item:'heart'});
+  add('chest',80,36,'heart-chest',{item:'heart',guard:'lake-guard'});
   add('chest',84,7,'potion-chest',{item:'potion'});
-  add('chest',72,19,'bow-chest',{item:'bow',guard:'golem-snow'});
+  add('chest',72,19,'bow-chest',{item:'bow',guard:'golem-autumn'});
   add('chest',7,66,'crystal-chest',{item:'crystals'});
   add('chest',24,50,'canyon-chest',{item:'potion'});
   add('door',47,4,'temple-door',{solid:true});
@@ -126,6 +126,6 @@ export function makeWorld(entity:(id:string,x:number,y:number,kind:Entity['kind'
   const enemies:Entity[]=[];
   const counts:Partial<Record<Biome,[number,number,number]>>={village:[0,0,0],forest:[5,1,0],lake:[3,1,1],desert:[4,0,2],snow:[3,2,1],autumn:[4,1,1],swamp:[3,3,2],ruins:[2,2,2],canyon:[2,3,2]};
   LAYOUT.forEach((row,ry)=>row.forEach((b,rx)=>{const[slimes,bats,spitters]=counts[b]??[0,0,0];let placed=0;for(let i=0;placed<slimes+bats+spitters&&i<400;i++){const x=rx*CELL_W+3+Math.floor(hash(i,ry*3+rx,8)*(CELL_W-6)),y=ry*CELL_H+3+Math.floor(hash(i,ry*3+rx,9)*(CELL_H-6));if(tiles[y][x]!==0&&tiles[y][x]!==1&&tiles[y][x]!==3)continue;if(Math.abs(x-46)<10&&Math.abs(y-42)<8)continue;if(biome[y][x]!==b||props.some(p=>p.solid&&Math.abs(p.x-center(x))<40&&Math.abs(p.y-center(y))<40))continue;const kind=placed<slimes?'slime':placed<slimes+bats?'bat':'spitter';enemies.push(entity(`${b}-${kind}-${placed}`,x,y,kind,kind==='spitter'?SPITTER_TINT:BIOMES[b].enemyFilter));placed++;}}));
-  enemies.push(entity('golem-desert',12,44,'golem',BIOMES.desert.wallFilter),entity('golem-snow',13,7,'golem',BIOMES.snow.wallFilter),entity('golem-swamp',86,66,'golem',BIOMES.swamp.wallFilter));
+  enemies.push(entity('golem-desert',12,44,'golem',BIOMES.desert.wallFilter),entity('golem-snow',13,7,'golem',BIOMES.snow.wallFilter),entity('golem-swamp',86,66,'golem',BIOMES.swamp.wallFilter),entity('golem-autumn',74,19,'golem',BIOMES.autumn.wallFilter),entity('golem-ruins',50,7,'golem',BIOMES.ruins.wallFilter),entity('lake-guard',79,35,'spitter',SPITTER_TINT));
   return{width:W,height:H,tiles,props,enemies,biome};
 }
