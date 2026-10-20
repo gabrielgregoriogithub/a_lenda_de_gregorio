@@ -95,7 +95,7 @@ export function makeWorld(entity:(id:string,x:number,y:number,kind:Entity['kind'
   add('chest',88,66,'frag-swamp',{item:'fragment',guard:'golem-swamp'});
   add('chest',80,36,'heart-chest',{item:'heart'});
   add('chest',84,7,'potion-chest',{item:'potion'});
-  add('chest',72,19,'bow-chest',{item:'bow'});
+  add('chest',72,19,'bow-chest',{item:'bow',guard:'golem-snow'});
   add('chest',7,66,'crystal-chest',{item:'crystals'});
   add('chest',24,50,'canyon-chest',{item:'potion'});
   add('door',47,4,'temple-door',{solid:true});
