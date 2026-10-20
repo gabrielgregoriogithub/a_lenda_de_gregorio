@@ -38,3 +38,5 @@
 @media(max-width:900px){.touch-actions button:nth-child(3),.touch-actions button:nth-child(6){display:none!important}}
 .touch-actions button:nth-child(6){display:none!important}
 .touch-actions button:last-child::after{content:'Voltar';font-size:11px}
+.interact-hint{display:none!important}
+@media(max-width:600px){.interact-hint{display:flex!important}}
