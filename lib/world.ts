@@ -87,8 +87,9 @@ export function makeWorld(entity:(id:string,x:number,y:number,kind:Entity['kind'
   // 4. pontos de interesse
   const props:Prop[]=[];const pois:Poi[]=[];
   const add=(kind:Prop['kind'],x:number,y:number,id:string,extra:Partial<Prop>={})=>{props.push({kind,x:center(x),y:center(y),id,solid:kind!=='exit'&&kind!=='lever'&&kind!=='relic',...extra});pois.push({x,y,r:kind==='door'?4:kind==='npc'?2:3});};
-  add('npc',44,40,'iris');add('npc',45,58,'ferreiro');add('npc',18,40,'sabio');add('npc',68,40,'pescadora');add('npc',20,14,'eremita');add('npc',50,14,'guarda');add('npc',78,25,'lenhadora');add('npc',72,58,'bruxa');
+  add('npc',44,40,'iris');add('npc',54,5,'ferreiro');add('npc',18,40,'sabio');add('npc',68,40,'pescadora');add('npc',20,14,'eremita');add('npc',50,14,'guarda');add('npc',78,25,'lenhadora');add('npc',72,58,'bruxa');
   add('chest',54,30,'key-chest',{item:'key'});add('chest',38,30,'coin-chest',{item:'coins'});
+  add('rock',50,5,'lake-sword-stone',{solid:true});add('relic',50,4,'lake-sword',{solid:true,label:'Espada Lunar do Lago'});
   add('chest',10,45,'frag-desert',{item:'fragment',guard:'golem-desert'});
   add('chest',11,6,'frag-snow',{item:'fragment',guard:'golem-snow'});
   add('chest',88,66,'frag-swamp',{item:'fragment',guard:'golem-swamp'});
@@ -106,7 +107,7 @@ export function makeWorld(entity:(id:string,x:number,y:number,kind:Entity['kind'
   const roadless=(x:number,y:number)=>[-2,-1,0,1,2].every(dy=>[-2,-1,0,1,2].every(dx=>{const t=tiles[y+dy]?.[x+dx];return t!==1&&t!==5;}));
   const free=(x:number,y:number)=>tiles[y]?.[x]===0&&!(x>=38&&x<=58&&y<=14)&&roadless(x,y)&&pois.every(p=>Math.abs(p.x-x)>4||Math.abs(p.y-y)>4)&&shellSpots.every(([sx,sy])=>Math.abs(sx-x)+Math.abs(sy-y)>10);
   ([...LAYOUT.flat(),'canyon','snow'] as Biome[]).forEach((b,i)=>{const ry=LAYOUT.findIndex(r=>r.includes(b)),rx=LAYOUT[ry].indexOf(b);for(let k=0;k<600;k++){const x=rx*CELL_W+3+Math.floor(hash(k,i,11)*(CELL_W-6)),y=ry*CELL_H+3+Math.floor(hash(k,i,12)*(CELL_H-6));if(biome[y][x]===b&&free(x,y)){shellSpots.push([x,y]);break;}}});
-  shellSpots.slice(0,6).forEach(([x,y],i)=>{props.push({kind:'shell',x:center(x),y:center(y),id:`shell-${i}`,solid:false});pois.push({x,y,r:1});});
+  // As Conchas Lunares foram removidas do primeiro cenario; a recompensa agora esta na pedra junto ao Portao do Norte.
   // 5. borda de árvores e vegetação por região
   for(let x=1;x<W-1;x++){if(Math.abs(x-48)>2){props.push({kind:'tree',x:center(x),y:center(1),id:`border-n-${x}`,solid:true});}props.push({kind:'tree',x:center(x),y:center(H-2),id:`border-s-${x}`,solid:true});}
   for(let y=3;y<H-2;y+=2){props.push({kind:'tree',x:center(1),y:center(y),id:`border-w-${y}`,solid:true});props.push({kind:'tree',x:center(W-2),y:center(y),id:`border-e-${y}`,solid:true});}
