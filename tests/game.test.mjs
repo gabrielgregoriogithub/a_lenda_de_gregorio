@@ -182,3 +182,8 @@ test('a ruína astral do Norte é uma rota opcional persistente',()=>{
   assert.equal(prop(g,'north','north-ruin-barrier'),undefined,'os dois selos removem a barreira');assert.equal(g.maps.north.tiles[28][39],0,'a abertura da ruína fica transitável');assert.ok(prop(g,'north','north-ruin-crystals'),'a recompensa comum permanece atrás da muralha');
   const h=fresh();assert.ok(h.load(g.serialize()));assert.equal(h.maps.north.tiles[28][39],0,'a abertura persiste no carregamento');
 });
+
+test('o Astrônomo transforma a ruína em missão com recompensa única',()=>{
+  const g=fresh();g.chapter=3;g.zone='north';g.visited.add('north');const npc=prop(g,'north','astronomo');g.player.x=npc.x-30;g.player.y=npc.y;g.interact();assert.match(g.dialog,/dois totens|selos/i);
+  g.dismissDialog();g.maps.north.props.find(p=>p.id==='north-ruin-seal-a').open=true;g.maps.north.props.find(p=>p.id==='north-ruin-seal-b').open=true;g.checkBarriers();const before=g.coins;g.player.x=npc.x-30;g.player.y=npc.y;g.interact();assert.equal(g.coins,before+25);g.dismissDialog();const saved=g.serialize(),h=fresh();assert.ok(h.load(saved));const hn=prop(h,'north','astronomo');h.player.x=hn.x-30;h.player.y=hn.y;h.interact();assert.equal(h.coins,before+25,'a recompensa não pode ser duplicada após carregar');
+});
