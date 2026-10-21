@@ -175,3 +175,10 @@ test('o Abismo exige os alvos de vento antes da ponte',()=>{
   const fire=t=>{g.player.x=t.x-80;g.player.y=t.y;g.player.dir='right';g.wandCooldown=0;g.castWand();};
   fire(b);assert.equal(!!b.open,false,'a ordem impede começar pelo segundo alvo');fire(a);fire(b);fire(c);assert.equal(a.open,true);assert.equal(b.open,true);assert.equal(c.open,true);g.update(1/60);assert.equal(prop(g,'aerie','aerie-bridge-16-9').open,true,'a ponte surge após alvos e combate');
 });
+
+test('a ruína astral do Norte é uma rota opcional persistente',()=>{
+  const g=fresh();g.chapter=3;g.zone='north';g.visited.add('north');
+  const barrier=prop(g,'north','north-ruin-barrier');assert.ok(barrier);g.maps.north.props.find(p=>p.id==='north-ruin-seal-a').open=true;g.maps.north.props.find(p=>p.id==='north-ruin-seal-b').open=true;g.checkBarriers();
+  assert.equal(prop(g,'north','north-ruin-barrier'),undefined,'os dois selos removem a barreira');assert.equal(g.maps.north.tiles[28][39],0,'a abertura da ruína fica transitável');assert.ok(prop(g,'north','north-ruin-crystals'),'a recompensa comum permanece atrás da muralha');
+  const h=fresh();assert.ok(h.load(g.serialize()));assert.equal(h.maps.north.tiles[28][39],0,'a abertura persiste no carregamento');
+});
