@@ -125,3 +125,15 @@ test('mapas consistentes: barreiras, inimigos e chegada',()=>{
     const ids=m.props.map(p=>p.id);assert.equal(new Set(ids).size,ids.length,`${z}: ids únicos`);}
   for(const z of ZONES)assert.ok(makeMap(z).width>0);
 });
+
+test('a passagem para o Eclipse exige conquistar a Gruta da Maré',()=>{
+  const g=fresh();g.chapter=2;g.colossusDead=true;g.screen='won';g.continueAdventure();
+  assert.equal(g.zone,'north','a continuação retorna ao mundo aberto');
+  const gate=prop(g,'north','north-eclipse-gate');g.player.x=gate.x;g.player.y=gate.y+30;g.interact();
+  assert.equal(g.zone,'north','a passagem permanece fechada sem a Onda Arcana');
+  g.zone='grotto';assert.equal(g.maps.grotto.props.filter(p=>p.kind==='barrier').length,2);
+  open(g,'grotto','grotto-torch-a','grotto-torch-b');
+  assert.equal(g.maps.grotto.props.some(p=>p.kind==='barrier'),false,'as duas tochas abrem a galeria inundada');
+  g.tide=true;g.zone='north';g.player.x=gate.x;g.player.y=gate.y+30;g.interact();
+  assert.equal(g.zone,'eclipse','a conquista libera o Caminho do Eclipse');
+});

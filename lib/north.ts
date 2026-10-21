@@ -43,6 +43,7 @@ export function makeNorth(entity:MakeEntity):GameMap{
   add('stairs',15,46,'north-exit',{to:'world',ax:NORTH_GATE.x,ay:NORTH_GATE.y+1.6,label:'Voltar ao Vale de Elara'});
   add('stairs',48,9,'citadel-door',{to:'citadel1',ax:15,ay:20,label:'Entrar na Cidadela da Aurora'});
   add('stairs',8,20,'grotto-door',{to:'grotto',ax:6,ay:20,label:'Descer à Gruta da Maré'});
+  add('stairs',58,40,'north-eclipse-gate',{to:'eclipse',ax:3,ay:20,needs:'tide',label:'Atravessar a Passagem Inundada'});
   add('npc',18,42,'guardia');add('npc',44,37,'astronomo');
   add('chest',6,31,'boots-chest',{item:'boots',guard:'k-boots'});
   add('chest',14,4,'amulet-chest',{item:'amulet',guard:'sentinel'});
@@ -84,7 +85,7 @@ export function makeCitadel(entity:MakeEntity,blankFloor:(w:number,h:number)=>nu
   props.push({kind:'iceSeal',id:'cit-ice-core',x:center(14.5),y:center(8),solid:true},{kind:'barrier',id:'cit-ice-bridge',x:center(14.5),y:center(8),solid:true,by:['cit-ice-core']});
   props.push({kind:'chest',id:'cit-heart',x:center(2),y:center(23),solid:true,item:'heart',guard:'cit-knight-a'},{kind:'chest',id:'cit-potion',x:center(27),y:center(23),solid:true,item:'potion'});
   props.push({kind:'relic',id:'aurora-crown',x:center(14.5),y:center(2),solid:false});
-  props.push({kind:'stairs',id:'citadel-eclipse',x:center(27),y:center(2),solid:true,to:'eclipse',ax:3,ay:20,minChapter:3,label:'Seguir para o Caminho do Eclipse'});
+  props.push({kind:'stairs',id:'citadel-eclipse',x:center(27),y:center(2),solid:true,to:'eclipse',ax:3,ay:20,minChapter:3,needs:'tide',label:'Seguir para o Caminho do Eclipse'});
   props.push({kind:'rock',id:'cit-pillar-a',x:center(9),y:center(6),solid:true},{kind:'rock',id:'cit-pillar-b',x:center(20),y:center(6),solid:true});
   return{width:W,height:H,tiles,props,enemies:[entity('cit-knight-a',6,20,'knight',KNIGHT_TINT),entity('cit-knight-b',20,20,'knight',KNIGHT_TINT),entity('cit-wisp-a',8,12,'wisp',WISP_TINT),entity('cit-wisp-b',21,12,'wisp',WISP_TINT),entity('cit-spitter',4,21,'spitter',FIRE_SPITTER_TINT),entity('colossus',14.5,4.5,'colossus',COLOSSUS_TINT,0)]};
 }
