@@ -196,6 +196,13 @@ test('as Ruínas do Sol exigem maré, ordem de luz e guardião antes do coraçã
   const sentinel=g.map.enemies.find(e=>e.id==='sunken-sentinel');sentinel.hp=0;const heart=prop(g,'sunken','sunken-heart');g.player.x=heart.x;g.player.y=heart.y+30;g.interact();for(let i=0;i<220&&g.heartChestTimer>0;i++)g.update(1/60);assert.equal(heart.open,true);assert.equal(g.player.maxHp,7,'o coração é entregue somente após o guardião');
 });
 
+test('a Fortaleza Esquecida usa as Luvas e exige a sequência dos selos',()=>{
+  const g=fresh();g.chapter=4;g.tide=true;g.zone='sunken';g.visited.add('sunken');const gate=prop(g,'sunken','sunken-fortress');g.player.x=gate.x;g.player.y=gate.y+30;g.interact();assert.equal(g.zone,'sunken','o portão permanece fechado sem as Luvas da Força');
+  g.gloves=true;g.interact();assert.equal(g.zone,'fortress');const order=['fortress-seal-a','fortress-seal-b','fortress-seal-c'];const shot=id=>{const p=prop(g,'fortress',id);return g.hitTarget({x:p.x,y:p.y,kind:'light',life:1,vx:1,vy:0});};
+  shot(order[2]);assert.equal(prop(g,'fortress',order[0]).open,false,'a sequência errada reinicia a fortaleza');shot(order[0]);shot(order[1]);shot(order[2]);assert.equal(prop(g,'fortress','fortress-seal-barrier'),undefined,'a ala leste abre após os três selos');
+  const guard=g.map.enemies.find(e=>e.id==='fortress-knight');guard.hp=0;const chest=prop(g,'fortress','fortress-crystals');g.player.x=chest.x;g.player.y=chest.y+30;g.interact();assert.equal(chest.open,true,'a recompensa comum fica protegida por combate');
+});
+
 test('entrar na arena registra checkpoint antes da luta',()=>{
   const g=fresh();g.chapter=6;g.zone='aerie';g.visited.add('aerie');const boss=g.maps.aerie.enemies.find(e=>e.id==='aerie-dune-warden');g.player.x=boss.x-180;g.player.y=boss.y;g.update(1/60);assert.equal(g.dialogTitle,'A batalha vai começar!');assert.deepEqual(g.checkpoint,{x:g.player.x,y:g.player.y});
 });
