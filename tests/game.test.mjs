@@ -43,8 +43,8 @@ test('puzzles não podem ser contornados',()=>{
   open(g,'citadel1','cit1-torch-a','cit1-torch-b');
   const iceWall=prop(g,'citadel1','cit1-ice-wall');iceWall.burnHits=10;g.zone='citadel1';g.map.props=g.map.props.filter(p=>p!==iceWall);g.rebuildGrid('citadel1');
   assert.equal(reachable(g,'citadel1',cit1,'cit1-ice'),true);
-  assert.equal(reachable(g,'citadel1',cit1,'cit1-up'),false,'escada só depois dos selos de gelo');
-  open(g,'citadel1','cit1-ice-seal-a','cit1-ice-seal-b');assert.equal(reachable(g,'citadel1',cit1,'cit1-up'),true);
+  assert.equal(reachable(g,'citadel1',cit1,'cit1-up'),false,'escada só depois das 4 tochas do salão norte');
+  open(g,'citadel1','cit1-torch-c','cit1-torch-d','cit1-torch-e','cit1-torch-f');assert.equal(reachable(g,'citadel1',cit1,'cit1-up'),true);
   const cit2={x:c(15),y:c(20)};
   assert.equal(reachable(g,'citadel2',cit2,'cit2-up'),false,'Terraço: a lava não serve de atalho');
   open(g,'citadel2','cit2-lever-a','cit2-lever-b');assert.equal(reachable(g,'citadel2',cit2,'cit2-up'),true);
@@ -169,9 +169,9 @@ test('o Bastião exige Luvas, selos e preserva a arena aberta no save',()=>{
 });
 
 test('o Santuário exige dois estágios do orbe da Repulsão',()=>{
-  const g=fresh();g.chapter=5;g.zone='sanctum';g.visited.add('sanctum');g.wands.add('repulse');g.wand='repulse';g.ranged='wand';
+  const g=fresh();g.chapter=5;g.zone='sanctum';g.visited.add('sanctum');g.wands.add('repulse');g.wand='repulse';g.ranged='wand';g.map.enemies.forEach(e=>e.hp=0);
   const orb=prop(g,'sanctum','sanctum-orb'),a=prop(g,'sanctum','sanctum-button-a'),b=prop(g,'sanctum','sanctum-button-b');
-  const shove=(dir,count)=>{for(let i=0;i<count;i++){g.player.dir=dir;g.player.x=dir==='right'?orb.x-100:orb.x;g.player.y=dir==='up'?orb.y+100:dir==='down'?orb.y-100:orb.y;g.wandPuzzleHandled=false;g.keys.add('v');g.updateWandPuzzles();g.keys.clear();}};
+  const shove=(dir,count)=>{for(let i=0;i<count;i++){g.player.dir=dir;g.player.x=dir==='right'?orb.x-100:dir==='down'?orb.x-6:orb.x;g.player.y=dir==='up'?orb.y+100:dir==='down'?orb.y-40:orb.y;g.wandCooldown=0;g.castWand();}};
   shove('right',11);shove('up',3);assert.equal(a.open,true,'o primeiro botão deve ser ativado');assert.equal(!!b.open,false,'o segundo botão ainda deve estar fechado');assert.ok(prop(g,'sanctum','sanctum-barrier'),'a barreira exige os dois botões');
   const saved=g.serialize(),h=fresh();assert.ok(h.load(saved));assert.equal(prop(h,'sanctum','sanctum-orb').target,'sanctum-button-b','o segundo alvo permanece após carregar');
   shove('down',4);assert.equal(b.open,true,'o segundo botão deve ser ativado');assert.equal(prop(g,'sanctum','sanctum-barrier'),undefined,'a passagem abre após a sequência completa');
@@ -180,7 +180,7 @@ test('o Santuário exige dois estágios do orbe da Repulsão',()=>{
 test('o Abismo exige os alvos de vento antes da ponte',()=>{
   const g=fresh();g.chapter=6;g.zone='aerie';g.visited.add('aerie');g.wands.add('missile');g.wand='missile';g.map.enemies.forEach(e=>e.hp=0);
   const target=id=>prop(g,'aerie',id),a=target('aerie-wind-target-a'),b=target('aerie-wind-target-b'),c=target('aerie-wind-target-c');
-  const fire=t=>{g.player.x=t.x-80;g.player.y=t.y;g.player.dir='right';g.wandCooldown=0;g.castWand();};
+  const fire=t=>{g.player.x=t.x-80;g.player.y=t.y;g.player.dir='right';g.wandCooldown=0;g.castWand();for(let i=0;i<180&&g.wandShots.length;i++)g.updateWandShots(1/60);};
   fire(b);assert.equal(!!b.open,false,'a ordem impede começar pelo segundo alvo');fire(a);fire(b);fire(c);assert.equal(a.open,true);assert.equal(b.open,true);assert.equal(c.open,true);g.update(1/60);assert.equal(prop(g,'aerie','aerie-bridge-16-9').open,true,'a ponte surge após alvos e combate');
 });
 
@@ -222,4 +222,24 @@ test('entrar na arena registra checkpoint antes da luta',()=>{
 
 test('o Núcleo dos Ventos encerra o capítulo final quando a ponte está pronta',()=>{
   const g=fresh();g.chapter=6;g.zone='aerie';g.visited.add('aerie');g.wands.add('missile');for(const p of g.map.props)if(p.id.startsWith('aerie-wind-target-')||p.id.startsWith('aerie-bridge-')){p.open=true;p.solid=false;}for(const e of g.map.enemies)e.hp=0;const core=prop(g,'aerie','aerie-core');g.player.x=core.x-30;g.player.y=core.y;g.update(1/60);assert.equal(g.finished,false);assert.equal(g.screen,'won');g.continueStory();assert.equal(g.chapter,7);assert.equal(g.zone,'grove');
+});
+
+test('a Repulsão empurra pedras de borda que a Luva não alcança',()=>{
+  const g=fresh();g.chapter=5;g.zone='sanctum';g.visited.add('sanctum');g.gloves=true;g.wands.add('repulse');g.wand='repulse';g.ranged='wand';g.map.enemies.forEach(e=>e.hp=0);
+  const stone=prop(g,'sanctum','sanctum-ledge-stone'),plate=prop(g,'sanctum','sanctum-ledge-plate');
+  const sx=stone.x;g.player.x=stone.x+34;g.player.y=stone.y;g.interact();assert.equal(stone.x,sx,'a Luva só empurraria a pedra para o abismo');
+  assert.equal(reachable(g,'sanctum',{x:c(3),y:c(20)},'sanctum-crystals'),false,'a alcova começa fechada');
+  for(let i=0;i<3;i++){g.player.x=c(2);g.player.y=c(17);g.player.dir='right';g.wandCooldown=0;g.castWand();}
+  assert.equal(plate.open,true,'o raio leva a pedra até a placa');assert.equal(prop(g,'sanctum','sanctum-alcove-barrier'),undefined);
+  assert.equal(reachable(g,'sanctum',{x:c(3),y:c(20)},'sanctum-crystals'),true);
+  const h=fresh();g.zone='aerie';g.visited.add('aerie');g.map.enemies.forEach(e=>e.hp=0);
+  for(const b of g.map.props.filter(q=>q.id.startsWith('aerie-bridge'))){b.open=true;g.map.tiles[Math.floor(b.y/32)][Math.floor(b.x/32)]=3;}g.rebuildGrid('aerie');
+  const ap=prop(g,'aerie','aerie-ledge-plate');
+  for(let i=0;i<3;i++){g.player.x=c(18);g.player.y=c(2);g.player.dir='right';g.wandCooldown=0;g.castWand();}
+  assert.equal(ap.open,true,'da margem oeste, o raio empurra a pedra até a placa');assert.equal(prop(g,'aerie','aerie-alcove-barrier'),undefined);
+});
+
+test('relâmpago e míssil podem ser lançados sem inimigos e seguem em linha reta',()=>{
+  const g=fresh();g.chapter=5;g.zone='sanctum';g.wands.add('lightning');g.wands.add('missile');g.map.enemies.forEach(e=>e.hp=0);
+  for(const w of ['lightning','missile']){g.wand=w;g.player.x=c(20);g.player.y=c(21);g.player.dir='right';g.wandCooldown=0;g.castWand();assert.equal(g.wandShots.length,1);const y0=g.wandShots[0].y;g.updateWandShots(1/30);assert.ok(g.wandShots[0].x>c(20)&&g.wandShots[0].y===y0,'voa reto');g.wandShots=[];}
 });
