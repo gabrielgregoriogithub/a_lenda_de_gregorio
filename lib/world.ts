@@ -101,6 +101,7 @@ export function makeWorld(entity:(id:string,x:number,y:number,kind:Entity['kind'
   add('chest',24,50,'canyon-chest',{item:'potion'});
   add('door',47,4,'temple-door',{solid:true});
   add('stairs',53,3,'north-gate',{to:'north',ax:16,ay:43.5,needs:'relic',label:'Atravessar o Portão do Norte'});
+  add('stairs',85,58,'world-grove-gate',{to:'grove',ax:5,ay:22,minChapter:7,label:'Entrar no Santuário das Raízes'});
   pois.push({x:48,y:60,r:5},{x:46,y:42,r:4});
   for(const p of pois)for(let y=p.y-1;y<=p.y+1;y++)for(let x=p.x-1;x<=p.x+1;x++)if(inside(x,y)&&(tiles[y][x]===4||tiles[y][x]===2)&&!(p.x===80&&p.y===36))tiles[y][x]=biome[y][x]==='ruins'?0:1;
   // 4b. Conchas Lunares: a da ilha do lago e uma em chão livre de cada região (mais duas extras), longe das estradas
@@ -128,5 +129,6 @@ export function makeWorld(entity:(id:string,x:number,y:number,kind:Entity['kind'
   const counts:Partial<Record<Biome,[number,number,number]>>={village:[0,0,0],forest:[5,1,0],lake:[3,1,1],desert:[4,0,2],snow:[3,2,1],autumn:[4,1,1],swamp:[3,3,2],ruins:[2,2,2],canyon:[2,3,2]};
   LAYOUT.forEach((row,ry)=>row.forEach((b,rx)=>{const[slimes,bats,spitters]=counts[b]??[0,0,0];let placed=0;for(let i=0;placed<slimes+bats+spitters&&i<400;i++){const x=rx*CELL_W+3+Math.floor(hash(i,ry*3+rx,8)*(CELL_W-6)),y=ry*CELL_H+3+Math.floor(hash(i,ry*3+rx,9)*(CELL_H-6));if(tiles[y][x]!==0&&tiles[y][x]!==1&&tiles[y][x]!==3)continue;if(Math.abs(x-46)<10&&Math.abs(y-42)<8)continue;if(biome[y][x]!==b||props.some(p=>p.solid&&Math.abs(p.x-center(x))<40&&Math.abs(p.y-center(y))<40))continue;const kind=placed<slimes?'slime':placed<slimes+bats?'bat':'spitter';enemies.push(entity(`${b}-${kind}-${placed}`,x,y,kind,kind==='spitter'?SPITTER_TINT:BIOMES[b].enemyFilter));placed++;}}));
   enemies.push(entity('golem-desert',12,44,'golem',BIOMES.desert.wallFilter),entity('golem-snow',13,7,'golem',BIOMES.snow.wallFilter),entity('golem-swamp',86,66,'golem',BIOMES.swamp.wallFilter),entity('golem-autumn',74,19,'golem',BIOMES.autumn.wallFilter),entity('golem-ruins',50,7,'golem',BIOMES.ruins.wallFilter),entity('lake-guard',79,35,'spitter',SPITTER_TINT));
+  enemies.push(entity('snow-wolf-alpha',18,8,'frostwolf','#d8f4ff'),entity('snow-wolf-beta',22,10,'frostwolf','#c4e8f4'),entity('swamp-shadow',86,62,'shade','#5c7f62'));
   return{width:W,height:H,tiles,props,enemies,biome};
 }

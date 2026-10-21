@@ -15,10 +15,18 @@ const open=(g,z,...ids)=>{g.zone=z;for(const id of ids){const p=prop(g,z,id);p.o
 
 test('a aventura inteira pode ser concluída, do capítulo 1 ao 6',()=>{
   const g=makeGame(Adventure),r=solve(g);
-  assert.equal(g.chapter,6);assert.ok(g.finished,'o Núcleo dos Ventos encerra a aventura');
+  assert.equal(g.chapter,7);assert.ok(g.finished,'o Coração da Selva encerra a aventura');
   assert.deepEqual([...r.entries.keys()].sort(),[...ZONES].sort(),'todas as regiões são visitadas');
   const closed=ZONES.flatMap(z=>g.maps[z].props.filter(p=>p.kind==='chest'&&!p.open).map(p=>`${z}:${p.id}`));
   assert.deepEqual(closed,[],'todo baú pode ser aberto');
+});
+test('o Santuário das Raízes exige fogo, força e o guardião vegetal',()=>{
+  const g=fresh();g.chapter=7;g.zone='grove';g.visited.add('grove');g.bow=true;g.arrowKinds.add('fire');g.gloves=true;
+  for(const id of ['grove-torch-a','grove-torch-b']){const p=prop(g,'grove',id);p.open=true;p.solid=false;}g.checkBarriers();assert.equal(prop(g,'grove','grove-root-barrier'),undefined);
+  const push=(rockId,plateId)=>{const rock=prop(g,'grove',rockId),plate=prop(g,'grove',plateId);g.player.x=plate.x;g.player.y=plate.y+84;rock.x=plate.x;rock.y=plate.y+42;g.interact();};
+  push('grove-stone-a','grove-plate-a');push('grove-stone-b','grove-plate-b');assert.equal(prop(g,'grove','grove-heart-barrier'),undefined);
+  const boss=g.map.enemies.find(e=>e.id==='grove-heartwarden');assert.equal(boss.kind,'vinebeast');const hp=boss.hp;boss.timer=1;g.hitEnemy(boss,1,0,1,'sword');assert.equal(boss.hp,hp-1);boss.hp=0;g.player.x=prop(g,'grove','grove-heart').x;g.player.y=prop(g,'grove','grove-heart').y+30;g.interact();for(let i=0;i<220&&g.heartChestTimer>0;i++)g.update(1/60);g.dismissDialog();assert.equal(g.player.maxHp,7);
+  g.map.enemies.forEach(e=>e.hp=0);const core=prop(g,'grove','grove-core');g.player.x=core.x-30;g.player.y=core.y;g.update(1/60);assert.equal(g.finished,true);
 });
 
 test('puzzles não podem ser contornados',()=>{
@@ -55,7 +63,7 @@ test('puzzles não podem ser contornados',()=>{
 test('chegadas não caem dentro de paredes nem em cima de escadas',()=>{
   const g=fresh(),arrivals=[];
   for(const z of ZONES)for(const p of g.maps[z].props)if(p.to)arrivals.push([p.to,p.ax??12,p.ay??12,`${z}:${p.id}`]);
-  arrivals.push(['cave1',12.5,16,'porta do templo'],['eclipse',3,20,'capítulo 3'],['bastion',4,20,'capítulo 4'],['sanctum',4,19,'capítulo 5'],['aerie',4,19,'capítulo 6']);
+  arrivals.push(['cave1',12.5,16,'porta do templo'],['eclipse',3,20,'capítulo 3'],['bastion',4,20,'capítulo 4'],['sanctum',4,19,'capítulo 5'],['aerie',4,19,'capítulo 6'],['grove',4,22,'capítulo 7']);
   const bad=[];for(const [z,ax,ay,from] of arrivals){g.zone=z;const x=c(ax),y=c(ay);
     if(g.collides(x,y,9))bad.push(`${from} → ${z} (${ax},${ay}) dentro de obstáculo`);
     const stairs=g.map.props.find(p=>(p.kind==='stairs'||p.kind==='exit')&&Math.hypot(p.x-x,p.y-y)<24);
@@ -122,7 +130,7 @@ test('mapas consistentes: barreiras, inimigos e chegada',()=>{
   const g=fresh();
   for(const z of ZONES){g.zone=z;const m=g.map;
     for(const b of m.props.filter(p=>p.by))for(const id of b.by)assert.ok(m.props.some(p=>p.id===id),`${z}:${b.id} depende de ${id}, que existe`);
-    for(const e of m.enemies){const heavy=['boss','golem','colossus','tidewarden','stonebeast'].includes(e.kind),air=e.kind==='bat'||e.kind==='wisp';
+    for(const e of m.enemies){const heavy=['boss','golem','colossus','tidewarden','stonebeast','vinebeast'].includes(e.kind),air=e.kind==='bat'||e.kind==='wisp';
       assert.equal(g.collides(e.x,e.y,heavy?16:7,air),false,`${z}:${e.id} não nasce preso`);}
     const ids=m.props.map(p=>p.id);assert.equal(new Set(ids).size,ids.length,`${z}: ids únicos`);}
   for(const z of ZONES)assert.ok(makeMap(z).width>0);
@@ -213,5 +221,5 @@ test('entrar na arena registra checkpoint antes da luta',()=>{
 });
 
 test('o Núcleo dos Ventos encerra o capítulo final quando a ponte está pronta',()=>{
-  const g=fresh();g.chapter=6;g.zone='aerie';g.visited.add('aerie');g.wands.add('missile');for(const p of g.map.props)if(p.id.startsWith('aerie-wind-target-')||p.id.startsWith('aerie-bridge-')){p.open=true;p.solid=false;}for(const e of g.map.enemies)e.hp=0;const core=prop(g,'aerie','aerie-core');g.player.x=core.x-30;g.player.y=core.y;g.update(1/60);assert.equal(g.finished,true);assert.equal(g.screen,'won');
+  const g=fresh();g.chapter=6;g.zone='aerie';g.visited.add('aerie');g.wands.add('missile');for(const p of g.map.props)if(p.id.startsWith('aerie-wind-target-')||p.id.startsWith('aerie-bridge-')){p.open=true;p.solid=false;}for(const e of g.map.enemies)e.hp=0;const core=prop(g,'aerie','aerie-core');g.player.x=core.x-30;g.player.y=core.y;g.update(1/60);assert.equal(g.finished,false);assert.equal(g.screen,'won');g.continueStory();assert.equal(g.chapter,7);assert.equal(g.zone,'grove');
 });

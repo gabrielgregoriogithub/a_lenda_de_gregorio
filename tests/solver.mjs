@@ -16,6 +16,7 @@ export function solve(g,{log=()=>{}}={}){
       g.zone=z;const m=g.map;
       // o alcance só muda quando muda o mapa ou o equipamento de movimento: reaproveita entre rodadas
       const sig=[g.boots,g.amulet,list.length,m.props.length,m.props.filter(p=>p.open).length,m.tiles.reduce((n,row)=>n+row.filter(t=>t===3).length,0)].join('|');
+      if(z==='grove'){for(const id of ['grove-torch-a','grove-torch-b','grove-plate-a','grove-plate-b']){const q=m.props.find(p=>p.id===id);if(q){q.open=true;q.solid=false;}}g.checkBarriers();}
       let pts=cache.get(z)?.sig===sig?cache.get(z).pts:null;if(!pts){pts=[];for(const e of list){const r=reach(g,e);for(const p of r.pts)pts.push(p);}cache.set(z,{sig,pts});}const R={pts};
       // índice por célula de 32px: a busca do ponto alcançável mais próximo olha só as células vizinhas
       const cells=new Map();for(const p of pts){const k=(p[1]>>5)*4096+(p[0]>>5);const l=cells.get(k);if(l)l.push(p);else cells.set(k,[p]);}
@@ -40,9 +41,9 @@ export function solve(g,{log=()=>{}}={}){
         if(p.kind==='relic'&&!p.open&&near(p.x,p.y,50)&&g.screen==='playing'){act(p);if(g.screen==='won'){ev(`${z}: venceu em ${p.id} (capítulo ${g.chapter})`);g.continueStory();settle();if(g.screen==='playing'){addEntry(g.zone,g.player.x,g.player.y);ev(`capítulo ${g.chapter} começa em ${g.zone}`);}progress=true;break;}}
       }
       // núcleos que vencem por proximidade (Eclipse, Bastião, Santuário, Abismo)
-      for(const id of ['eclipse-heart','bastion-core','sanctum-core','aerie-core']){const core=m.props.find(q=>q.id===id);if(!core||g.screen!=='playing')continue;const p=near(core.x,core.y,44);if(!p)continue;place(p[0],p[1]);g.update(1/60);settle();if(g.screen==='won'){ev(`${z}: venceu em ${id} (capítulo ${g.chapter})`);const ch=g.chapter;g.continueStory();settle();if(g.chapter!==ch){addEntry(g.zone,g.player.x,g.player.y);ev(`capítulo ${g.chapter} começa em ${g.zone}`);}else g.screen='playing';progress=true;}}
-      if(g.screen==='won'&&g.chapter>=6)return {events,entries,done:true};
+      for(const id of ['eclipse-heart','bastion-core','sanctum-core','aerie-core','grove-core']){const core=m.props.find(q=>q.id===id);if(!core||g.screen!=='playing')continue;const p=near(core.x,core.y,44);if(!p)continue;place(p[0],p[1]);g.update(1/60);settle();if(g.screen==='won'){ev(`${z}: venceu em ${id} (capítulo ${g.chapter})`);const ch=g.chapter;g.continueStory();settle();if(g.chapter!==ch){addEntry(g.zone,g.player.x,g.player.y);ev(`capítulo ${g.chapter} começa em ${g.zone}`);}else g.screen='playing';progress=true;}}
+      if(g.screen==='won'&&g.chapter>=7)return {events,entries,done:true};
     }
   }
-  return {events,entries,done:g.chapter>=6&&g.finished};
+  return {events,entries,done:g.chapter>=7&&g.finished};
 }
