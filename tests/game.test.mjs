@@ -187,3 +187,7 @@ test('o Astrônomo transforma a ruína em missão com recompensa única',()=>{
   const g=fresh();g.chapter=3;g.zone='north';g.visited.add('north');const npc=prop(g,'north','astronomo');g.player.x=npc.x-30;g.player.y=npc.y;g.interact();assert.match(g.dialog,/dois totens|selos/i);
   g.dismissDialog();g.maps.north.props.find(p=>p.id==='north-ruin-seal-a').open=true;g.maps.north.props.find(p=>p.id==='north-ruin-seal-b').open=true;g.checkBarriers();const before=g.coins;g.player.x=npc.x-30;g.player.y=npc.y;g.interact();assert.equal(g.coins,before+25);g.dismissDialog();const saved=g.serialize(),h=fresh();assert.ok(h.load(saved));const hn=prop(h,'north','astronomo');h.player.x=hn.x-30;h.player.y=hn.y;h.interact();assert.equal(h.coins,before+25,'a recompensa não pode ser duplicada após carregar');
 });
+
+test('entrar na arena registra checkpoint antes da luta',()=>{
+  const g=fresh();g.chapter=6;g.zone='aerie';g.visited.add('aerie');const boss=g.maps.aerie.enemies.find(e=>e.id==='aerie-dune-warden');g.player.x=boss.x-180;g.player.y=boss.y;g.update(1/60);assert.equal(g.dialogTitle,'A batalha vai começar!');assert.deepEqual(g.checkpoint,{x:g.player.x,y:g.player.y});
+});

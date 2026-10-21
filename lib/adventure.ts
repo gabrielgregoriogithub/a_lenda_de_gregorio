@@ -220,7 +220,7 @@ constructor(canvas:HTMLCanvasElement,assets:Adventure['assets'],onChange:Adventu
 get map(){return this.maps[this.zone];}
 bossName(e:Entity){return e.kind==='colossus'?'Colosso de Cinzas':e.kind==='tidewarden'?'Guardião das Correntes':e.kind==='stonebeast'?'Besta Litórea':e.kind==='boss'?(e.id==='eclipse-warden'?'Guardião do Eclipse':e.id==='sanctum-warden'?'Guardião da Repulsão':e.id==='aerie-dune-warden'?'Guardião das Dunas':'Guardião de Pedra'):e.id;}
 bossAlive(){return this.bossActiveId?this.map.enemies.find(e=>e.id===this.bossActiveId&&e.hp>0):undefined;}
-checkBossEntrance(){if(this.bossActiveId&&!this.bossAlive())this.bossActiveId=null;if(this.bossActiveId)return;const p=this.player,e=this.map.enemies.find(q=>isBossEntity(q)&&q.hp>0&&Math.hypot(q.x-p.x,q.y-p.y)<230);if(!e)return;this.bossActiveId=e.id;this.projectiles=[];this.openDialog('A batalha vai começar!',`${this.bossName(e)} entrou na arena. Derrote-o para liberar a passagem. Durante a luta, cada golpe deixa o chefe invulnerável por 2 segundos.`);this.message(`${this.bossName(e)} bloqueou a arena!`);}
+checkBossEntrance(){if(this.bossActiveId&&!this.bossAlive())this.bossActiveId=null;if(this.bossActiveId)return;const p=this.player,e=this.map.enemies.find(q=>isBossEntity(q)&&q.hp>0&&Math.hypot(q.x-p.x,q.y-p.y)<230);if(!e)return;this.bossActiveId=e.id;this.checkpoint={x:p.x,y:p.y};this.projectiles=[];this.openDialog('A batalha vai começar!',`${this.bossName(e)} entrou na arena. Derrote-o para liberar a passagem. Durante a luta, cada golpe deixa o chefe invulnerável por 2 segundos.`);this.message(`${this.bossName(e)} bloqueou a arena!`);}
 get outdoors(){return !!this.map.biome;}
 get jumpTime(){return this.boots?BOOTS_JUMP_TIME:JUMP_TIME;}
 
