@@ -32,7 +32,9 @@ test('puzzles não podem ser contornados',()=>{
   g.amulet=true;g.boots=true;
   const cit1={x:c(15),y:c(20)};
   assert.equal(reachable(g,'citadel1',cit1,'cit1-ice'),false,'Flechas de Gelo só depois das tochas');
-  open(g,'citadel1','cit1-torch-a','cit1-torch-b');assert.equal(reachable(g,'citadel1',cit1,'cit1-ice'),true);
+  open(g,'citadel1','cit1-torch-a','cit1-torch-b');
+  const iceWall=prop(g,'citadel1','cit1-ice-wall');iceWall.burnHits=10;g.zone='citadel1';g.map.props=g.map.props.filter(p=>p!==iceWall);g.rebuildGrid('citadel1');
+  assert.equal(reachable(g,'citadel1',cit1,'cit1-ice'),true);
   assert.equal(reachable(g,'citadel1',cit1,'cit1-up'),false,'escada só depois dos selos de gelo');
   open(g,'citadel1','cit1-ice-seal-a','cit1-ice-seal-b');assert.equal(reachable(g,'citadel1',cit1,'cit1-up'),true);
   const cit2={x:c(15),y:c(20)};
@@ -43,7 +45,7 @@ test('puzzles não podem ser contornados',()=>{
   assert.equal(reachable(g,'bastion',bas,'bastion-armor'),false,'a pedra da coluna fecha o leste (nem saltando)');
   assert.equal(reachable(g,'bastion',bas,'bastion-core'),false);
   assert.equal(reachable(g,'bastion',bas,'bastion-gloves'),true,'as Luvas ficam do lado da chegada');
-  g.zone='bastion';g.map.props=g.map.props.filter(p=>p.id!=='bastion-gate');g.rebuildGrid('bastion');
+  g.zone='bastion';g.map.props=g.map.props.filter(p=>p.id!=='bastion-gate');g.rebuildGrid('bastion');g.arrowKinds.add('light');open(g,'bastion','bastion-seal-a','bastion-seal-b');
   assert.equal(reachable(g,'bastion',bas,'bastion-core'),true);
   assert.equal(reachable(g,'aerie',{x:c(4),y:c(19)},'aerie-core'),false,'o abismo é largo demais para saltar');
   g.zone='aerie';for(const e of g.map.enemies)e.hp=0;g.updateAerieBridge();
@@ -146,4 +148,14 @@ test('o Eclipse exige os dois selos antes da arena do guardião',()=>{
   open(g,'eclipse','eclipse-seal-b');assert.equal(prop(g,'eclipse','eclipse-warden-barrier'),undefined);
   assert.equal(g.map.tiles[9][17],0,'os dois selos abrem a muralha');
   const save=g.serialize(),h=fresh();assert.ok(h.load(save));h.zone='eclipse';assert.equal(h.map.tiles[9][17],0,'a abertura permanece após carregar');
+});
+
+test('o Bastião exige Luvas, selos e preserva a arena aberta no save',()=>{
+  const g=fresh();g.chapter=4;g.zone='bastion';g.visited.add('bastion');g.gloves=false;
+  const gate=prop(g,'bastion','bastion-gate');g.player.x=gate.x;g.player.y=gate.y+30;g.interact();
+  assert.ok(prop(g,'bastion','bastion-gate'),'a pedra não sai sem as Luvas');
+  g.gloves=true;g.interact();assert.equal(prop(g,'bastion','bastion-gate'),undefined,'as Luvas removem a pedra da coluna');
+  open(g,'bastion','bastion-seal-a');assert.ok(prop(g,'bastion','bastion-arena-barrier'));
+  open(g,'bastion','bastion-seal-b');assert.equal(prop(g,'bastion','bastion-arena-barrier'),undefined);
+  const save=g.serialize(),h=fresh();assert.ok(h.load(save));h.zone='bastion';assert.equal(h.map.tiles[14][23],0,'a abertura da arena permanece após carregar');
 });
