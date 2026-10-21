@@ -179,7 +179,7 @@ test('o Abismo exige os alvos de vento antes da ponte',()=>{
 test('a ruína astral do Norte é uma rota opcional persistente',()=>{
   const g=fresh();g.chapter=3;g.zone='north';g.visited.add('north');
   const barrier=prop(g,'north','north-ruin-barrier');assert.ok(barrier);assert.equal(reachable(g,'north',{x:c(16),y:c(43.5)},'north-crystals'),false,'a alcova não pode ser contornada');g.maps.north.props.find(p=>p.id==='north-ruin-seal-a').open=true;g.maps.north.props.find(p=>p.id==='north-ruin-seal-b').open=true;g.checkBarriers();
-  assert.equal(prop(g,'north','north-ruin-barrier'),undefined,'os dois selos removem a barreira');assert.equal(g.maps.north.tiles[28][39],0,'a abertura da ruína fica transitável');assert.ok(reachable(g,'north',{x:c(16),y:c(43.5)},'north-crystals'),'a alcova fica acessível após o puzzle');
+  assert.equal(prop(g,'north','north-ruin-barrier'),undefined,'os dois selos removem a barreira');assert.equal(g.maps.north.tiles[28][39],0,'a abertura da ruína fica transitável');assert.ok(reachable(g,'north',{x:c(16),y:c(43.5)},'north-crystals'),'a alcova fica acessível após o puzzle');const shortcut=prop(g,'north','north-ruin-shortcut');assert.ok(shortcut);g.player.x=shortcut.x-30;g.player.y=shortcut.y;g.interact();assert.equal(g.zone,'grotto','a ruína abre um atalho funcional para a Gruta da Maré');
   const h=fresh();assert.ok(h.load(g.serialize()));assert.equal(h.maps.north.tiles[28][39],0,'a abertura persiste no carregamento');
 });
 

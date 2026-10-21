@@ -53,6 +53,7 @@ export function makeNorth(entity:MakeEntity):GameMap{
   add('chest',24,10,'sky-crystals',{item:'crystals'});
   add('totem',35,31,'north-ruin-seal-a');add('totem',43,31,'north-ruin-seal-b');
   add('barrier',39,28,'north-ruin-barrier',{by:['north-ruin-seal-a','north-ruin-seal-b']});
+  add('stairs',42,26,'north-ruin-shortcut',{to:'grotto',ax:6,ay:20,label:'Atalho para a Gruta da Maré'});
   for(const p of pois)for(let y=p.y-1;y<=p.y+1;y++)for(let x=p.x-1;x<=p.x+1;x++)if(inside(x,y)&&(tiles[y][x]===4||tiles[y][x]===2)&&!(x>=31&&x<=32&&y<=25))tiles[y][x]=1;
   for(let x=34;x<=44;x++){tiles[24][x]=4;if(x!==39)tiles[28][x]=4;}
   for(let y=24;y<=28;y++){tiles[y][34]=4;tiles[y][44]=4;}
