@@ -159,3 +159,12 @@ test('o Bastião exige Luvas, selos e preserva a arena aberta no save',()=>{
   open(g,'bastion','bastion-seal-b');assert.equal(prop(g,'bastion','bastion-arena-barrier'),undefined);
   const save=g.serialize(),h=fresh();assert.ok(h.load(save));h.zone='bastion';assert.equal(h.map.tiles[14][23],0,'a abertura da arena permanece após carregar');
 });
+
+test('o Santuário exige dois estágios do orbe da Repulsão',()=>{
+  const g=fresh();g.chapter=5;g.zone='sanctum';g.visited.add('sanctum');g.wands.add('repulse');g.wand='repulse';g.ranged='wand';
+  const orb=prop(g,'sanctum','sanctum-orb'),a=prop(g,'sanctum','sanctum-button-a'),b=prop(g,'sanctum','sanctum-button-b');
+  const shove=(dir,count)=>{for(let i=0;i<count;i++){g.player.dir=dir;g.player.x=dir==='right'?orb.x-100:orb.x;g.player.y=dir==='up'?orb.y+100:dir==='down'?orb.y-100:orb.y;g.wandPuzzleHandled=false;g.keys.add('v');g.updateWandPuzzles();g.keys.clear();}};
+  shove('right',11);shove('up',3);assert.equal(a.open,true,'o primeiro botão deve ser ativado');assert.equal(!!b.open,false,'o segundo botão ainda deve estar fechado');assert.ok(prop(g,'sanctum','sanctum-barrier'),'a barreira exige os dois botões');
+  const saved=g.serialize(),h=fresh();assert.ok(h.load(saved));assert.equal(prop(h,'sanctum','sanctum-orb').target,'sanctum-button-b','o segundo alvo permanece após carregar');
+  shove('down',4);assert.equal(b.open,true,'o segundo botão deve ser ativado');assert.equal(prop(g,'sanctum','sanctum-barrier'),undefined,'a passagem abre após a sequência completa');
+});

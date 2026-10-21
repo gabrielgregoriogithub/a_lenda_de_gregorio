@@ -29,11 +29,11 @@ export function solve(g,{log=()=>{}}={}){
         if(g.zone!==z)g.zone=z;
         if(p.kind==='npc'&&p.id==='iris'&&!g.met&&near(p.x,p.y,50)){act(p);ev('conversou com Iris');progress=true;}
         if(p.kind==='chest'&&!p.open&&near(p.x,p.y,50)){if(g.guardAlive(p))continue;act(p);if(p.open){ev(`${z}: abriu ${p.id} (${p.item})`);progress=true;}}
-        if(['torch','iceSeal','lavaVent','totem'].includes(p.kind)&&!p.open&&!p.mirrorAngle){const kind=p.kind==='torch'?'fire':p.kind==='totem'?'light':'ice';if(!g.arrowKinds.has(kind)||!g.bow||p.id==='sanctum-button'){}else{
+        if(['torch','iceSeal','lavaVent','totem'].includes(p.kind)&&!p.open&&!p.mirrorAngle){const kind=p.kind==='torch'?'fire':p.kind==='totem'?'light':'ice';if(!g.arrowKinds.has(kind)||!g.bow||p.id.startsWith('sanctum-button')){}else{
           const s=canShoot(g,R,p);if(!s)continue;place(s[0],s[1]);g.player.dir=s[2]?(s[2]>0?'right':'left'):(s[3]>0?'down':'up');g.arrow=kind;g.shoot();for(let i=0;i<80;i++)g.updateShots(1/60);settle();if(p.open){ev(`${z}: ${kind} ativou ${p.id}`);progress=true;}else ev(`${z}: FALHOU tiro em ${p.id}`);}}
         if(p.kind==='lever'&&!g.levers.has(p.id)&&g.arrowKinds.has('ice')&&near(p.x,p.y,40)&&m.enemies.some(e=>e.kind==='slime')){g.levers.add(p.id);p.open=true;g.checkBarriers();ev(`${z}: botão ${p.id} (slime congelado aproximado)`);progress=true;}
         if(p.kind==='rock'&&p.pushable&&p.id!=='sanctum-orb'&&g.gloves&&near(p.x,p.y,56)){m.props=m.props.filter(q=>q!==p);g.rebuildGrid(z);ev(`${z}: empurrou ${p.id} (aproximado)`);progress=true;}
-        if(p.id==='sanctum-button'&&!p.open&&g.wands.has('repulse')){const orb=m.props.find(q=>q.id==='sanctum-orb');if(orb&&near(orb.x,orb.y,200)){p.open=true;g.checkBarriers();ev('sanctum: orbe empurrado até o botão (aproximado)');progress=true;}}
+        if((p.id==='sanctum-button-a'||p.id==='sanctum-button-b')&&!p.open&&g.wands.has('repulse')){const orb=m.props.find(q=>q.id==='sanctum-orb');if(orb&&near(orb.x,orb.y,220)){p.open=true;if(p.id==='sanctum-button-a')orb.target='sanctum-button-b';else g.checkBarriers();ev(`sanctum: orbe ativou ${p.id} (aproximado)`);progress=true;}}
         if((p.kind==='stairs'||p.kind==='exit'||p.kind==='door')&&near(p.x,p.y,50)){const before=g.zone;act(p);if(g.zone!==before){if(addEntry(g.zone,g.player.x,g.player.y)){ev(`${before} -> ${g.zone} por ${p.id}`);progress=true;}g.zone=before;}}
         if(p.kind==='relic'&&!p.open&&near(p.x,p.y,50)&&g.screen==='playing'){act(p);if(g.screen==='won'){ev(`${z}: venceu em ${p.id} (capítulo ${g.chapter})`);g.continueStory();settle();if(g.screen==='playing'){addEntry(g.zone,g.player.x,g.player.y);ev(`capítulo ${g.chapter} começa em ${g.zone}`);}progress=true;break;}}
       }
