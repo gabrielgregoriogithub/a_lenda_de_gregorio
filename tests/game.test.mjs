@@ -191,3 +191,7 @@ test('o Astrônomo transforma a ruína em missão com recompensa única',()=>{
 test('entrar na arena registra checkpoint antes da luta',()=>{
   const g=fresh();g.chapter=6;g.zone='aerie';g.visited.add('aerie');const boss=g.maps.aerie.enemies.find(e=>e.id==='aerie-dune-warden');g.player.x=boss.x-180;g.player.y=boss.y;g.update(1/60);assert.equal(g.dialogTitle,'A batalha vai começar!');assert.deepEqual(g.checkpoint,{x:g.player.x,y:g.player.y});
 });
+
+test('o Núcleo dos Ventos encerra o capítulo final quando a ponte está pronta',()=>{
+  const g=fresh();g.chapter=6;g.zone='aerie';g.visited.add('aerie');g.wands.add('missile');for(const p of g.map.props)if(p.id.startsWith('aerie-wind-target-')||p.id.startsWith('aerie-bridge-')){p.open=true;p.solid=false;}for(const e of g.map.enemies)e.hp=0;const core=prop(g,'aerie','aerie-core');g.player.x=core.x-30;g.player.y=core.y;g.update(1/60);assert.equal(g.finished,true);assert.equal(g.screen,'won');
+});
