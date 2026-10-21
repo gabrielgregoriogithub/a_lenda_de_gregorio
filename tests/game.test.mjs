@@ -168,3 +168,10 @@ test('o Santuário exige dois estágios do orbe da Repulsão',()=>{
   const saved=g.serialize(),h=fresh();assert.ok(h.load(saved));assert.equal(prop(h,'sanctum','sanctum-orb').target,'sanctum-button-b','o segundo alvo permanece após carregar');
   shove('down',4);assert.equal(b.open,true,'o segundo botão deve ser ativado');assert.equal(prop(g,'sanctum','sanctum-barrier'),undefined,'a passagem abre após a sequência completa');
 });
+
+test('o Abismo exige os alvos de vento antes da ponte',()=>{
+  const g=fresh();g.chapter=6;g.zone='aerie';g.visited.add('aerie');g.wands.add('missile');g.wand='missile';g.map.enemies.forEach(e=>e.hp=0);
+  const target=id=>prop(g,'aerie',id),a=target('aerie-wind-target-a'),b=target('aerie-wind-target-b'),c=target('aerie-wind-target-c');
+  const fire=t=>{g.player.x=t.x-80;g.player.y=t.y;g.player.dir='right';g.wandCooldown=0;g.castWand();};
+  fire(b);assert.equal(!!b.open,false,'a ordem impede começar pelo segundo alvo');fire(a);fire(b);fire(c);assert.equal(a.open,true);assert.equal(b.open,true);assert.equal(c.open,true);g.update(1/60);assert.equal(prop(g,'aerie','aerie-bridge-16-9').open,true,'a ponte surge após alvos e combate');
+});
