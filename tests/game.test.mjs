@@ -204,6 +204,10 @@ test('a Fortaleza Esquecida usa as Luvas e exige a sequência dos selos',()=>{
   const warden=g.map.enemies.find(e=>e.id==='fortress-warden');warden.hp=0;const vault=prop(g,'fortress','fortress-vault');g.player.x=vault.x;g.player.y=vault.y+30;g.interact();assert.equal(vault.open,true,'o guardião da ala protege o cofre final');
 });
 
+test('o Cartógrafo transforma a Fortaleza em missão e libera um atalho persistente',()=>{
+  const g=fresh();g.chapter=4;g.gloves=true;g.zone='fortress';g.visited.add('fortress');const npc=prop(g,'fortress','cartografo');const guardian=g.map.enemies.find(e=>e.id==='fortress-warden');g.player.x=npc.x-30;g.player.y=npc.y;g.interact();assert.match(g.dialog,/guardião|atalho/i);g.dismissDialog();guardian.hp=0;const before=g.coins;g.player.x=npc.x-30;g.player.y=npc.y;g.interact();assert.equal(g.coins,before+20);assert.equal(prop(g,'fortress','fortress-shortcut-barrier'),undefined,'a missão remove a barreira do atalho');g.dismissDialog();const saved=g.serialize(),h=fresh();assert.ok(h.load(saved));assert.equal(prop(h,'fortress','fortress-shortcut-barrier'),undefined,'o atalho persiste após carregar');
+});
+
 test('entrar na arena registra checkpoint antes da luta',()=>{
   const g=fresh();g.chapter=6;g.zone='aerie';g.visited.add('aerie');const boss=g.maps.aerie.enemies.find(e=>e.id==='aerie-dune-warden');g.player.x=boss.x-180;g.player.y=boss.y;g.update(1/60);assert.equal(g.dialogTitle,'A batalha vai começar!');assert.deepEqual(g.checkpoint,{x:g.player.x,y:g.player.y});
 });

@@ -47,6 +47,7 @@ export const NPCS:Record<string,NpcInfo>={
   lenhadora:{name:'Lenhadora do Outono',tint:'hue-rotate(95deg)',talk:()=>'Deixei o arco do meu pai num baú perto da estrada, a noroeste daqui, mas um golem de pedra se instalou ao lado dele. Derrote-o e fique com o arco, Gregório: lá no templo vai fazer falta. E há outro baú com poções no fundo da floresta, a nordeste.'},
   guardia:{name:'Guardiã do Portão',tint:'hue-rotate(30deg) brightness(1.2)',talk:()=>'Bem-vinda a luz da aurora, herói. A Cidadela da Aurora fica além do mar de lava, a nordeste. Você vai precisar das Botas Aladas, guardadas por um cavaleiro aqui no Bosque de Cristal, e do Amuleto da Brasa, nos Picos do Céu, do outro lado do abismo ao norte.'},
   astronomo:{name:'Astrônomo Errante',tint:'hue-rotate(260deg)',talk:()=>'Os fogos-fátuos somem e reaparecem: quando estão transparentes, só a luz os toca. E os cavaleiros de pedra? Espere a investida passar e golpeie enquanto descansam, gire a espada ou queime o escudo com fogo. Dizem que o Colosso de Cinzas teme o gelo.'},
+  cartografo:{name:'Cartógrafo das Marés',tint:'hue-rotate(185deg) saturate(1.25)',talk:()=>'Encontrei uma passagem antiga atrás da muralha, mas o guardião da ala leste tomou meu mapa. Derrote-o e posso abrir um atalho até as Terras do Norte.'},
   bruxa:{name:'Bruxa do Pântano',tint:'hue-rotate(200deg) brightness(.85)',talk:({fragments})=>fragments<3?'Hihihi... o Fragmento da Névoa está a leste, além dos charcos. Cuidado com os morcegos.':'Hihihi... vá logo, a lua não espera.'},
 };
 
