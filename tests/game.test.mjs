@@ -137,3 +137,13 @@ test('a passagem para o Eclipse exige conquistar a Gruta da Maré',()=>{
   g.tide=true;g.zone='north';g.player.x=gate.x;g.player.y=gate.y+30;g.interact();
   assert.equal(g.zone,'eclipse','a conquista libera o Caminho do Eclipse');
 });
+
+test('o Eclipse exige os dois selos antes da arena do guardião',()=>{
+  const g=fresh();g.chapter=3;g.zone='eclipse';g.visited.add('eclipse');
+  const wall=prop(g,'eclipse','eclipse-warden-barrier');assert.ok(wall);
+  assert.equal(g.map.tiles[9][17],4,'a muralha começa fechada');
+  open(g,'eclipse','eclipse-seal-a');assert.ok(prop(g,'eclipse','eclipse-warden-barrier'),'um selo não basta');
+  open(g,'eclipse','eclipse-seal-b');assert.equal(prop(g,'eclipse','eclipse-warden-barrier'),undefined);
+  assert.equal(g.map.tiles[9][17],0,'os dois selos abrem a muralha');
+  const save=g.serialize(),h=fresh();assert.ok(h.load(save));h.zone='eclipse';assert.equal(h.map.tiles[9][17],0,'a abertura permanece após carregar');
+});
