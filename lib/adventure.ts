@@ -195,8 +195,8 @@ for(const [x,y] of [[5,4],[9,4],[18,4],[24,7],[33,4],[35,7],[5,17],[9,20],[18,18
 props.push({kind:'stairs',id:'fortress-return',x:center(3),y:center(20),solid:true,to:'sunken',ax:34,ay:5,label:'Voltar às Ruínas do Sol Afundado'});
 props.push({kind:'totem',id:'fortress-seal-a',x:center(7),y:center(5),solid:true},{kind:'totem',id:'fortress-seal-b',x:center(21),y:center(5),solid:true},{kind:'totem',id:'fortress-seal-c',x:center(34),y:center(17),solid:true});
 props.push({kind:'barrier',id:'fortress-seal-barrier',x:center(28),y:center(18),solid:true,by:['fortress-seal-a','fortress-seal-b','fortress-seal-c']});
-props.push({kind:'chest',id:'fortress-crystals',x:center(35),y:center(5),solid:true,item:'crystals',guard:'fortress-knight'},{kind:'chest',id:'fortress-potion',x:center(5),y:center(20),solid:true,item:'potion'});
-return{width,height,tiles,props,enemies:[entity('fortress-knight',34,5,'knight','#8b99b8'),entity('fortress-golem',21,17,'golem','#697a99'),entity('fortress-spitter',8,16,'spitter','#6e9caa'),entity('fortress-wisp-a',18,7,'wisp','#a9dcff'),entity('fortress-wisp-b',33,15,'wisp','#85b9e6')]};
+props.push({kind:'chest',id:'fortress-crystals',x:center(35),y:center(5),solid:true,item:'crystals',guard:'fortress-knight'},{kind:'chest',id:'fortress-potion',x:center(5),y:center(20),solid:true,item:'potion'},{kind:'chest',id:'fortress-vault',x:center(36),y:center(19),solid:true,item:'crystals',guard:'fortress-warden'});
+return{width,height,tiles,props,enemies:[entity('fortress-knight',34,5,'knight','#8b99b8'),entity('fortress-warden',34,19,'boss','#6f8fc4',3),entity('fortress-golem',21,17,'golem','#697a99'),entity('fortress-spitter',8,16,'spitter','#6e9caa'),entity('fortress-wisp-a',18,7,'wisp','#a9dcff'),entity('fortress-wisp-b',33,15,'wisp','#85b9e6')]};
 }
 
 function makeCitadel1():GameMap{
