@@ -51,7 +51,7 @@ const SAVE_VERSION=3;
 const CHARGE_TIME=.55,SPIN_TIME=.38,PICKUP_LIFE=9,ARROW_SPEED=430,FREEZE_TIME=8,ICE_TIME=10,RESPAWN_TIME=75;
 const WARN='brightness(.55) sepia(1) saturate(9) hue-rotate(-35deg)',RAGE='sepia(.45) saturate(1.8) hue-rotate(-25deg)';
 // Ciclo do guardião: mais curto na segunda fase (metade da vida).
-const bossCycle=(e:Entity)=>e.hp<=e.maxHp/2?2.8:3.4;
+const bossCycle=(e:Entity)=>e.id==='aerie-dune-warden'?(e.hp<=e.maxHp/2?2.35:3.35):(e.hp<=e.maxHp/2?2.8:3.4);
 type Shot={x:number;y:number;vx:number;vy:number;kind:Arrow;life:number};
 export const SHOP=[{id:'potion',name:'Poção de vida',desc:'Recupera todos os corações.',price:25},{id:'heart',name:'Coração extra',desc:'+1 de vida máxima (1 compra).',price:200},{id:'sword',name:'Espada forjada',desc:'Aumenta em +1 o poder da espada equipada.',price:250}] as const;
 export type ShopItem=typeof SHOP[number]['id'];
