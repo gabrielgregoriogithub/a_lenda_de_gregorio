@@ -165,6 +165,7 @@ return{width,height,tiles,props,enemies:[entity('sanctum-warden',24,12,'boss','#
 function makeAerie():GameMap{
 const width=34,height=23,tiles:number[][]=blankFloor(width,height),props:Prop[]=[];
 fill(tiles,1,9,32,14,6);fill(tiles,6,15,13,20,6);fill(tiles,10,17,11,19,3);
+fill(tiles,20,15,28,20,1);for(const [x,y] of [[21,16],[27,16],[21,19],[27,19]])tiles[y][x]=4;
 for(const [x,y] of [[5,4],[6,4],[27,4],[28,4],[24,20],[25,20]])tiles[y][x]=4;
 props.push({kind:'stairs',id:'aerie-return',x:center(3),y:center(20),solid:true,to:'sanctum',ax:4,ay:19,label:'Voltar ao Santuário da Repulsão'});
 props.push({kind:'chest',id:'aerie-missile',x:center(10.5),y:center(18),solid:true,item:'wand-missile',guard:'aerie-bat-a'});
