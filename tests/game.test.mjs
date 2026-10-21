@@ -192,6 +192,7 @@ test('as Ruínas do Sol exigem maré, ordem de luz e guardião antes do coraçã
   const g=fresh();g.chapter=3;g.tide=true;g.zone='north';g.visited.add('north');const gate=prop(g,'north','north-sunken-gate');g.player.x=gate.x;g.player.y=gate.y+30;g.interact();assert.equal(g.zone,'sunken');
   const order=['sunken-seal-a','sunken-seal-b','sunken-seal-c'];const shot=id=>{const p=prop(g,'sunken',id);return g.hitTarget({x:p.x,y:p.y,kind:'light',life:1,vx:1,vy:0});};
   assert.equal(shot(order[1]),true);assert.equal(prop(g,'sunken',order[0]).open,false,'a sequência errada reinicia os selos');shot(order[0]);shot(order[1]);shot(order[2]);assert.equal(prop(g,'sunken','sunken-seal-barrier'),undefined,'os três selos abrem a passagem');
+  const firstSave=g.serialize(),savedGame=fresh();assert.ok(savedGame.load(firstSave));assert.equal(prop(savedGame,'sunken',order[0]).open,true,'o primeiro selo permanece após salvar');
   const sentinel=g.map.enemies.find(e=>e.id==='sunken-sentinel');sentinel.hp=0;const heart=prop(g,'sunken','sunken-heart');g.player.x=heart.x;g.player.y=heart.y+30;g.interact();for(let i=0;i<220&&g.heartChestTimer>0;i++)g.update(1/60);assert.equal(heart.open,true);assert.equal(g.player.maxHp,7,'o coração é entregue somente após o guardião');
 });
 
