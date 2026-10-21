@@ -198,8 +198,8 @@ test('as Ruínas do Sol exigem maré, ordem de luz e guardião antes do coraçã
 
 test('a Fortaleza Esquecida usa as Luvas e exige a sequência dos selos',()=>{
   const g=fresh();g.chapter=4;g.tide=true;g.zone='sunken';g.visited.add('sunken');const gate=prop(g,'sunken','sunken-fortress');g.player.x=gate.x;g.player.y=gate.y+30;g.interact();assert.equal(g.zone,'sunken','o portão permanece fechado sem as Luvas da Força');
-  g.gloves=true;g.interact();assert.equal(g.zone,'fortress');const order=['fortress-seal-a','fortress-seal-b','fortress-seal-c'];const shot=id=>{const p=prop(g,'fortress',id);return g.hitTarget({x:p.x,y:p.y,kind:'light',life:1,vx:1,vy:0});};
-  shot(order[2]);assert.equal(prop(g,'fortress',order[0]).open,false,'a sequência errada reinicia a fortaleza');shot(order[0]);shot(order[1]);shot(order[2]);assert.equal(prop(g,'fortress','fortress-seal-barrier'),undefined,'a ala leste abre após os três selos');
+  g.gloves=true;g.interact();assert.equal(g.zone,'fortress');g.dismissDialog();const push=(rockId,plateId)=>{const rock=prop(g,'fortress',rockId),plate=prop(g,'fortress',plateId);g.player.x=plate.x;g.player.y=plate.y+84;rock.x=plate.x;rock.y=plate.y+42;g.interact();};
+  push('fortress-stone-a','fortress-plate-a');assert.equal(prop(g,'fortress','fortress-plate-a').open,true,'a pedra ativa a primeira placa');push('fortress-stone-b','fortress-plate-b');push('fortress-stone-c','fortress-plate-c');assert.equal(prop(g,'fortress','fortress-seal-barrier'),undefined,'a ala leste abre após as três placas');
   const guard=g.map.enemies.find(e=>e.id==='fortress-knight');guard.hp=0;const chest=prop(g,'fortress','fortress-crystals');g.player.x=chest.x;g.player.y=chest.y+30;g.interact();assert.equal(chest.open,true,'a primeira recompensa comum fica protegida por combate');
   const warden=g.map.enemies.find(e=>e.id==='fortress-warden');warden.hp=0;const vault=prop(g,'fortress','fortress-vault');g.player.x=vault.x;g.player.y=vault.y+30;g.interact();assert.equal(vault.open,true,'o guardião da ala protege o cofre final');
 });
