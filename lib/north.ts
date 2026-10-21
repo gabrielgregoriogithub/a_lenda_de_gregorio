@@ -41,10 +41,10 @@ export function makeNorth(entity:MakeEntity):GameMap{
   const props:Prop[]=[];const pois:{x:number;y:number;r:number}[]=[];
   const add=(kind:Prop['kind'],x:number,y:number,id:string,extra:Partial<Prop>={})=>{props.push({kind,x:center(x),y:center(y),id,solid:kind!=='relic',...extra});pois.push({x:Math.round(x),y:Math.round(y),r:kind==='npc'?2:3});};
   add('stairs',15,46,'north-exit',{to:'world',ax:NORTH_GATE.x,ay:NORTH_GATE.y+1.6,label:'Voltar ao Vale de Elara'});
-  add('stairs',48,9,'citadel-door',{to:'citadel1',ax:15,ay:20,label:'Entrar na Cidadela da Aurora'});
+  add('stairs',48,9,'citadel-door',{to:'citadel1',ax:15,ay:20,extra:['amulet'],label:'Entrar na Cidadela da Aurora'});
   add('stairs',8,20,'grotto-door',{to:'grotto',ax:6,ay:20,label:'Descer à Gruta da Maré'});
   add('stairs',58,40,'north-eclipse-gate',{to:'eclipse',ax:3,ay:20,needs:'tide',label:'Atravessar a Passagem Inundada'});
-  add('stairs',56,6,'north-sunken-gate',{to:'sunken',ax:5,ay:20,minChapter:3,needs:'tide',label:'Descer às Ruínas do Sol Afundado'});
+  add('stairs',56,6,'north-sunken-gate',{to:'sunken',ax:5,ay:20,minChapter:3,needs:'tide',extra:['light'],label:'Descer às Ruínas do Sol Afundado'});
   add('npc',18,42,'guardia');add('npc',44,37,'astronomo');
   add('chest',6,31,'boots-chest',{item:'boots',guard:'k-boots'});
   add('chest',14,4,'amulet-chest',{item:'amulet',guard:'sentinel'});

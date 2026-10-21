@@ -43,3 +43,4 @@
 .interact-hint{display:none!important}
 @media(max-width:600px){.interact-hint{display:flex!important}}
 @media(max-width:600px) and (orientation:portrait){.victory-screen{justify-content:flex-start;overflow-y:auto;overscroll-behavior:contain;padding-top:20px;padding-bottom:28px}.victory-screen h2{font-size:24px;margin:8px 0 10px}.victory-screen p{max-width:330px}.victory-screen .victory-stats{flex-wrap:wrap;max-width:330px}.victory-screen .start-actions{padding-bottom:12px}}
+.touch-actions button.equipped{border-color:#e6c46a;background:#4a4426;box-shadow:inset 0 0 0 1px #e6c46a55}

@@ -101,7 +101,7 @@ export function makeWorld(entity:(id:string,x:number,y:number,kind:Entity['kind'
   add('chest',24,50,'canyon-chest',{item:'potion'});
   add('door',47,4,'temple-door',{solid:true});
   add('stairs',53,3,'north-gate',{to:'north',ax:16,ay:43.5,needs:'relic',label:'Atravessar o Portão do Norte'});
-  add('stairs',85,58,'world-grove-gate',{to:'grove',ax:5,ay:22,minChapter:7,label:'Entrar no Santuário das Raízes'});
+  add('stairs',85,58,'world-grove-gate',{to:'grove',ax:5,ay:22,minChapter:7,extra:['wand-missile'],label:'Entrar no Santuário das Raízes'});
   pois.push({x:48,y:60,r:5},{x:46,y:42,r:4});
   for(const p of pois)for(let y=p.y-1;y<=p.y+1;y++)for(let x=p.x-1;x<=p.x+1;x++)if(inside(x,y)&&(tiles[y][x]===4||tiles[y][x]===2)&&!(p.x===80&&p.y===36))tiles[y][x]=biome[y][x]==='ruins'?0:1;
   // 4b. Conchas Lunares: a da ilha do lago e uma em chão livre de cada região (mais duas extras), longe das estradas

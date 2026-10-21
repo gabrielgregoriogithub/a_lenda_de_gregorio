@@ -76,7 +76,7 @@ test('regiões já conquistadas continuam ligadas: dá para voltar e seguir em f
   for(const z of ZONES)for(const p of g.maps[z].props)if(p.to)links.set(`${z}>${p.to}`,p.minChapter??0);
   for(const [a,b,ch] of [['citadel','eclipse',3],['eclipse','bastion',4],['bastion','sanctum',5],['sanctum','aerie',6]]){
     assert.ok(links.has(`${b}>${a}`),`${b} volta para ${a}`);assert.equal(links.get(`${a}>${b}`),ch,`${a} segue para ${b} a partir do capítulo ${ch}`);}
-  g.chapter=3;g.zone='eclipse';const portal=prop(g,'eclipse','eclipse-bastion');g.player.x=portal.x;g.player.y=portal.y+30;g.interact();
+  g.chapter=3;g.arrowKinds.add('light');g.zone='eclipse';const portal=prop(g,'eclipse','eclipse-bastion');g.player.x=portal.x;g.player.y=portal.y+30;g.interact();
   assert.equal(g.zone,'eclipse','portal adormecido antes do capítulo 4');
   g.chapter=4;g.interact();assert.equal(g.zone,'bastion');
 });
@@ -197,7 +197,7 @@ test('o Astrônomo transforma a ruína em missão com recompensa única',()=>{
 });
 
 test('as Ruínas do Sol exigem maré, ordem de luz e guardião antes do coração',()=>{
-  const g=fresh();g.chapter=3;g.tide=true;g.zone='north';g.visited.add('north');const gate=prop(g,'north','north-sunken-gate');g.player.x=gate.x;g.player.y=gate.y+30;g.interact();assert.equal(g.zone,'sunken');
+  const g=fresh();g.chapter=3;g.tide=true;g.arrowKinds.add('light');g.zone='north';g.visited.add('north');const gate=prop(g,'north','north-sunken-gate');g.player.x=gate.x;g.player.y=gate.y+30;g.interact();assert.equal(g.zone,'sunken');
   const order=['sunken-seal-a','sunken-seal-b','sunken-seal-c'];const shot=id=>{const p=prop(g,'sunken',id);return g.hitTarget({x:p.x,y:p.y,kind:'light',life:1,vx:1,vy:0});};
   assert.equal(shot(order[1]),true);assert.equal(prop(g,'sunken',order[0]).open,false,'a sequência errada reinicia os selos');shot(order[0]);shot(order[1]);shot(order[2]);assert.equal(prop(g,'sunken','sunken-seal-barrier'),undefined,'os três selos abrem a passagem');
   const firstSave=g.serialize(),savedGame=fresh();assert.ok(savedGame.load(firstSave));assert.equal(prop(savedGame,'sunken',order[0]).open,true,'o primeiro selo permanece após salvar');
@@ -217,7 +217,7 @@ test('o Cartógrafo transforma a Fortaleza em missão e libera um atalho persist
 });
 
 test('entrar na arena registra checkpoint antes da luta',()=>{
-  const g=fresh();g.chapter=6;g.zone='aerie';g.visited.add('aerie');const boss=g.maps.aerie.enemies.find(e=>e.id==='aerie-dune-warden');g.player.x=boss.x-180;g.player.y=boss.y;g.update(1/60);assert.equal(g.dialogTitle,'A batalha vai começar!');assert.deepEqual(g.checkpoint,{x:g.player.x,y:g.player.y});
+  const g=fresh();g.chapter=6;g.zone='aerie';g.visited.add('aerie');const boss=g.maps.aerie.enemies.find(e=>e.id==='aerie-dune-warden');g.player.x=boss.x-180;g.player.y=boss.y;g.update(1/60);assert.ok(g.bossIntro>0,'a introdução cinematográfica começa');assert.equal(g.bossIntroId,'aerie-dune-warden');assert.deepEqual(g.checkpoint,{x:g.player.x,y:g.player.y});
 });
 
 test('o Núcleo dos Ventos encerra o capítulo final quando a ponte está pronta',()=>{
@@ -253,3 +253,28 @@ test('itens reimaginados: arco tríplice, arco rúnico, lâmina do vento, varinh
   const save=g.serialize(),h=fresh();assert.ok(h.load(save));assert.equal(h.tripleBow,true);assert.equal(h.wandMaster,true);assert.deepEqual(h.snapshot().relics.slice(0,2),['Arco Tríplice','Arco Rúnico']);
   assert.equal(h.load(save.replace('"v":4','"v":3')),false,'saves antigos são descartados');
 });
+
+test('portais exigem os itens da região anterior e têm atalhos',()=>{
+  const g=fresh();g.chapter=4;g.zone='eclipse';g.visited.add('eclipse');const gate=prop(g,'eclipse','eclipse-bastion');
+  g.player.x=gate.x;g.player.y=gate.y+30;g.interact();assert.equal(g.zone,'eclipse','sem Flecha de Luz o portal fica selado');assert.equal(g.missingNeed(gate),'light');
+  g.arrowKinds.add('light');g.interact();assert.equal(g.zone,'bastion','com a Flecha de Luz o portal abre');
+  const h=fresh();h.chapter=5;h.zone='bastion';const sc=prop(h,'bastion','bastion-shortcut');h.player.x=sc.x;h.player.y=sc.y+30;h.interact();assert.equal(h.zone,'bastion');h.gloves=true;h.interact();assert.equal(h.zone,'north','o atalho de pedra leva às Terras do Norte');
+});
+
+test('chefes têm armadura, fraqueza, fases e podem ser derrotados em luta simulada',async()=>{
+  const {fight}=await import('./bossfight.mjs');
+  const g=fresh();g.chapter=1;g.zone='temple';const boss=g.map.enemies.find(e=>e.id==='guardian');const hp=boss.hp;
+  g.hitEnemy(boss,0,1,3,'sword');assert.equal(boss.hp,hp,'a espada é bloqueada pela armadura');
+  g.hitEnemy(boss,0,1,2,'fire');assert.ok(boss.stun>0,'a Flecha de Fogo o atordoa');assert.ok(boss.hp<hp);
+  for(const [z,id,s] of [['temple','guardian',g=>{g.chapter=1;g.bossKey=true;}],['eclipse','eclipse-warden',g=>{g.chapter=3;}],['sanctum','sanctum-warden',g=>{g.chapter=5;}],['aerie','aerie-dune-warden',g=>{g.chapter=6;}],['fortress','fortress-warden',g=>{g.chapter=4;g.gloves=true;}]]){
+    const r=fight(z,id,s,200);assert.ok(r.won,`${id} pode ser derrotado`);assert.ok(r.intro,`${id} tem introdução`);assert.ok(r.phases.length>=2,`${id} muda de fase`);assert.ok(r.stuns>=1,`${id} tem janela de atordoamento`);}
+});
+
+test('afinidades elementais: fraquezas, resistências e imunidades',()=>{
+  const g=fresh();g.zone='world';const mk=k=>{const e={id:'t-'+k,kind:k,x:g.player.x+40,y:g.player.y,hp:10,maxHp:10,timer:0,hit:0,bossHitUntil:0,homeX:0,homeY:0,vx:0,vy:0,flash:0,dying:0,frozen:0};g.map.enemies.push(e);return e;};
+  const wolf=mk('frostwolf');g.hitEnemy(wolf,1,0,2,'fire');assert.equal(wolf.hp,6,'lobo de gelo é fraco a fogo');
+  const sal=mk('salamander');g.hitEnemy(sal,1,0,2,'fire');assert.equal(sal.hp,10,'salamandra é imune a fogo');
+  const shade=mk('shade');shade.timer=2;g.hitEnemy(shade,1,0,2,'sword');assert.equal(shade.hp,9,'espírito resiste à espada');
+});
+
+test('o desenho real roda sem erros em todas as zonas e estados de chefe',async()=>{const {drawSmoke}=await import('./drawsmoke.mjs');assert.equal(drawSmoke(),true);});
