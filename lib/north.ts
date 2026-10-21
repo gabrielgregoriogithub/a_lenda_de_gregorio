@@ -53,9 +53,9 @@ export function makeNorth(entity:MakeEntity):GameMap{
   add('chest',24,10,'sky-crystals',{item:'crystals'});
   add('totem',35,31,'north-ruin-seal-a');add('totem',43,31,'north-ruin-seal-b');
   add('barrier',39,28,'north-ruin-barrier',{by:['north-ruin-seal-a','north-ruin-seal-b']});
-  add('chest',39,26,'north-ruin-crystals',{item:'crystals'});
   for(const p of pois)for(let y=p.y-1;y<=p.y+1;y++)for(let x=p.x-1;x<=p.x+1;x++)if(inside(x,y)&&(tiles[y][x]===4||tiles[y][x]===2)&&!(x>=31&&x<=32&&y<=25))tiles[y][x]=1;
-  for(let x=35;x<=43;x++)if(x!==39)tiles[28][x]=4;
+  for(let x=34;x<=44;x++){tiles[24][x]=4;if(x!==39)tiles[28][x]=4;}
+  for(let y=24;y<=28;y++){tiles[y][34]=4;tiles[y][44]=4;}
   // 5. borda de árvores e vegetação por região
   for(let x=1;x<W-1;x++){props.push({kind:'tree',x:center(x),y:center(1),id:`nb-n-${x}`,solid:true});if(Math.abs(x-15.5)>2)props.push({kind:'tree',x:center(x),y:center(H-2),id:`nb-s-${x}`,solid:true});}
   for(let y=3;y<H-2;y+=2){props.push({kind:'tree',x:center(1),y:center(y),id:`nb-w-${y}`,solid:true});props.push({kind:'tree',x:center(W-2),y:center(y),id:`nb-e-${y}`,solid:true});}
