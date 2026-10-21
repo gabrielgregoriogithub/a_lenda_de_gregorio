@@ -228,10 +228,10 @@ test('a Repulsão empurra pedras de borda que a Luva não alcança',()=>{
   const g=fresh();g.chapter=5;g.zone='sanctum';g.visited.add('sanctum');g.gloves=true;g.wands.add('repulse');g.wand='repulse';g.ranged='wand';g.map.enemies.forEach(e=>e.hp=0);
   const stone=prop(g,'sanctum','sanctum-ledge-stone'),plate=prop(g,'sanctum','sanctum-ledge-plate');
   const sx=stone.x;g.player.x=stone.x+34;g.player.y=stone.y;g.interact();assert.equal(stone.x,sx,'a Luva só empurraria a pedra para o abismo');
-  assert.equal(reachable(g,'sanctum',{x:c(3),y:c(20)},'sanctum-crystals'),false,'a alcova começa fechada');
+  assert.equal(reachable(g,'sanctum',{x:c(3),y:c(20)},'sanctum-wind-blade'),false,'a alcova começa fechada');
   for(let i=0;i<3;i++){g.player.x=c(2);g.player.y=c(17);g.player.dir='right';g.wandCooldown=0;g.castWand();}
   assert.equal(plate.open,true,'o raio leva a pedra até a placa');assert.equal(prop(g,'sanctum','sanctum-alcove-barrier'),undefined);
-  assert.equal(reachable(g,'sanctum',{x:c(3),y:c(20)},'sanctum-crystals'),true);
+  assert.equal(reachable(g,'sanctum',{x:c(3),y:c(20)},'sanctum-wind-blade'),true);
   const h=fresh();g.zone='aerie';g.visited.add('aerie');g.map.enemies.forEach(e=>e.hp=0);
   for(const b of g.map.props.filter(q=>q.id.startsWith('aerie-bridge'))){b.open=true;g.map.tiles[Math.floor(b.y/32)][Math.floor(b.x/32)]=3;}g.rebuildGrid('aerie');
   const ap=prop(g,'aerie','aerie-ledge-plate');
@@ -242,4 +242,14 @@ test('a Repulsão empurra pedras de borda que a Luva não alcança',()=>{
 test('relâmpago e míssil podem ser lançados sem inimigos e seguem em linha reta',()=>{
   const g=fresh();g.chapter=5;g.zone='sanctum';g.wands.add('lightning');g.wands.add('missile');g.map.enemies.forEach(e=>e.hp=0);
   for(const w of ['lightning','missile']){g.wand=w;g.player.x=c(20);g.player.y=c(21);g.player.dir='right';g.wandCooldown=0;g.castWand();assert.equal(g.wandShots.length,1);const y0=g.wandShots[0].y;g.updateWandShots(1/30);assert.ok(g.wandShots[0].x>c(20)&&g.wandShots[0].y===y0,'voa reto');g.wandShots=[];}
+});
+
+test('itens reimaginados: arco tríplice, arco rúnico, lâmina do vento, varinha das varinhas, fênix e ímã',()=>{
+  const g=fresh();g.zone='world';g.map.enemies.forEach(e=>e.hp=0);g.bow=true;g.tripleBow=true;g.player.cooldown=0;g.player.dir='right';g.shoot();assert.equal(g.shots.length,3,'três flechas em leque');
+  g.shots=[];g.runeBow=true;g.arrowKinds.add('fire');g.arrow='fire';g.player.cooldown=0;g.keyDown('l');assert.equal(g.shots.length,0,'segurar L carrega');g.bowCharge=1;g.keyUp('l');assert.ok(g.shots.length===3&&g.shots.every(s=>s.power),'solta um disparo carregado');
+  g.shots=[];g.windBlade=true;g.player.cooldown=0;g.attack();assert.ok(g.wandShots.some(w=>w.kind==='slash'),'a espada lança um corte');
+  g.wandShots=[];g.wands.add('missile');g.wand='missile';g.wandMaster=true;g.wandCooldown=0;g.castWand();assert.equal(g.wandShots.length,3,'o míssil se divide em três');
+  g.phoenix=true;g.player.hp=0;g.onZeroHp();assert.equal(g.screen,'playing');assert.ok(g.player.hp>0);assert.equal(g.phoenix,false);
+  const save=g.serialize(),h=fresh();assert.ok(h.load(save));assert.equal(h.tripleBow,true);assert.equal(h.wandMaster,true);assert.deepEqual(h.snapshot().relics.slice(0,2),['Arco Tríplice','Arco Rúnico']);
+  assert.equal(h.load(save.replace('"v":4','"v":3')),false,'saves antigos são descartados');
 });
