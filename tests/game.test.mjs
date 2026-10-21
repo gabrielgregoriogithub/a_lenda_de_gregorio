@@ -48,7 +48,7 @@ test('puzzles não podem ser contornados',()=>{
   g.zone='bastion';g.map.props=g.map.props.filter(p=>p.id!=='bastion-gate');g.rebuildGrid('bastion');g.arrowKinds.add('light');open(g,'bastion','bastion-seal-a','bastion-seal-b');
   assert.equal(reachable(g,'bastion',bas,'bastion-core'),true);
   assert.equal(reachable(g,'aerie',{x:c(4),y:c(19)},'aerie-core'),false,'o abismo é largo demais para saltar');
-  g.zone='aerie';for(const e of g.map.enemies)e.hp=0;g.updateAerieBridge();
+  g.zone='aerie';for(const id of ['aerie-wind-target-a','aerie-wind-target-b','aerie-wind-target-c'])prop(g,'aerie',id).open=true;for(const e of g.map.enemies)e.hp=0;g.updateAerieBridge();
   assert.equal(reachable(g,'aerie',{x:c(4),y:c(19)},'aerie-core'),true,'a ponte de vento surge quando todos caem');
 });
 
@@ -77,20 +77,20 @@ test('núcleos e coroa já conquistados não pulam capítulos',()=>{
   const g=fresh();g.chapter=3;g.colossusDead=true;g.zone='citadel';const crown=prop(g,'citadel','aurora-crown');
   g.player.x=crown.x;g.player.y=crown.y+30;g.interact();
   assert.equal(g.screen,'playing');assert.equal(g.chapter,3);
-  g.chapter=5;g.zone='eclipse';g.eclipseDead=true;open(g,'eclipse','eclipse-totem');const core=prop(g,'eclipse','eclipse-heart');
+  g.chapter=5;g.zone='eclipse';g.eclipseDead=true;g.map.enemies.find(e=>e.id==='eclipse-warden').hp=0;open(g,'eclipse','eclipse-totem');const core=prop(g,'eclipse','eclipse-heart');
   g.player.x=core.x;g.player.y=core.y+30;g.update(1/60);assert.equal(g.screen,'playing','Núcleo do Eclipse no capítulo 5 não vence de novo');
   g.chapter=3;g.update(1/60);assert.equal(g.screen,'won','no capítulo 3 o núcleo encerra o capítulo');
 });
 
 test('o Núcleo do Eclipse exige o totem energizado',()=>{
-  const g=fresh();g.chapter=3;g.zone='eclipse';g.visited.add('eclipse');g.arrowKinds.add('light');g.swiftBoots=true;g.wands.add('lightning');g.eclipseDead=true;const core=prop(g,'eclipse','eclipse-heart');
+  const g=fresh();g.chapter=3;g.zone='eclipse';g.visited.add('eclipse');g.tide=true;g.arrowKinds.add('light');g.swiftBoots=true;g.wands.add('lightning');g.eclipseDead=true;g.map.enemies.find(e=>e.id==='eclipse-warden').hp=0;open(g,'eclipse','eclipse-seal-a','eclipse-seal-b');const core=prop(g,'eclipse','eclipse-heart');
   g.player.x=core.x;g.player.y=core.y+30;g.update(1/60);assert.equal(g.screen,'playing');
   assert.match(g.objective,/totem/);
 });
 
 test('voltar no tempo e carregar preservam capítulo, arma ativa e pontes',()=>{
   const g=fresh();g.chapter=6;g.boots=true;g.wands.add('missile');g.wand='missile';g.ranged='wand';g.zone='aerie';
-  for(const e of g.map.enemies)e.hp=0;g.updateAerieBridge();const save=g.serialize();
+  for(const id of ['aerie-wind-target-a','aerie-wind-target-b','aerie-wind-target-c'])prop(g,'aerie',id).open=true;for(const e of g.map.enemies)e.hp=0;g.updateAerieBridge();const save=g.serialize();
   g.chapter=1;g.ranged='bow';g.rewindBy(0);
   const h=fresh();h.boots=true;assert.ok(h.load(save));
   assert.equal(h.chapter,6);assert.equal(h.ranged,'wand');
