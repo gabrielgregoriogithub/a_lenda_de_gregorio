@@ -188,6 +188,13 @@ test('o Astrônomo transforma a ruína em missão com recompensa única',()=>{
   g.dismissDialog();g.maps.north.props.find(p=>p.id==='north-ruin-seal-a').open=true;g.maps.north.props.find(p=>p.id==='north-ruin-seal-b').open=true;g.checkBarriers();const before=g.coins;g.player.x=npc.x-30;g.player.y=npc.y;g.interact();assert.equal(g.coins,before+25);g.dismissDialog();const saved=g.serialize(),h=fresh();assert.ok(h.load(saved));const hn=prop(h,'north','astronomo');h.player.x=hn.x-30;h.player.y=hn.y;h.interact();assert.equal(h.coins,before+25,'a recompensa não pode ser duplicada após carregar');
 });
 
+test('as Ruínas do Sol exigem maré, ordem de luz e guardião antes do coração',()=>{
+  const g=fresh();g.chapter=3;g.tide=true;g.zone='north';g.visited.add('north');const gate=prop(g,'north','north-sunken-gate');g.player.x=gate.x;g.player.y=gate.y+30;g.interact();assert.equal(g.zone,'sunken');
+  const order=['sunken-seal-a','sunken-seal-b','sunken-seal-c'];const shot=id=>{const p=prop(g,'sunken',id);return g.hitTarget({x:p.x,y:p.y,kind:'light',life:1,vx:1,vy:0});};
+  assert.equal(shot(order[1]),true);assert.equal(prop(g,'sunken',order[0]).open,false,'a sequência errada reinicia os selos');shot(order[0]);shot(order[1]);shot(order[2]);assert.equal(prop(g,'sunken','sunken-seal-barrier'),undefined,'os três selos abrem a passagem');
+  const sentinel=g.map.enemies.find(e=>e.id==='sunken-sentinel');sentinel.hp=0;const heart=prop(g,'sunken','sunken-heart');g.player.x=heart.x;g.player.y=heart.y+30;g.interact();for(let i=0;i<220&&g.heartChestTimer>0;i++)g.update(1/60);assert.equal(heart.open,true);assert.equal(g.player.maxHp,7,'o coração é entregue somente após o guardião');
+});
+
 test('entrar na arena registra checkpoint antes da luta',()=>{
   const g=fresh();g.chapter=6;g.zone='aerie';g.visited.add('aerie');const boss=g.maps.aerie.enemies.find(e=>e.id==='aerie-dune-warden');g.player.x=boss.x-180;g.player.y=boss.y;g.update(1/60);assert.equal(g.dialogTitle,'A batalha vai começar!');assert.deepEqual(g.checkpoint,{x:g.player.x,y:g.player.y});
 });

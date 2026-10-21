@@ -44,6 +44,7 @@ export function makeNorth(entity:MakeEntity):GameMap{
   add('stairs',48,9,'citadel-door',{to:'citadel1',ax:15,ay:20,label:'Entrar na Cidadela da Aurora'});
   add('stairs',8,20,'grotto-door',{to:'grotto',ax:6,ay:20,label:'Descer à Gruta da Maré'});
   add('stairs',58,40,'north-eclipse-gate',{to:'eclipse',ax:3,ay:20,needs:'tide',label:'Atravessar a Passagem Inundada'});
+  add('stairs',56,6,'north-sunken-gate',{to:'sunken',ax:5,ay:20,minChapter:3,needs:'tide',label:'Descer às Ruínas do Sol Afundado'});
   add('npc',18,42,'guardia');add('npc',44,37,'astronomo');
   add('chest',6,31,'boots-chest',{item:'boots',guard:'k-boots'});
   add('chest',14,4,'amulet-chest',{item:'amulet',guard:'sentinel'});
