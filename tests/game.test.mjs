@@ -350,7 +350,13 @@ test('Caverna da Luz abre depois do segundo chefe; Caverna Submersa (Arco Trípl
   assert.ok(reachable(g,'lightcave',{x:c(13),y:c(14.6)},'lightcave-light'),'as Flechas de Luz estão alcançáveis');
   const light=prop(g,'lightcave','lightcave-light');assert.equal(light.item,'light');
   g.zone='north';g.player.x=tc.x;g.player.y=tc.y+40;g.interact();assert.equal(g.zone,'north','a Caverna Submersa exige a Onda Arcana');
-  g.tide=true;g.interact();assert.equal(g.zone,'tidecave');assert.ok(reachable(g,'tidecave',{x:c(4),y:c(15.6)},'tidecave-triple-bow'),'o Arco Tríplice está alcançável');
+  g.tide=true;g.interact();assert.equal(g.zone,'tidecave');
+  assert.equal(reachable(g,'tidecave',{x:c(4),y:c(15.6)},'tidecave-triple-bow'),false,'o selo das marés bloqueia o cofre');
+  const tideOrder=['tidecave-rune-low','tidecave-rune-current','tidecave-rune-high'];
+  g.zone='tidecave';g.touchTideRune(prop(g,'tidecave',tideOrder[1]));assert.equal(prop(g,'tidecave',tideOrder[0]).open,false,'ordem errada reinicia a sequência');
+  for(const id of tideOrder)g.touchTideRune(prop(g,'tidecave',id));
+  assert.equal(prop(g,'tidecave','tidecave-bow-seal'),undefined,'as três marés removem o selo');
+  assert.ok(reachable(g,'tidecave',{x:c(4),y:c(15.6)},'tidecave-triple-bow'),'o cofre fica alcançável após o puzzle');
   assert.equal(ZONES.flatMap(z=>g.maps[z].props).filter(p=>p.item==='triple-bow').length,1,'só existe um Arco Tríplice');
   assert.equal(prop(g,'tidecave','tidecave-triple-bow').item,'triple-bow');
 });
