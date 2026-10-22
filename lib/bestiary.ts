@@ -72,7 +72,7 @@ const S:Record<string,Sprite>={
     '.....b....','....bb..b.','..b.bBbbb.','..bBBbbb..','..bBcBBb..','.bBcccBBb.','.bBcccccB.','bBcccccBb.','..BccccB..','..BBccBB..','...BBBB...','....oo....']]},
 };
 export const SPRITE_KINDS=new Set(['spider','archer','skeleton','mole','shaman','magmite','serpent','crab','knight','shieldknight','frostwolf','salamander','shade','sandworm','wisp']);
-const U=3,cache=new Map<string,HTMLCanvasElement>();
+const U=4,cache=new Map<string,HTMLCanvasElement>();
 function frameCanvas(name:string,i:number){const key=`${name}:${i}`;let cv=cache.get(key);if(cv)return cv;const sp=S[name],rows=sp.frames[i%sp.frames.length],w=Math.max(...rows.map(r=>r.length)),h=rows.length;
   cv=document.createElement('canvas');cv.width=w*U;cv.height=h*U;const c=cv.getContext('2d')!;rows.forEach((row,y)=>[...row].forEach((ch,x)=>{const col=sp.pal[ch];if(!col)return;c.fillStyle=col;c.fillRect(x*U,y*U,U,U);}));cache.set(key,cv);return cv;}
 function blit(c:CanvasRenderingContext2D,name:string,frame:number,x:number,y:number,face:number,sx:number,sy:number,filter:string,alpha=1){
