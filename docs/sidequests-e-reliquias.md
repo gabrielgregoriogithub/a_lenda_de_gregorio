@@ -93,14 +93,16 @@ Os estados abaixo distinguem conteúdo que já está no motor de propostas que a
 - **Recompensa:** Varinha do Relâmpago; raio em linha reta que ricocheteia entre inimigos próximos.
 - **Uso posterior:** grupos de wisps e salas de espelhos. O puzzle não deve exigir que o jogador já possua a própria varinha que está tentando obter; a varinha é a recompensa do baú e os espelhos servem como tutorial opcional depois.
 
-### 8. Luvas da Força — A Coluna Partida
-**Estado:** Luvas já implementadas no Bastião das Pedras; obtenção separada do Manto.
+### 8. Armadura de Granito — A Prova do Bastião
+**Estado:** baú e Golem da Ala Leste existentes; desafio exclusivo identificado no código. A sequência expandida abaixo é proposta de design e precisa de implementação/teste para ser considerada totalmente jogável.
 
-- **Gancho:** ao entrar no Bastião, Gregório encontra uma coluna rachada bloqueando a passagem central.
-- **Ato I:** enfrentar o Golem da Ala Oeste e abrir o baú das Luvas da Força.
-- **Ato II:** empurrar as pedras marcadas para liberar o corredor da coluna. A passagem revela a rota para a ala leste.
-- **Recompensa:** Luvas da Força, que permitem empurrar pedras e abrir atalhos.
-- **Uso posterior:** Fortaleza Esquecida e puzzles de placas.
+- **Gancho:** ao atravessar a entrada do Bastião das Pedras, Gregório encontra marcas de granito que seguem para a Ala Leste. Um mural alerta: “A pedra protege quem suporta o peso; não quem corre para o altar”.
+- **Ato I — Trilha das Sentinelas:** seguir as marcas pelo corredor oriental e sobreviver a duas ondas de sentinelas. A primeira ensina a ler ataques e buscar cobertura; a segunda combina projéteis e inimigos de aproximação.
+- **Ato II — Golem da Armadura:** o Golem da Ala Leste guarda o baú. Mostrar a investida pesada e a pausa de recuperação; atacar durante a janela de vulnerabilidade. Não exigir Luvas, Manto ou outra recompensa do próprio Bastião.
+- **Ato III — Altar de Granito:** após derrotar o Golem, abrir o baú individual. A Armadura de Granito reduz pela metade o dano recebido e altera a aparência de Gregório.
+- **Uso posterior:** sobreviver às rotas de combate da Fortaleza Esquecida e às arenas com projéteis, sem tornar a armadura obrigatória para terminar a aventura.
+- **Pistas e fairness:** o mural e as marcas do chão apontam a rota; dicas graduais revelam o combate; derrotas permitem tentar novamente; baú e guardião persistem no save e não duplicam a recompensa.
+- **Critério de teste:** confirmar que o percurso é acessível sem outros itens do Bastião, as duas ondas são legíveis, o Golem pode ser vencido sem a Armadura, a redução de dano é exatamente 50%, e coleta/salvamento/carregamento funcionam.
 
 ### 9. Manto do Eco — O Vigia das Três Reverberações
 **Estado:** quest dedicada planejada para o Bastião; o baú atual já é exclusivo, mas ainda usa o guardião wisp existente. O puzzle abaixo é especificação de implementação, não declarar como jogável até codificar e testar.
