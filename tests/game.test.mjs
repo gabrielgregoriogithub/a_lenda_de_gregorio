@@ -318,7 +318,7 @@ test('Tempestade Ancestral: puzzle de três alvos, recompensa e golpe evoluído 
   assert.match(g.dialogTitle,/Tempestade Ancestral/);
   const g2=makeGame(Adventure);g2.start();assert.equal(g2.load(g.serialize()),true);
   assert.equal(g2.spinMasterUnlocked,true,'a evolução permanece no save');
-  const e=g2.map.enemies[0];e.hp=e.maxHp=99;e.hit=0;
+  const e=g2.map.enemies[0];e.hp=e.maxHp=99;e.hit=0;e.x=g2.player.x+60;e.y=g2.player.y+5;
   g2.spinAttack(true);
   assert.equal(99-e.hp,g2.swordPower+5,'a Tempestade causa espada +5');
   assert.equal(g2.player.spin,.72,'a animação do golpe evoluído tem duração maior');
