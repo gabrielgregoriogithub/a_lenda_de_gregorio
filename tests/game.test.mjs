@@ -426,14 +426,14 @@ test('Corrida do Anel Verde cobra 25 cristais e a Bota do Vento só vem na vitó
   g.coins=40;g.interact();
   assert.equal(g.coins,15,'a tentativa desconta exatamente 25 cristais');
   assert.equal(g.raceActive,true,'inscrição inicia a corrida');
-  g.raceCountdown=0;g.racePlayer=.98;g.raceRival=.65;g.update(1/60);
+  g.raceCountdown=0;g.racePlayer=.999;g.raceRival=.65;g.update(1/60);
   assert.equal(g.raceActive,false,'a corrida termina ao cruzar a linha');
   assert.equal(g.swiftBoots,true,'a vitória concede a Bota do Vento');
   assert.match(g.dialog,/Bota do Vento/);
 
   g.dismissDialog();g.swiftBoots=false;g.coins=25;g.interact();
   assert.equal(g.coins,0,'cada nova tentativa paga novamente');
-  g.raceCountdown=0;g.raceRival=.99;g.racePlayer=.4;g.update(1/60);
+  g.raceCountdown=0;g.raceRival=1;g.racePlayer=.4;g.update(1/60);
   assert.equal(g.raceActive,false);
   assert.equal(g.swiftBoots,false,'perder não entrega a bota');
 });
