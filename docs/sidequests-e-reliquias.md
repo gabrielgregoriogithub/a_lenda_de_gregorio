@@ -231,9 +231,9 @@ Para cada quest antes de marcar como concluída:
 **Estado:** minijogo implementado no motor e controles táteis; falta playtest de ritmo e balanceamento.
 
 - **NPC e acesso:** Lia, cavaleira do circuito, fica perto da Estrada do Sul no Vale. A corrida aparece a partir do capítulo 3. A Bota do Vento não é mais um baú no Caminho do Eclipse: a vitória na corrida é a única forma de obtê-la nesta jornada.
-- **Inscrição:** 25 cristais por tentativa. A cobrança ocorre somente se o jogador tiver saldo suficiente e confirmar a inscrição. Abandonar ou perder consome o valor; a vitória não cobra extra nem concede cristais.
+- **Inscrição:** 25 cristais por tentativa. A cobrança ocorre ao interagir com Lia se o jogador tiver saldo suficiente. Abandonar ou perder consome o valor; a vitória não cobra extra nem concede cristais.
 - **Circuito:** uma volta completa no Anel Verde, em pista fechada/circular. Lia corre contra Gregório; há três fardos de feno em pontos fixos. O jogador pode trocar de faixa para contornar os obstáculos.
 - **Controles:** ↑ acelera; ↓ freia; Shift/control usa arrancada e consome fôlego; ←/→ muda de faixa. O fôlego recupera gradualmente quando a arrancada não está ativa. No celular, os botões de corrida substituem o joystick e os comandos de aventura.
-- **Recompensa:** vencer concede Bota do Vento (swift-boots), que aumenta bastante a velocidade de corrida no mundo aberto. Perder permite tentar de novo pagando 25 cristais.
+- **Recompensa:** vencer concede Bota do Vento (swift-boots), que aumenta bastante a velocidade de corrida no mundo aberto. Depois de obter a bota, o circuito segue aberto para corridas de treino: cada nova tentativa custa 25 cristais, mas não duplica a recompensa.
 - **Referência de design:** inspirado no gerenciamento de aceleração/fôlego e no uso estratégico de arrancada das corridas de chocobo de Final Fantasy VII; o percurso, NPC, arte, comandos e economia são próprios do jogo.
 - **QA automatizado:** teste cobre saldo insuficiente, cobrança de 25, concessão da bota apenas ao vencer e cobrança em nova tentativa. O balanceamento real de tempos, faixa e obstáculos precisa de playtest.
