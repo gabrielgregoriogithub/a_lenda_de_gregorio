@@ -69,3 +69,6 @@ npx --yes --package pnpm@11.25.0 pnpm build:pages  # versão estática em dist-p
 - `public/art/`: arte original (herói e atlas). As regiões só aplicam filtros de cor por cima dela.
 
 Recursos de menu, saves, voltar no tempo, filtros e trapaças inspirados no [Moon Pearl](https://github.com/DoutorRaposo/moonpearl).
+
+
+**Nova exploração costeira:** a enseada oriental agora inclui o Manguezal das Lanternas. Acenda os três faróis com Flechas de Fogo na ordem A → B → C, abra o selo e enfrente o Leviatã para conquistar o Coração das Marés.
