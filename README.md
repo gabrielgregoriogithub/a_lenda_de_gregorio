@@ -30,6 +30,9 @@ Ao vencer um chefe e continuar, Gregório fica onde está: o caminho até o pró
 
 ## Sidequests e relíquias
 
+**Nova evolução de combate:** após o capítulo 3, retorne à Câmara do Eco com o Ataque Giratório. O mural da Tempestade ensina uma prova de maestria: um único giro deve acertar três alvos. O baú libera a **Tempestade Ancestral** (segure J / Espaço por 1,35 s e solte; dano espada +5, alcance ampliado e efeitos de energia azul). Detalhes em [docs/sidequests-e-reliquias.md](docs/sidequests-e-reliquias.md).
+
+
 O padrão de design, o catálogo de quests por equipamento, as pistas, puzzles, recompensas, dependências e checklist de QA estão em [docs/sidequests-e-reliquias.md](docs/sidequests-e-reliquias.md). A Caverna Submersa agora usa a sequência das Três Marés para abrir o cofre do Arco Tríplice; os testes de motor cobrem a sequência e o selo da Caverna da Luz.
 
 ## Controles
