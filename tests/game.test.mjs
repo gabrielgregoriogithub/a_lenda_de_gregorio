@@ -333,3 +333,12 @@ test('barreiras de totens e tochas bloqueiam de verdade (Bastião e Raízes)',()
     assert.equal(reach(g,{x:c(5),y:c(22)}).has(core.x,core.y,56),true);
   }
 });
+test('o Mercador Errante surge depois de dois chefes e vende um coração por 2000 cristais, uma vez',()=>{
+  const g=fresh();g.zone='north';const m=prop(g,'north','mercador');assert.ok(m);g.player.x=m.x;g.player.y=m.y+30;
+  g.chapter=2;assert.notEqual(g.nearProp()?.id,'mercador','antes dos dois chefes ele não aparece');
+  g.chapter=3;assert.equal(g.nearProp()?.id,'mercador');g.interact();assert.equal(g.shopOpen,true);assert.equal(g.shopKind,'merchant');
+  g.coins=1999;g.buy('bigheart');assert.equal(g.merchantHeart,false,'faltam cristais');
+  g.coins=2500;const hp=g.player.maxHp;g.buy('bigheart');assert.equal(g.player.maxHp,hp+1);assert.equal(g.coins,500);
+  g.buy('bigheart');assert.equal(g.coins,500,'compra única');assert.equal(g.soldOut('bigheart'),true);
+  const h=makeGame(Adventure);h.start();h.load(g.serialize());assert.equal(h.merchantHeart,true);
+});
