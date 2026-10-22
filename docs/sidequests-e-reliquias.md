@@ -72,16 +72,15 @@ Os estados abaixo distinguem conteúdo que já está no motor de propostas que a
 - **Uso posterior:** acertar vários alvos, quebrar grupos e combinar com Flecha de Gelo ou Fogo.
 - **Critério de teste:** sem a Onda Arcana não entra; sem sequência não alcança o cofre; com sequência o baú é alcançável; o guardião não pode ser ignorado; o item é único e salvo.
 
-### 6. Botas Aladas — O Bosque de Cristal
-**Estado:** item e guardião existem; proposta de transformar a obtenção em percurso de domínio.
+### 6. Botas Aladas — A Gruta das Botas Aladas
+**Estado:** implementada (`lib/wingcave.ts`) e coberta por teste automatizado com travessia real no motor.
 
-- **Gancho:** um cavaleiro guarda as botas numa clareira separada por um abismo.
-- **Ato I:** pista da Guardiã do Portão aponta para o Bosque de Cristal.
-- **Ato II:** primeiro salto longo opcional sobre um vão pequeno, com plataforma de retorno.
-- **Ato III:** sequência de três plataformas com larguras diferentes; uma rota tem poção e outra leva ao cavaleiro. Não exigir que o jogador acerte um salto cego.
-- **Recompensa:** Botas Aladas, que ampliam o salto.
-- **Uso posterior:** cruzar o abismo até os Picos do Céu e alcançar o Amuleto da Brasa.
-- **Regra de fairness:** cair deve devolver Gregório à última plataforma segura, com dano moderado e pista do ponto de salto, nunca ao começo de uma região longa.
+- **Entrada:** o baú do Bosque de Cristal (Terras do Norte, posição 6,31) foi trocado pela entrada da gruta; o cavaleiro de pedra continua vigiando a entrada. Não há outra forma de obter as botas.
+- **Gruta:** margem inicial segura, um abismo que não se atravessa andando e a margem das Botas Aladas do outro lado. Um aviso na entrada explica a regra.
+- **Plataformas:** oito, numeradas de 1 a 8, separadas por vãos calculados para o salto comum (cerca de 115 px). As ímpares (1, 3, 5 e 7) são fixas. As pares se movem em ciclos senoidais previsíveis: 2 sobe e desce, 4 vai e volta, 6 sobe e desce, 8 vai e volta. Elas nunca se tocam e o herói é carregado junto com a plataforma em que está.
+- **Ordem:** cada plataforma acende quando é alcançada na ordem certa; o baú só abre com a travessia 8/8.
+- **Queda:** cair no abismo tira exatamente um coração, devolve o herói à entrada e reinicia o ciclo das plataformas. Uma trava curta impede penalidade repetida; sem corações, entra a tela de derrota que o jogo já usa.
+- **Recompensa:** Botas Aladas pelo sistema de equipamentos existente, salvas no save e mantidas após a morte. Uma passagem na margem final leva de volta ao Bosque de Cristal.
 
 ### 7. Varinha do Relâmpago — O Caminho do Eclipse
 **Estado:** baú e inimigos existem; os espelhos/totem já estão presentes na área.

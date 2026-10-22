@@ -41,6 +41,8 @@ Cada equipamento opcional tem uma side quest própria, num cenário só dele: ne
 | Arco Rúnico | A Prova dos Quatro Elementos (Torre Rúnica) | oeste dos Campos Abertos (Terras do Sul) | capítulo 4, com Flechas de Fogo, Gelo e Luz | runas Brasa → Geada → Aurora → Eco, cada uma com a sua flecha | cavaleiro de escudo, salamandra e dois fogos-fátuos |
 | Varinha das Varinhas | O Teste das Três Varinhas (Cofre das Varinhas) | Deserto das Tempestades (Terras do Sul) | capítulo 6, com as três varinhas | selos Relâmpago → Míssil → Repulsão, cada um com a sua varinha | Verme das Areias e duas sombras |
 
+**Gruta das Botas Aladas:** no Bosque de Cristal, o antigo baú virou a entrada de uma gruta com um abismo. Salte (K) pelas oito plataformas, de 1 a 8: as ímpares são fixas e as pares se movem. Cair custa um coração e reinicia a travessia; só quem chega pela plataforma 8 alcança as botas.
+
 A Varinha do Relâmpago continua no Caminho do Eclipse. O Bastião das Pedras ficou só com as Luvas da Força; a antiga prova das sentinelas agora guarda um cofre de cristais.
 
 **Técnica Ancestral e Tempestade Ancestral:** depois do capítulo 3, volte à Câmara do Eco com o Ataque Giratório. Fique no meio dos três alvos celestes do salão central e acerte os três com um único giro; se acertar só alguns, eles se apagam. O baú libera a **Tempestade Ancestral** (segure J / Espaço por 1,35 s e solte; dano espada +5, alcance ampliado e efeitos de energia azul).

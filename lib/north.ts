@@ -47,7 +47,7 @@ export function makeNorth(entity:MakeEntity):GameMap{
   add('npc',18,42,'guardia');
   // Mercador Errante: na entrada da ruína que leva à Gruta da Maré, a partir do capítulo 3 (depois de dois chefes)
   add('npc',39,30,'mercador',{minChapter:3,solid:false});add('npc',44,37,'astronomo');
-  add('chest',6,31,'boots-chest',{item:'boots',guard:'k-boots'});
+  add('stairs',6,31,'north-wingcave',{to:'wingcave',ax:3,ay:7.5,label:'Entrar na Gruta das Botas Aladas'});
   add('chest',14,4,'amulet-chest',{item:'amulet',guard:'sentinel'});
   add('chest',58,44,'north-heart',{item:'heart',guard:'k-heart'});
   add('chest',40,27,'north-crystals',{item:'crystals'});

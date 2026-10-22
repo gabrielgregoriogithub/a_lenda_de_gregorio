@@ -1,6 +1,8 @@
 // Jogador automático: explora todos os mapas com a colisão e a lógica reais do motor até não haver mais progresso.
 import {reach,canShoot} from './reach.mjs';
 import {QUESTS,QUEST_SEQ_IDS} from '../lib/sidequests.ts';
+import {WING_START} from '../lib/wingcave.ts';
+import {crossWingCave} from './wingcross.mjs';
 const ORDERED_SKIP=id=>QUEST_SEQ_IDS.has(id)||id.startsWith('coast-beacon-')||id.startsWith('lightcave-rune-')||id.startsWith('tidecave-rune-')||id.endsWith('-mural');
 const T=32,c=n=>n*T+T/2;
 export function solve(g,{log=()=>{}}={}){
@@ -30,6 +32,8 @@ export function solve(g,{log=()=>{}}={}){
       // sequências em ordem: runas da Caverna da Luz e da Caverna Submersa, faróis da costa e side quests de relíquias
       if(z==='world'&&g.arrowKinds.has('fire'))for(const id of ['coast-beacon-a','coast-beacon-b','coast-beacon-c']){const q=m.props.find(p=>p.id===id);if(!q||q.open)continue;if(fire(q,'fire')&&q.open){ev(`world: acendeu ${id}`);progress=true;}else break;}
       for(const quest of QUESTS){if(quest.zone!==z)continue;for(let i=0;i<quest.seq.ids.length;i++){const q=m.props.find(p=>p.id===quest.seq.ids[i]);if(!q||q.open)continue;const via=quest.seq.via[i];let ok=false;if(via==='touch')ok=act(q,56);else if(via==='lightning'||via==='missile'||via==='repulse')ok=cast(q,via);else ok=fire(q,via);if(ok&&q.open){ev(`${z}: ${via} despertou ${q.id}`);progress=true;}else break;}}
+      // Gruta das Botas Aladas: travessia real das oito plataformas, de 1 a 8
+      if(z==='wingcave'&&g.screen==='playing'){const c=m.props.find(p=>p.id==='wingcave-boots');if(c&&!c.open){place(WING_START.x,WING_START.y);g.player.dir='right';g.wingInside=true;g.resetWingCave(true);const r=crossWingCave(g);if(r.ok){place(c.x,c.y+30);g.interact();settle();if(c.open){ev('wingcave: atravessou as 8 plataformas e pegou as Botas Aladas');progress=true;}}else ev(`wingcave: FALHOU ${r.reason}`);}}
       // Tempestade Ancestral: um giro comum no meio dos três alvos celestes
       if(z==='dojo'&&g.chapter>=3&&g.spinUnlocked&&m.props.some(p=>p.id==='dojo-ascension-barrier')){const b=m.props.find(p=>p.id==='dojo-asc-target-b');if(b&&near(b.x,b.y,24)){place(b.x,b.y);g.player.dir='down';g.spinAttack();for(let i=0;i<60;i++)g.update(1/60);settle();if(!m.props.some(p=>p.id==='dojo-ascension-barrier')){ev('dojo: giro despertou os alvos celestes');progress=true;}}}
       // Técnica Ancestral: pilares do Portão do Eco e símbolos da Câmara na ordem; depois as placas do vento a tempo

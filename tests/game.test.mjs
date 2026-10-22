@@ -122,6 +122,7 @@ test('itens únicos não podem ser coletados duas vezes',()=>{
 test('equipamentos importantes precisam ser conquistados',()=>{
   const g=fresh(),needGuard=['bow','heart','fragment','bosskey','boots','amulet','tide','ice','light','swift-boots','wand-lightning','armor','gloves','cloak','wand-repulse','wand-missile','magnet','rune-bow','wind-blade','wand-master'];
   for(const z of ZONES)for(const p of g.maps[z].props){if(p.kind!=='chest'||!needGuard.includes(p.item))continue;
+    if(p.id==='wingcave-boots')continue; // protegidas pela travessia das oito plataformas (teste próprio)
     const guard=p.guard&&ZONES.some(q=>g.maps[q].enemies.some(e=>e.id===p.guard));
     assert.ok(guard,`${z}:${p.id} (${p.item}) tem um guardião existente`);}
   const sword=prop(g,'world','lake-sword');g.zone='world';g.player.x=sword.x;g.player.y=sword.y+40;g.interact();
@@ -494,4 +495,35 @@ test('Corrida do Anel Verde: fardos em faixas diferentes e Corrida de Mestre com
   const hp=b.player.maxHp;race(b,smart);assert.equal(b.raceHeart,true,'a Corrida de Mestre vale um coração');assert.equal(b.player.maxHp,hp+1);
   race(b,smart);assert.equal(b.player.maxHp,hp+1,'o coração não se repete');
   const h=fresh();assert.ok(h.load(b.serialize()));assert.equal(h.raceHeart,true,'o coração da corrida fica no save');
+});
+
+
+test('Gruta das Botas Aladas: entrada no lugar do baú, oito plataformas, queda e recompensa',async()=>{
+  const {WING_PLATFORMS,WING_START,wingPlatformPos}=await import('../lib/wingcave.ts');const {crossWingCave}=await import('./wingcross.mjs');
+  const enter=()=>{const g=makeGame(Adventure);g.start();g.dismissDialog();g.chapter=2;g.zone='north';const door=prop(g,'north','north-wingcave');g.player.x=door.x;g.player.y=door.y+40;g.interact();if(g.dialog)g.dismissDialog();return g;};
+  // o baú saiu do Bosque de Cristal: só existe um par de Botas Aladas, dentro da gruta
+  const g0=fresh();assert.equal(prop(g0,'north','boots-chest'),undefined,'o baú antigo foi removido');assert.equal(prop(g0,'north','north-wingcave').to,'wingcave','a entrada da gruta ocupa o lugar do baú');
+  assert.deepEqual(ZONES.flatMap(z=>g0.maps[z].props.filter(p=>p.item==='boots').map(p=>`${z}:${p.id}`)),['wingcave:wingcave-boots']);
+  // 1, 3, 5 e 7 fixas; 2, 4, 6 e 8 móveis e sem atravessar as vizinhas
+  assert.deepEqual(WING_PLATFORMS.map(d=>d.n),[1,2,3,4,5,6,7,8]);
+  for(const d of WING_PLATFORMS){const a=wingPlatformPos(d,0),b=wingPlatformPos(d,1.1),c2=wingPlatformPos(d,2.3);const moved=a.x!==b.x||a.y!==b.y||a.x!==c2.x||a.y!==c2.y;
+    assert.equal(moved,d.n%2===0,`plataforma ${d.n} ${d.n%2?'fixa':'móvel'}`);}
+  for(let t=0;t<12;t+=.05)for(let i=0;i<7;i++){const A=WING_PLATFORMS[i],B=WING_PLATFORMS[i+1],a=wingPlatformPos(A,t),b=wingPlatformPos(B,t);assert.ok(b.x-a.x>=(A.w+B.w)/2+20,`plataformas ${A.n} e ${B.n} nunca se tocam`);}
+  // sem completar a travessia, as botas não saem do baú
+  const g=enter();assert.equal(g.zone,'wingcave');assert.equal(g.player.x,WING_START.x);
+  const chest=prop(g,'wingcave','wingcave-boots');g.player.x=chest.x;g.player.y=chest.y+30;g.interact();assert.equal(g.boots,false,'chegar ao baú sem atravessar não basta');assert.match(g.notice,/plataforma 8/);
+  // queda: exatamente um coração, volta ao início, percurso reiniciado e sem penalidade repetida
+  const h=enter(),hp=h.player.hp;h.update(1/60);h.wingStep=3;h.player.x=WING_START.x+40;h.player.dir='right';h.player.jumpCooldown=0;h.keyDown('k');h.keyUp('k');
+  for(let i=0;i<60&&h.player.jump>0;i++)h.update(1/60);h.player.x=WING_START.x+200;h.player.y=WING_START.y;h.player.jump=0;h.update(1/60);
+  assert.equal(h.player.hp,hp-1,'a queda tira exatamente um coração');assert.deepEqual([h.player.x,h.player.y],[WING_START.x,WING_START.y],'volta ao ponto inicial');
+  assert.equal(h.wingStep,0,'o percurso recomeça');assert.ok(h.wingClock<.1,'as plataformas voltam ao início do ciclo');
+  for(let i=0;i<120;i++)h.update(1/60);assert.equal(h.player.hp,hp-1,'a penalidade não se repete durante o respawn');
+  const k=enter();k.update(1/60);k.player.hp=1;k.player.x=WING_START.x+200;k.update(1/60);assert.equal(k.screen,'dead','sem corações, usa a derrota que já existe');
+  // travessia real com o salto comum, sem as Botas Aladas
+  g.resetWingCave(true);const r=crossWingCave(g);assert.equal(r.ok,true,r.reason);assert.equal(g.wingStep,8);
+  const before=g.player.hp;g.player.x=chest.x;g.player.y=chest.y+30;g.interact();if(g.dialog)g.dismissDialog();
+  assert.equal(g.boots,true,'as Botas Aladas vão para o inventário');assert.equal(g.player.hp,before,'a travessia certa não custa vida');assert.doesNotMatch(g.snapshot().objective,/Botas Aladas/,'o Diário deixa de pedir as botas');
+  g.interact();assert.equal(g.boots,true);assert.equal(chest.open,true,'o baú não entrega outro par');
+  const s=fresh();assert.ok(s.load(g.serialize()));assert.equal(s.boots,true,'as botas ficam no save');assert.equal(prop(s,'wingcave','wingcave-boots').open,true);
+  s.player.hp=0;s.onZeroHp();s.retry();assert.equal(s.boots,true,'morrer depois não remove as botas');
 });
