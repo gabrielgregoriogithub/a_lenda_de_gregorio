@@ -2,7 +2,7 @@
 // Toda a arte vem do atlas original; cada região só aplica um filtro de cor por cima.
 import type {Entity,GameMap,Prop} from './adventure';
 
-export type Biome='village'|'forest'|'lake'|'desert'|'snow'|'autumn'|'swamp'|'ruins'|'canyon'|'crystal'|'sky'|'starfall'|'ash';
+export type Biome='village'|'forest'|'lake'|'desert'|'snow'|'autumn'|'swamp'|'ruins'|'canyon'|'crystal'|'sky'|'starfall'|'ash'|'darkwood'|'rainforest'|'plains'|'stormdesert';
 export type BiomeStyle={name:string;ground:number;filter:string;pathFilter:string;propFilter:string;enemyFilter:string;waterFilter:string;wallFilter:string;mini:string;music:number[]};
 export const WORLD_W=96,WORLD_H=72;
 const CELL_W=32,CELL_H=24;
@@ -21,6 +21,11 @@ export const BIOMES:Record<Biome,BiomeStyle>={
   sky:{name:'Picos do Céu',ground:0,filter:'saturate(.35) brightness(1.6) hue-rotate(180deg)',pathFilter:'grayscale(.6) brightness(1.4)',propFilter:'saturate(.5) brightness(1.4) hue-rotate(160deg)',enemyFilter:'hue-rotate(120deg) brightness(1.2)',waterFilter:'brightness(1.4)',wallFilter:'grayscale(.8) brightness(1.6)',mini:'#c7d6e6',music:[392,493.88,587.33,783.99,698.46,587.33,493.88,440]},
   starfall:{name:'Planície das Estrelas',ground:0,filter:'hue-rotate(230deg) saturate(.9) brightness(.82)',pathFilter:'hue-rotate(220deg) saturate(.5) brightness(.95)',propFilter:'hue-rotate(250deg) saturate(1.2) brightness(.9)',enemyFilter:'hue-rotate(40deg)',waterFilter:'hue-rotate(30deg)',wallFilter:'hue-rotate(220deg) brightness(.8)',mini:'#5d5a8f',music:[261.63,311.13,392,466.16,415.3,392,311.13,293.66]},
   ash:{name:'Terras de Cinza',ground:1,filter:'grayscale(.85) brightness(.55) sepia(.3)',pathFilter:'grayscale(.7) brightness(.72)',propFilter:'grayscale(.9) brightness(.55)',enemyFilter:'hue-rotate(-40deg) saturate(1.8)',waterFilter:NONE,wallFilter:'grayscale(.6) brightness(.45) sepia(.4)',mini:'#4a3f3a',music:[196,207.65,261.63,246.94,207.65,196,185,174.61]},
+  // Terras do Sul: quatro cenários, cada um com a entrada de uma masmorra.
+  darkwood:{name:'Floresta das Trevas',ground:0,filter:'saturate(.55) brightness(.58) hue-rotate(55deg)',pathFilter:'brightness(.62) saturate(.6)',propFilter:'saturate(.5) brightness(.62) hue-rotate(40deg)',enemyFilter:'hue-rotate(200deg) brightness(.85)',waterFilter:'brightness(.6) hue-rotate(40deg)',wallFilter:'brightness(.5) saturate(.6)',mini:'#2d3b2a',music:[196,233.08,277.18,233.08,207.65,196,174.61,185]},
+  rainforest:{name:'Floresta da Chuva',ground:0,filter:'saturate(1.55) hue-rotate(-12deg) brightness(.82)',pathFilter:'saturate(1.2) brightness(.85)',propFilter:'saturate(1.8) hue-rotate(-18deg) brightness(.88)',enemyFilter:'hue-rotate(60deg) saturate(1.3)',waterFilter:'hue-rotate(-20deg) saturate(1.3) brightness(.9)',wallFilter:'saturate(1.3) brightness(.75)',mini:'#2f7a3a',music:[261.63,293.66,349.23,392,349.23,293.66,261.63,233.08]},
+  plains:{name:'Campos Abertos',ground:0,filter:'saturate(1.3) brightness(1.12) hue-rotate(-18deg)',pathFilter:'saturate(1.1) brightness(1.05)',propFilter:'saturate(1.25) brightness(1.06)',enemyFilter:'none',waterFilter:'brightness(1.1)',wallFilter:'sepia(.2) brightness(1.05)',mini:'#8fbf5a',music:[293.66,369.99,440,587.33,493.88,440,369.99,293.66]},
+  stormdesert:{name:'Deserto das Tempestades',ground:1,filter:'sepia(.5) saturate(1.6) brightness(1.05) hue-rotate(-12deg)',pathFilter:'saturate(1.2) brightness(1.05)',propFilter:'sepia(.7) saturate(1.3) brightness(1.02)',enemyFilter:'hue-rotate(-50deg) saturate(1.5)',waterFilter:'hue-rotate(-12deg) brightness(1.1)',wallFilter:'sepia(.9) saturate(1.4) brightness(1.05)',mini:'#cfa45a',music:[220,233.08,277.18,329.63,311.13,277.18,233.08,220]},
   canyon:{name:'Desfiladeiro Rubro',ground:1,filter:'sepia(.6) saturate(1.55) hue-rotate(-22deg) brightness(.9)',pathFilter:'sepia(.3) brightness(.95)',propFilter:'sepia(.6) saturate(1.3) hue-rotate(-20deg)',enemyFilter:'hue-rotate(-115deg) saturate(1.3)',waterFilter:NONE,wallFilter:'sepia(1) saturate(1.4) hue-rotate(-18deg) brightness(.82)',mini:'#a9643b',music:[207.65,246.94,311.13,277.18,246.94,207.65,185,207.65]},
 };
 export const SPITTER_TINT='hue-rotate(250deg) saturate(1.7) brightness(.9)';
@@ -48,6 +53,7 @@ export const NPCS:Record<string,NpcInfo>={
   guardia:{name:'Guardiã do Portão',tint:'hue-rotate(30deg) brightness(1.2)',talk:()=>'Bem-vinda a luz da aurora, herói. A Cidadela da Aurora fica além do mar de lava, a nordeste. Você vai precisar das Botas Aladas, guardadas por um cavaleiro aqui no Bosque de Cristal, e do Amuleto da Brasa, nos Picos do Céu, do outro lado do abismo ao norte.'},
   astronomo:{name:'Astrônomo Errante',tint:'hue-rotate(260deg)',talk:()=>'Os fogos-fátuos somem e reaparecem: quando estão transparentes, só a luz os toca. E os cavaleiros de pedra? Espere a investida passar e golpeie enquanto descansam, use o Ataque Giratório (se já o aprendeu) ou queime o escudo com fogo. Dizem que o Colosso de Cinzas teme o gelo.'},
   cartografo:{name:'Cartógrafo das Marés',tint:'hue-rotate(185deg) saturate(1.25)',talk:()=>'Encontrei uma passagem antiga atrás da muralha, mas o guardião da ala leste tomou meu mapa. Derrote-o e posso abrir um atalho até as Terras do Norte.'},
+  viajante:{name:'Viajante do Sul',tint:'hue-rotate(320deg) saturate(1.2)',talk:()=>'As Terras do Sul guardam quatro masmorras, cada uma num canto: o Caminho do Eclipse na Floresta das Trevas (noroeste), o Bastião das Pedras na Floresta da Chuva (nordeste), o Santuário da Repulsão nos Campos Abertos (sudoeste) e o Abismo dos Alvos Velozes no Deserto das Tempestades (sudeste). Cada entrada desperta quando a anterior é vencida. A Fortaleza Esquecida fica no meio dos campos e só abre com as Luvas da Força. Siga as estradas: elas levam a todas.'},
   bruxa:{name:'Bruxa do Pântano',tint:'hue-rotate(200deg) brightness(.85)',talk:({fragments})=>fragments<3?'Hihihi... o Fragmento da Névoa está a leste, além dos charcos. Cuidado com os morcegos.':'Hihihi... vá logo, a lua não espera.'},
 };
 
@@ -81,6 +87,7 @@ export function makeWorld(entity:(id:string,x:number,y:number,kind:Entity['kind'
   road([[62,36],[62,22],[83,22],[83,9]]);
   road([[10,36],[10,43]]);
   road([[86,60],[86,65]]);
+  road([[47,62],[47,67]]);
   road([[7,60],[7,64]]);
   road([[24,60],[24,52]]);
   ellipse(80,36,2.4,2.2,0);
@@ -101,6 +108,7 @@ export function makeWorld(entity:(id:string,x:number,y:number,kind:Entity['kind'
   add('chest',24,50,'canyon-chest',{item:'potion'});
   add('door',47,4,'temple-door',{solid:true});
   add('stairs',53,3,'north-gate',{to:'north',ax:16,ay:43.5,needs:'relic',label:'Atravessar o Portão do Norte'});
+  add('stairs',47,68,'world-south-gate',{to:'south',ax:40,ay:55.4,minChapter:3,needs:'tide',label:'Seguir a Estrada do Sul'});
   add('stairs',85,58,'world-grove-gate',{to:'grove',ax:5,ay:22,minChapter:7,extra:['wand-missile'],label:'Entrar no Santuário das Raízes'});
   // Portão do Eco (missão do Eremita da Neve): clareira com quatro pilares ao redor do portão da Câmara do Eco.
   for(let y=2;y<=10;y++)for(let x=19;x<=31;x++)if(tiles[y][x]===4||tiles[y][x]===2)tiles[y][x]=0;

@@ -10,14 +10,14 @@ const ARROW_COLOR={normal:'#e9dcc0',fire:'#ff9a3c',light:'#fff3a0',ice:'#9fe6ff'
 const WAND_BUTTON_COLOR={lightning:'#fff6a8',missile:'#f5f7ff',repulse:'#c98cff'};
 const STORE='lenda-gregorio:';
 // Versão dos dados salvos. Ao mudar, saves antigos (slots, automático) e caches do navegador são apagados.
-const DATA_VERSION='6';
-const GAME_VERSION='21.10.2026 · 6';
+const DATA_VERSION='7';
+const GAME_VERSION='21.10.2026 · 7';
 function purgeOldData(){try{if(localStorage.getItem(STORE+'data-version')===DATA_VERSION)return;for(const k of Object.keys(localStorage))if(k.startsWith(STORE)&&k!==STORE+'settings')localStorage.removeItem(k);localStorage.setItem(STORE+'data-version',DATA_VERSION);}catch{}try{if('caches' in window)caches.keys().then(keys=>keys.forEach(k=>caches.delete(k))).catch(()=>{});navigator.serviceWorker?.getRegistrations?.().then(rs=>rs.forEach(r=>r.unregister())).catch(()=>{});}catch{}}
 type SaveMeta={data:string;location:string;hp:number;maxHp:number;coins:number;fragments:number;elapsed:number;at:number};
 type Filter='sharp'|'smooth'|'crt'|'lcd';
 const FILTERS:[Filter,string][]=[['sharp','Pixels nítidos'],['smooth','Suave'],['crt','CRT'],['lcd','LCD']];
 const SPEEDS:[number,string][]=[[2,'2×'],[3,'3×'],[6,'Máxima']];
-const WORLD_MAP:[string,string][]=[['world','Bosque de Elara'],['north','Terras do Norte'],['grotto','Gruta da Maré'],['eclipse','Caminho do Eclipse'],['bastion','Bastião das Pedras'],['sanctum','Santuário da Repulsão'],['aerie','Abismo dos Alvos Velozes'],['sunken','Ruínas do Sol Afundado'],['fortress','Fortaleza Esquecida'],['grove','Santuário das Raízes'],['dojo','Câmara do Eco'],['citadel1','Cidadela · Galeria'],['citadel2','Cidadela · Terraço'],['citadel','Arena do Colosso']];
+const WORLD_MAP:[string,string][]=[['world','Bosque de Elara'],['north','Terras do Norte'],['south','Terras do Sul'],['grotto','Gruta da Maré'],['eclipse','Caminho do Eclipse'],['bastion','Bastião das Pedras'],['sanctum','Santuário da Repulsão'],['aerie','Abismo dos Alvos Velozes'],['sunken','Ruínas do Sol Afundado'],['fortress','Fortaleza Esquecida'],['grove','Santuário das Raízes'],['dojo','Câmara do Eco'],['citadel1','Cidadela · Galeria'],['citadel2','Cidadela · Terraço'],['citadel','Arena do Colosso']];
 function readStore<T>(key:string):T|null{try{const raw=localStorage.getItem(STORE+key);return raw?JSON.parse(raw) as T:null;}catch{return null;}}
 function writeStore(key:string,value:unknown){try{localStorage.setItem(STORE+key,JSON.stringify(value));return true;}catch{return false;}}
 function removeStore(key:string){try{localStorage.removeItem(STORE+key);}catch{}}

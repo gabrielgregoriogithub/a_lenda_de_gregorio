@@ -16,6 +16,18 @@ Gregório começa no **Bosque de Elara**. Ao redor dele ficam as **Ruínas da Lu
 
 **Terras do Norte:** a única entrada da Gruta da Maré fica na ruína do Astrônomo — pegue as Flechas de Luz (Planície das Estrelas, guardadas por um cavaleiro) e desperte os dois totens.
 
+**Terras do Sul:** terceiro mundo aberto, alcançado pela Passagem Inundada (Terras do Norte) ou pela Estrada do Sul (Vale de Elara), ambas com a Onda Arcana. Cada canto é um cenário com clima e música próprios, e cada um guarda a entrada de uma masmorra independente — entra-se, vence-se o chefe e sai-se pela mesma porta para procurar a próxima:
+
+| Cenário | Masmorra | Desperta no |
+|---|---|---|
+| Floresta das Trevas (noroeste) | Caminho do Eclipse | capítulo 3 |
+| Floresta da Chuva (nordeste) | Bastião das Pedras | capítulo 4 (Varinha do Relâmpago) |
+| Campos Abertos (sudoeste) | Santuário da Repulsão | capítulo 5 (Luvas da Força) |
+| Deserto das Tempestades (sudeste) | Abismo dos Alvos Velozes | capítulo 6 (Varinha da Repulsão) |
+| Campos Abertos (centro) | Fortaleza Esquecida (opcional) | com as Luvas da Força |
+
+Ao vencer um chefe e continuar, Gregório fica onde está: o caminho até o próximo desafio é feito a pé.
+
 ## Controles
 
 | Ação | Teclado | Controle |

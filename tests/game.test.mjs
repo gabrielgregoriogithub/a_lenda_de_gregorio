@@ -70,14 +70,17 @@ test('chegadas não caem dentro de paredes nem em cima de escadas',()=>{
   assert.deepEqual(bad,[]);
 });
 
-test('regiões já conquistadas continuam ligadas: dá para voltar e seguir em frente',()=>{
+test('masmorras independentes: cada uma entra e sai pelas Terras do Sul, sem portais entre elas',()=>{
   const g=fresh(),links=new Map();
   for(const z of ZONES)for(const p of g.maps[z].props)if(p.to)links.set(`${z}>${p.to}`,p.minChapter??0);
-  for(const [a,b,ch] of [['citadel','eclipse',3],['eclipse','bastion',4],['bastion','sanctum',5],['sanctum','aerie',6]]){
-    assert.ok(links.has(`${b}>${a}`),`${b} volta para ${a}`);assert.equal(links.get(`${a}>${b}`),ch,`${a} segue para ${b} a partir do capítulo ${ch}`);}
-  g.chapter=3;g.arrowKinds.add('light');g.zone='eclipse';const portal=prop(g,'eclipse','eclipse-bastion');g.player.x=portal.x;g.player.y=portal.y+30;g.interact();
-  assert.equal(g.zone,'eclipse','portal adormecido antes do capítulo 4');
-  g.chapter=4;g.interact();assert.equal(g.zone,'bastion');
+  const dungeons=['eclipse','bastion','sanctum','aerie','fortress'];
+  for(const [d,ch] of [['eclipse',3],['bastion',4],['sanctum',5],['aerie',6]]){
+    assert.equal(links.get(`south>${d}`),ch,`a entrada de ${d} desperta no capítulo ${ch}`);assert.ok(links.has(`${d}>south`),`${d} sai para as Terras do Sul`);}
+  for(const a of dungeons)for(const b of dungeons)assert.equal(links.has(`${a}>${b}`),false,`${a} não leva direto a ${b}`);
+  assert.equal(links.has('citadel>eclipse'),false,'a Cidadela não leva direto ao Eclipse');
+  g.chapter=3;g.wands.add('lightning');g.zone='south';const portal=prop(g,'south','south-bastion');g.player.x=portal.x;g.player.y=portal.y+30;g.interact();
+  assert.equal(g.zone,'south','entrada adormecida antes do capítulo 4');
+  g.chapter=4;g.interact();assert.equal(g.zone,'bastion');g.dismissDialog();const out=prop(g,'bastion','bastion-return');g.player.x=out.x;g.player.y=out.y-30;g.interact();assert.equal(g.zone,'south','sair do Bastião volta à Floresta da Chuva');
 });
 
 test('núcleos e coroa já conquistados não pulam capítulos',()=>{
@@ -144,7 +147,8 @@ test('a passagem para o Eclipse exige conquistar a Gruta da Maré',()=>{
   open(g,'grotto','grotto-torch-a','grotto-torch-b');
   assert.equal(g.maps.grotto.props.some(p=>p.kind==='barrier'),false,'as duas tochas abrem a galeria inundada');
   g.tide=true;g.zone='north';g.player.x=gate.x;g.player.y=gate.y+30;g.interact();
-  assert.equal(g.zone,'eclipse','a conquista libera o Caminho do Eclipse');
+  assert.equal(g.zone,'south','a Onda Arcana abre a Passagem Inundada até as Terras do Sul');g.dismissDialog();
+  const ecl=prop(g,'south','south-eclipse');g.player.x=ecl.x;g.player.y=ecl.y+30;g.interact();assert.equal(g.zone,'eclipse','o Caminho do Eclipse fica na Floresta das Trevas');
 });
 
 test('o Eclipse exige os dois selos antes da arena do guardião',()=>{
@@ -204,7 +208,7 @@ test('as Ruínas do Sol exigem maré, ordem de luz e guardião antes do coraçã
 });
 
 test('a Fortaleza Esquecida usa as Luvas e exige a sequência dos selos',()=>{
-  const g=fresh();g.chapter=4;g.tide=true;g.zone='sunken';g.visited.add('sunken');const gate=prop(g,'sunken','sunken-fortress');g.player.x=gate.x;g.player.y=gate.y+30;g.interact();assert.equal(g.zone,'sunken','o portão permanece fechado sem as Luvas da Força');
+  const g=fresh();g.chapter=4;g.tide=true;g.zone='south';g.visited.add('south');const gate=prop(g,'south','south-fortress');g.player.x=gate.x;g.player.y=gate.y+30;g.interact();assert.equal(g.zone,'south','o portão permanece fechado sem as Luvas da Força');
   g.gloves=true;g.interact();assert.equal(g.zone,'fortress');g.dismissDialog();const shield=g.map.enemies.find(e=>e.id==='fortress-shieldknight');shield.timer=1;const shieldHp=shield.hp;g.hitEnemy(shield,1,0,1,'sword');assert.equal(shield.hp,shieldHp,'o escudo bloqueia golpes comuns durante a guarda');shield.hit=0;g.hitEnemy(shield,1,0,2,'fire');assert.equal(shield.hp,shieldHp-2,'fogo atravessa a guarda do escudeiro');const push=(rockId,plateId)=>{const rock=prop(g,'fortress',rockId),plate=prop(g,'fortress',plateId);g.player.x=plate.x;g.player.y=plate.y+84;rock.x=plate.x;rock.y=plate.y+42;g.interact();};
   push('fortress-stone-a','fortress-plate-a');assert.equal(prop(g,'fortress','fortress-plate-a').open,true,'a pedra ativa a primeira placa');push('fortress-stone-b','fortress-plate-b');push('fortress-stone-c','fortress-plate-c');assert.equal(prop(g,'fortress','fortress-seal-barrier'),undefined,'a ala leste abre após as três placas');
   const guard=g.map.enemies.find(e=>e.id==='fortress-knight');guard.hp=0;const chest=prop(g,'fortress','fortress-crystals');g.player.x=chest.x;g.player.y=chest.y+30;g.interact();assert.equal(chest.open,true,'a primeira recompensa comum fica protegida por combate');
@@ -220,7 +224,7 @@ test('entrar na arena registra checkpoint antes da luta',()=>{
 });
 
 test('o Núcleo dos Ventos encerra o capítulo final quando a ponte está pronta',()=>{
-  const g=fresh();g.chapter=6;g.zone='aerie';g.visited.add('aerie');g.wands.add('missile');for(const p of g.map.props)if(p.id.startsWith('aerie-wind-target-')||p.id.startsWith('aerie-bridge-')){p.open=true;p.solid=false;}for(const e of g.map.enemies)e.hp=0;const core=prop(g,'aerie','aerie-core');g.player.x=core.x-30;g.player.y=core.y;g.update(1/60);assert.equal(g.finished,false);assert.equal(g.screen,'won');g.continueStory();assert.equal(g.chapter,7);assert.equal(g.zone,'aerie','sem teletransporte: o herói continua no Abismo');assert.ok(!g.missingNeed(prop(g,'aerie','aerie-shortcut')),'a corrente de vento leva de volta ao vale');assert.equal(prop(g,'world','world-grove-gate').minChapter<=g.chapter,true,'o Santuário das Raízes fica aberto para quem chegar a pé');
+  const g=fresh();g.chapter=6;g.zone='aerie';g.visited.add('aerie');g.wands.add('missile');for(const p of g.map.props)if(p.id.startsWith('aerie-wind-target-')||p.id.startsWith('aerie-bridge-')){p.open=true;p.solid=false;}for(const e of g.map.enemies)e.hp=0;const core=prop(g,'aerie','aerie-core');g.player.x=core.x-30;g.player.y=core.y;g.update(1/60);assert.equal(g.finished,false);assert.equal(g.screen,'won');g.continueStory();assert.equal(g.chapter,7);assert.equal(g.zone,'aerie','sem teletransporte: o herói continua no Abismo');assert.equal(prop(g,'aerie','aerie-return').to,'south','o Abismo sai para o Deserto das Tempestades');assert.equal(prop(g,'world','world-grove-gate').minChapter<=g.chapter,true,'o Santuário das Raízes fica aberto para quem chegar a pé');
 });
 
 test('a Repulsão empurra pedras de borda que a Luva não alcança',()=>{
@@ -250,14 +254,14 @@ test('itens reimaginados: arco tríplice, arco rúnico, lâmina do vento, varinh
   g.wandShots=[];g.wands.add('missile');g.wand='missile';g.wandMaster=true;g.wandCooldown=0;g.castWand();assert.equal(g.wandShots.length,3,'o míssil se divide em três');
   g.phoenix=true;g.player.hp=0;g.onZeroHp();assert.equal(g.screen,'playing');assert.ok(g.player.hp>0);assert.equal(g.phoenix,false);
   const save=g.serialize(),h=fresh();assert.ok(h.load(save));assert.equal(h.tripleBow,true);assert.equal(h.wandMaster,true);assert.deepEqual(h.snapshot().relics.slice(0,2),['Arco Tríplice','Arco Rúnico']);
-  assert.equal(h.load(save.replace('"v":6','"v":5')),false,'saves antigos são descartados');
+  assert.equal(h.load(save.replace('"v":7','"v":6')),false,'saves antigos são descartados');
 });
 
 test('portais exigem os itens da região anterior e têm atalhos',()=>{
-  const g=fresh();g.chapter=4;g.zone='eclipse';g.visited.add('eclipse');const gate=prop(g,'eclipse','eclipse-bastion');
-  g.player.x=gate.x;g.player.y=gate.y+30;g.interact();assert.equal(g.zone,'eclipse','sem Flecha de Luz o portal fica selado');assert.equal(g.missingNeed(gate),'light');
-  g.arrowKinds.add('light');g.interact();assert.equal(g.zone,'bastion','com a Flecha de Luz o portal abre');
-  const h=fresh();h.chapter=5;h.zone='bastion';const sc=prop(h,'bastion','bastion-shortcut');h.player.x=sc.x;h.player.y=sc.y+30;h.interact();assert.equal(h.zone,'bastion');h.gloves=true;h.interact();assert.equal(h.zone,'north','o atalho de pedra leva às Terras do Norte');
+  const g=fresh();g.chapter=4;g.zone='south';g.visited.add('south');const gate=prop(g,'south','south-bastion');
+  g.player.x=gate.x;g.player.y=gate.y+30;g.interact();assert.equal(g.zone,'south','sem a Varinha do Relâmpago a entrada fica selada');assert.equal(g.missingNeed(gate),'wand-lightning');
+  g.wands.add('lightning');g.interact();assert.equal(g.zone,'bastion','com a varinha do Eclipse a entrada abre');
+  const h=fresh();h.chapter=3;h.zone='world';const road=prop(h,'world','world-south-gate');h.player.x=road.x;h.player.y=road.y-30;h.interact();assert.equal(h.zone,'world','a Estrada do Sul exige a Onda Arcana');h.tide=true;h.interact();assert.equal(h.zone,'south','a Estrada do Sul liga o Vale às Terras do Sul');
 });
 
 test('chefes têm armadura, fraqueza, fases e podem ser derrotados em luta simulada',async()=>{
@@ -318,4 +322,14 @@ test('portões e barreiras explicam exatamente o que falta',()=>{
 test('depois do final dá para continuar explorando e achar as missões opcionais',()=>{
   const g=fresh();g.chapter=7;g.finished=true;g.screen='won';assert.match(g.sideObjective??'',/Eremita/,'a missão opcional continua visível depois do final');
   g.keepExploring();assert.equal(g.screen,'playing');assert.equal(g.finished,true);g.update(1/60);assert.equal(g.screen,'playing','o final não se repete sozinho');
+});
+test('barreiras de totens e tochas bloqueiam de verdade (Bastião e Raízes)',()=>{
+  for(const boots of [false,true]){
+    let g=fresh();g.boots=boots;g.zone='bastion';g.map.props=g.map.props.filter(p=>p.id!=='bastion-gate');g.rebuildGrid('bastion');
+    assert.equal(reach(g,{x:c(20),y:c(13)}).has(c(30),c(14),40),false,'a arena da Besta só abre com os dois selos');
+    g=fresh();g.boots=boots;g.zone='grove';const core=prop(g,'grove','grove-core');
+    assert.equal(reach(g,{x:c(5),y:c(22)}).has(core.x,core.y,56),false,'o coração da selva só abre com as duas tochas');
+    for(const id of ['grove-torch-a','grove-torch-b']){const q=prop(g,'grove',id);q.open=true;q.solid=false;}g.checkBarriers();
+    assert.equal(reach(g,{x:c(5),y:c(22)}).has(core.x,core.y,56),true);
+  }
 });
