@@ -216,3 +216,13 @@ Para cada quest antes de marcar como concluída:
 - **Fauna e clima:** o renderizador adiciona silhuetas ambientais de aves em passagem, pequenos animais saltando e macacos entre as copas; a costa usa ondas/espuma, a serra usa rajadas de vento, a floresta tropical usa chuva e o deserto mantém partículas de areia. Áreas vulcânicas usam partículas de brasa/erupção. Esses efeitos são decorativos e não devem bloquear colisão ou combate.
 - **Limite de assets desta etapa:** a fauna ambiente é desenhada em canvas e os novos encontros usam tipos/sprites já presentes com paletas regionais. Spritesheets originais de animais, marinheiros e monstros costeiros ainda precisam ser adicionados separadamente para substituir os placeholders visuais.
 - **QA:** confirmar caminhos até os dois corações, gatilhos dos faróis, combate obrigatório, limites do mapa, transição/save, desempenho dos efeitos e controles por toque. O teste automatizado verifica dimensões, NPCs, baús e guardiões, mas não substitui playtest.
+
+## 14. Manguezal das Lanternas — O Coração das Marés
+**Estado:** bioma, puzzle sequencial e arte procedural costeira adicionados ao motor; precisa de playtest visual e de combate.
+
+- **Exploração:** a faixa oriental do Vale inclui o Manguezal das Lanternas, com paleta e vegetação próprias.
+- **Gancho:** Marina ensina a ordem Enseada (A) → Copa (B) → Ponta (C).
+- **Puzzle:** acertar os três faróis com Flechas de Fogo nessa ordem. Errar apaga a sequência; o acerto final remove o selo da enseada.
+- **Combate e recompensa:** o Leviatã da Enseada continua protegendo o Coração das Marés. O puzzle abre o acesso, mas não entrega o coração sem derrotar o guardião.
+- **Assets:** caranguejos costeiros e Leviatã usam sprites pixel-art desenhados em Canvas, com silhuetas e paletas próprias.
+- **QA automatizado:** verifica bioma, reinício por ordem errada, abertura do selo e bloqueio da recompensa. Ainda precisa validar trajeto, leitura dos faróis, combate e controles no jogo.
