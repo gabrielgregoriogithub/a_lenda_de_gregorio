@@ -44,3 +44,7 @@
 @media(max-width:600px){.interact-hint{display:flex!important}}
 @media(max-width:600px) and (orientation:portrait){.victory-screen{justify-content:flex-start;overflow-y:auto;overscroll-behavior:contain;padding-top:20px;padding-bottom:28px}.victory-screen h2{font-size:24px;margin:8px 0 10px}.victory-screen p{max-width:330px}.victory-screen .victory-stats{flex-wrap:wrap;max-width:330px}.victory-screen .start-actions{padding-bottom:12px}}
 .touch-actions button.equipped{border-color:#e6c46a;background:#4a4426;box-shadow:inset 0 0 0 1px #e6c46a55}
+.zoom-controls .map-toggle{border-left:1px solid #8b987966;border-radius:0 4px 4px 0;margin-left:2px}
+.zoom-controls .map-toggle.active{background:#d4bd84;color:#15242b}
+.dialogue-box.skill-unlock{border-color:#ffd45a;box-shadow:0 0 0 4px #15252bdd,0 0 34px #ffd45a55,0 10px 40px #0005;background:linear-gradient(180deg,#2a2614f2,#172a30f2)}
+.dialogue-box.skill-unlock h3{color:#ffd45a;text-transform:uppercase;letter-spacing:.06em}

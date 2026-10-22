@@ -251,7 +251,7 @@ test('itens reimaginados: arco tríplice, arco rúnico, lâmina do vento, varinh
   g.wandShots=[];g.wands.add('missile');g.wand='missile';g.wandMaster=true;g.wandCooldown=0;g.castWand();assert.equal(g.wandShots.length,3,'o míssil se divide em três');
   g.phoenix=true;g.player.hp=0;g.onZeroHp();assert.equal(g.screen,'playing');assert.ok(g.player.hp>0);assert.equal(g.phoenix,false);
   const save=g.serialize(),h=fresh();assert.ok(h.load(save));assert.equal(h.tripleBow,true);assert.equal(h.wandMaster,true);assert.deepEqual(h.snapshot().relics.slice(0,2),['Arco Tríplice','Arco Rúnico']);
-  assert.equal(h.load(save.replace('"v":4','"v":3')),false,'saves antigos são descartados');
+  assert.equal(h.load(save.replace('"v":5','"v":4')),false,'saves antigos são descartados');
 });
 
 test('portais exigem os itens da região anterior e têm atalhos',()=>{
@@ -278,3 +278,41 @@ test('afinidades elementais: fraquezas, resistências e imunidades',()=>{
 });
 
 test('o desenho real roda sem erros em todas as zonas e estados de chefe',async()=>{const {drawSmoke}=await import('./drawsmoke.mjs');assert.equal(drawSmoke(),true);});
+
+test('Ataque Giratório: bloqueado no início, conquistado na Câmara do Eco e salvo',async()=>{
+  const {runSpinQuest}=await import('./spinquest.mjs');
+  const g=fresh();
+  g.keyDown('j');for(let i=0;i<60;i++)g.update(1/60);assert.equal(g.player.charge,0,'sem a técnica a espada não carrega');g.keyUp('j');assert.equal(g.player.spin,0);
+  assert.match(g.sideObjective??'',/Eremita da Neve/,'o diário aponta para o Eremita');
+  assert.equal(runSpinQuest(g),true);
+  for(let i=0;i<400&&g.spinReveal>0;i++){g.update(1/60);assert.equal(g.zone,'dojo');}
+  assert.match(g.dialogTitle,/Nova habilidade desbloqueada/);g.dismissDialog();
+  assert.equal(g.sideObjective,null,'a missão foi concluída');
+  const chest=prop(g,'dojo','dojo-scroll');assert.equal(chest.open,true);
+  const g2=makeGame(Adventure);g2.start();assert.equal(g2.load(g.serialize()),true);
+  assert.equal(g2.spinUnlocked,true,'o desbloqueio fica no save');assert.equal(prop(g2,'dojo','dojo-scroll').open,true,'o baú continua aberto');
+  g2.zone='dojo';g2.player.x=chest.x;g2.player.y=chest.y+30;g2.interact();assert.equal(g2.spinReveal,0,'o pergaminho não é coletado de novo');
+});
+test('o giro causa a espada +2, acerta em volta e não atravessa paredes',()=>{
+  const g=fresh();g.spinUnlocked=true;g.changeZone('dojo',5,14.3);g.dismissDialog();const P=g.player;
+  const [a,b,...rest]=g.map.enemies;rest.forEach(e=>e.hp=0);for(const e of [a,b]){e.hp=e.maxHp=99;e.hit=0;}
+  a.x=P.x;a.y=c(12);b.x=P.x+60;b.y=P.y+10;assert.equal(g.clearLine(P.x,P.y-8,a.x,a.y-8),false,'a parede bloqueia a linha');
+  g.spinAttack();assert.equal(99-a.hp,0,'inimigo atrás da parede não é atingido');assert.equal(99-b.hp,g.swordPower+2,'giro = espada +2');
+  P.spin=0;g.spinUnlocked=false;g.spinAttack();assert.equal(P.spin,0,'sem a técnica não há giro');
+});
+test('a forja da espada vale uma vez: +1 de ataque por 250 cristais, depois esgota',()=>{
+  const g=fresh();g.coins=1000;g.openShop();const before=g.swordPower;g.buy('sword');assert.equal(g.swordPower,before+1);assert.equal(g.coins,750);
+  g.buy('sword');assert.equal(g.coins,750,'segunda compra recusada');assert.equal(g.soldOut('sword'),true);
+  g.sword=3;assert.equal(g.swordPower,4,'a forja continua valendo com a Espada Lunar');
+  const g2=makeGame(Adventure);g2.start();g2.load(g.serialize());assert.equal(g2.forged,true);
+});
+test('o mapa em tela cheia pausa a ação e fecha pelo mesmo comando',()=>{
+  const g=fresh();g.toggleMap();assert.equal(g.mapOpen,true);const x=g.player.x;g.keys.add('d');g.update(1/60);assert.equal(g.player.x,x,'com o mapa aberto o herói não se move');
+  g.keyDown('n');assert.equal(g.mapOpen,false);g.keyUp('n');g.keyDown('n');assert.equal(g.mapOpen,true);g.toggleMap(false);assert.equal(g.mapOpen,false);
+});
+test('portões e barreiras explicam exatamente o que falta',()=>{
+  const g=fresh();g.zone='world';const gate=prop(g,'world','echo-gate');g.player.x=gate.x;g.player.y=gate.y+40;
+  assert.match(g.hint,/Norte → Leste → Sul → Oeste/);
+  g.zone='dojo';const bar=prop(g,'dojo','dojo-rune-barrier');assert.match(g.barrierHint(bar,true),/Lua → Estrela → Sol → Vento/);
+  const north=prop(g,'world','north-gate');g.zone='world';g.maps.world.props=[north];g.rebuildGrid('world');g.player.x=north.x;g.player.y=north.y+40;g.interact();assert.match(g.notice,/Relíquia Lunar/);
+});

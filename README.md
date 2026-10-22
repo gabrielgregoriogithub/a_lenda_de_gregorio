@@ -12,13 +12,17 @@ Gregório começa no **Bosque de Elara**. Ao redor dele ficam as **Ruínas da Lu
 2. Recupere os três Fragmentos Lunares (Deserto, Montanhas e Pântano), cada um guardado por um golem.
 3. Desça os três andares do Templo da Lua: abismos no 1º andar, o golem e a Chave do Guardião no 2º, e a câmara original do guardião no 3º.
 
+**Missão opcional — Técnica Ancestral:** o Eremita da Neve (noroeste) conta sobre o Portão do Eco. Toque os quatro pilares na ordem Norte → Leste → Sul → Oeste, entre na Câmara do Eco, acenda os símbolos (Lua → Estrela → Sol → Vento), pise nas quatro placas do vento a tempo e abra o grande baú dourado para aprender o **Ataque Giratório** (dano da espada +2, atinge tudo em volta, não atravessa paredes).
+
+**Terras do Norte:** a única entrada da Gruta da Maré fica na ruína do Astrônomo — pegue as Flechas de Luz (Planície das Estrelas, guardadas por um cavaleiro) e desperte os dois totens.
+
 ## Controles
 
 | Ação | Teclado | Controle |
 |---|---|---|
 | Mover | WASD / setas (no celular: joystick) | Analógico / direcional |
 | Espada | J / Espaço | A |
-| Golpe giratório | segurar J e soltar | segurar A |
+| Ataque Giratório (depois de aprender a Técnica Ancestral) | segurar J até brilhar e soltar | segurar A |
 | Atirar flecha (depois de achar o arco) | L | clique do analógico direito |
 | Trocar flecha (fogo, luz, gelo) | T | clique do analógico esquerdo |
 | Zoom da câmera | + / − (ou botões na tela) | |
@@ -28,6 +32,7 @@ Gregório começa no **Bosque de Elara**. Ao redor dele ficam as **Ruínas da Lu
 | Salto longo | K | LB |
 | Voltar no tempo | segurar R | LT + RT |
 | Acelerar | segurar F | RB |
+| Mapa em tela cheia | N (ou botão do mapa; toque no mapa para voltar) | |
 | Menu (saves, filtros, trapaças) | M | |
 | Pausar | Esc | Start |
 

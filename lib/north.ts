@@ -42,7 +42,6 @@ export function makeNorth(entity:MakeEntity):GameMap{
   const add=(kind:Prop['kind'],x:number,y:number,id:string,extra:Partial<Prop>={})=>{props.push({kind,x:center(x),y:center(y),id,solid:kind!=='relic',...extra});pois.push({x:Math.round(x),y:Math.round(y),r:kind==='npc'?2:3});};
   add('stairs',15,46,'north-exit',{to:'world',ax:NORTH_GATE.x,ay:NORTH_GATE.y+1.6,label:'Voltar ao Vale de Elara'});
   add('stairs',48,9,'citadel-door',{to:'citadel1',ax:15,ay:20,extra:['amulet'],label:'Entrar na Cidadela da Aurora'});
-  add('stairs',8,20,'grotto-door',{to:'grotto',ax:6,ay:20,label:'Descer à Gruta da Maré'});
   add('stairs',58,40,'north-eclipse-gate',{to:'eclipse',ax:3,ay:20,needs:'tide',label:'Atravessar a Passagem Inundada'});
   add('stairs',56,6,'north-sunken-gate',{to:'sunken',ax:5,ay:20,minChapter:3,needs:'tide',extra:['light'],label:'Descer às Ruínas do Sol Afundado'});
   add('npc',18,42,'guardia');add('npc',44,37,'astronomo');
@@ -50,11 +49,12 @@ export function makeNorth(entity:MakeEntity):GameMap{
   add('chest',14,4,'amulet-chest',{item:'amulet',guard:'sentinel'});
   add('chest',58,44,'north-heart',{item:'heart',guard:'k-heart'});
   add('chest',40,27,'north-crystals',{item:'crystals'});
-  add('chest',25,41,'north-potion',{item:'potion'});
+  // Flechas de Luz: ficam no norte para despertar os totens da ruína, a única entrada da Gruta da Maré.
+  add('chest',25,41,'north-light',{item:'light',guard:'k-light'});
   add('chest',24,10,'sky-crystals',{item:'crystals'});
   add('totem',35,31,'north-ruin-seal-a');add('totem',43,31,'north-ruin-seal-b');
   add('barrier',39,28,'north-ruin-barrier',{by:['north-ruin-seal-a','north-ruin-seal-b']});
-  add('stairs',42,26,'north-ruin-shortcut',{to:'grotto',ax:6,ay:20,label:'Atalho para a Gruta da Maré'});
+  add('stairs',42,26,'north-ruin-shortcut',{to:'grotto',ax:6,ay:20,label:'Descer à Gruta da Maré'});
   for(const p of pois)for(let y=p.y-1;y<=p.y+1;y++)for(let x=p.x-1;x<=p.x+1;x++)if(inside(x,y)&&(tiles[y][x]===4||tiles[y][x]===2)&&!(x>=31&&x<=32&&y<=25))tiles[y][x]=1;
   for(let x=34;x<=44;x++){tiles[24][x]=4;if(x!==39)tiles[28][x]=4;}
   for(let y=24;y<=28;y++){tiles[y][34]=4;tiles[y][44]=4;}
@@ -75,7 +75,7 @@ export function makeNorth(entity:MakeEntity):GameMap{
   const enemies:Entity[]=[];
   const plan:[Biome,Entity['kind'],number,string?][]=[['crystal','slime',3],['crystal','knight',2,KNIGHT_TINT],['sky','bat',3],['sky','wisp',2,WISP_TINT],['starfall','wisp',2,WISP_TINT],['starfall','spitter',3,'hue-rotate(250deg) saturate(1.7) brightness(.9)'],['starfall','slime',2,'hue-rotate(230deg)'],['ash','spitter',3,FIRE_SPITTER_TINT],['ash','knight',2,KNIGHT_TINT],['ash','bat',2,'hue-rotate(-40deg) saturate(1.8)']];
   plan.forEach(([b,kind,count,tint],pi)=>{let placed=0;for(let i=0;placed<count&&i<600;i++){const x=2+Math.floor(hash(i,pi,28)*(W-4)),y=2+Math.floor(hash(i,pi,29)*(H-4));if(biome[y][x]!==b||(tiles[y][x]!==0&&tiles[y][x]!==1))continue;if(Math.abs(x-16)<9&&y>36)continue;if(props.some(p=>p.solid&&Math.abs(p.x-center(x))<40&&Math.abs(p.y-center(y))<40))continue;enemies.push(entity(`n-${b}-${kind}-${placed}`,x,y,kind,tint));placed++;}});
-  enemies.push(entity('k-heart',56,43,'knight',KNIGHT_TINT),entity('k-boots',8,31,'knight',KNIGHT_TINT),entity('sentinel',16,5,'golem','hue-rotate(170deg) saturate(.6) brightness(1.3)'));
+  enemies.push(entity('k-heart',56,43,'knight',KNIGHT_TINT),entity('k-boots',8,31,'knight',KNIGHT_TINT),entity('k-light',27,41,'knight',KNIGHT_TINT),entity('sentinel',16,5,'golem','hue-rotate(170deg) saturate(.6) brightness(1.3)'));
   return{width:W,height:H,tiles,props,enemies,biome};
 }
 

@@ -38,15 +38,15 @@ export function biomeAt(x:number,y:number):Biome{
 
 export type NpcInfo={name:string;tint:string;talk:(s:{hasKey:boolean;fragments:number})=>string};
 export const NPCS:Record<string,NpcInfo>={
-  iris:{name:'Iris, guardiã do vale',tint:NONE,talk:({hasKey,fragments})=>!hasKey?'Gregório, o brilho da lua sumiu do vale. A Chave Lunar está num baú aqui no Bosque de Elara, a leste da estrada. Use K para dar um salto longo sobre a água. Depois, recupere os três Fragmentos Lunares espalhados pelo mundo: no Deserto do Sol, nas Montanhas Geladas e no Pântano Sombrio.':fragments<3?`Você tem a chave! Agora faltam ${3-fragments} Fragmento(s) Lunar(es). Golems de pedra guardam cada um deles. Use a esquiva (Shift) quando eles avançarem.`:'Os três fragmentos brilham com você. Siga a estrada para o norte até as Ruínas da Lua e desça pelos três andares do Templo.'},
+  iris:{name:'Iris, guardiã do vale',tint:NONE,talk:({hasKey,fragments})=>!hasKey?'Gregório, o brilho da lua sumiu do vale. A Chave Lunar está num baú aqui no Bosque de Elara, a leste da estrada. Use K para dar um salto longo sobre a água. Depois, recupere os três Fragmentos Lunares espalhados pelo mundo: no Deserto do Sol, nas Montanhas Geladas e no Pântano Sombrio.':fragments<3?`Você tem a chave! Agora faltam ${3-fragments} Fragmento(s) Lunar(es). Golems de pedra guardam cada um deles. Corra (Shift) para sair do caminho quando eles avançarem.`:'Os três fragmentos brilham com você. Siga a estrada para o norte até as Ruínas da Lua e desça pelos três andares do Templo.'},
   ferreiro:{name:'Ferreiro da Vila',tint:'hue-rotate(-150deg) saturate(.7)',talk:()=>'Seu pai forjou essa espada, Gregório! Ao sul do mundo fica o Pântano a leste e o Desfiladeiro a oeste. Há baús escondidos em cada canto do vale.'},
   sabio:{name:'Sábio do Oásis',tint:'hue-rotate(150deg) saturate(.8)',talk:({fragments})=>fragments<3?'O Fragmento do Sol está nas ruínas a sudoeste do oásis. Um golem de areia não dorme nunca.':'O sol do deserto agradece, jovem.'},
   pescadora:{name:'Pescadora do Lago',tint:'hue-rotate(-120deg)',talk:()=>'Há um baú na ilha no meio do lago. Atravesse a ponte e pegue o Coração Lunar: sua vida vai aumentar. E se achar Conchas Lunares brilhando pelo vale, traga para mim!'},
-  eremita:{name:'Eremita da Neve',tint:'hue-rotate(60deg) brightness(1.1)',talk:()=>'Brrr... o Fragmento do Gelo fica no topo das montanhas, a noroeste. Leve poções, o frio não perdoa.'},
+  eremita:{name:'Eremita da Neve',tint:'hue-rotate(60deg) brightness(1.1)',talk:()=>'Brrr... o Fragmento do Gelo fica no topo das montanhas, a noroeste. Leve poções, o frio não perdoa. E se quiser aprender a Técnica Ancestral, fale comigo de novo.'},
   guarda:{name:'Guardião das Ruínas',tint:'hue-rotate(-40deg) saturate(.6)',talk:({hasKey,fragments})=>hasKey&&fragments===3?'A porta reconhece a Chave Lunar e os três fragmentos. Entre, herói.':'O Templo só se abre para quem traz a Chave Lunar e os três Fragmentos Lunares.'},
   lenhadora:{name:'Lenhadora do Outono',tint:'hue-rotate(95deg)',talk:()=>'Deixei o arco do meu pai num baú perto da estrada, a noroeste daqui, mas um golem de pedra se instalou ao lado dele. Derrote-o e fique com o arco, Gregório: lá no templo vai fazer falta. E há outro baú com poções no fundo da floresta, a nordeste.'},
   guardia:{name:'Guardiã do Portão',tint:'hue-rotate(30deg) brightness(1.2)',talk:()=>'Bem-vinda a luz da aurora, herói. A Cidadela da Aurora fica além do mar de lava, a nordeste. Você vai precisar das Botas Aladas, guardadas por um cavaleiro aqui no Bosque de Cristal, e do Amuleto da Brasa, nos Picos do Céu, do outro lado do abismo ao norte.'},
-  astronomo:{name:'Astrônomo Errante',tint:'hue-rotate(260deg)',talk:()=>'Os fogos-fátuos somem e reaparecem: quando estão transparentes, só a luz os toca. E os cavaleiros de pedra? Espere a investida passar e golpeie enquanto descansam, gire a espada ou queime o escudo com fogo. Dizem que o Colosso de Cinzas teme o gelo.'},
+  astronomo:{name:'Astrônomo Errante',tint:'hue-rotate(260deg)',talk:()=>'Os fogos-fátuos somem e reaparecem: quando estão transparentes, só a luz os toca. E os cavaleiros de pedra? Espere a investida passar e golpeie enquanto descansam, use o Ataque Giratório (se já o aprendeu) ou queime o escudo com fogo. Dizem que o Colosso de Cinzas teme o gelo.'},
   cartografo:{name:'Cartógrafo das Marés',tint:'hue-rotate(185deg) saturate(1.25)',talk:()=>'Encontrei uma passagem antiga atrás da muralha, mas o guardião da ala leste tomou meu mapa. Derrote-o e posso abrir um atalho até as Terras do Norte.'},
   bruxa:{name:'Bruxa do Pântano',tint:'hue-rotate(200deg) brightness(.85)',talk:({fragments})=>fragments<3?'Hihihi... o Fragmento da Névoa está a leste, além dos charcos. Cuidado com os morcegos.':'Hihihi... vá logo, a lua não espera.'},
 };
@@ -102,6 +102,10 @@ export function makeWorld(entity:(id:string,x:number,y:number,kind:Entity['kind'
   add('door',47,4,'temple-door',{solid:true});
   add('stairs',53,3,'north-gate',{to:'north',ax:16,ay:43.5,needs:'relic',label:'Atravessar o Portão do Norte'});
   add('stairs',85,58,'world-grove-gate',{to:'grove',ax:5,ay:22,minChapter:7,extra:['wand-missile'],label:'Entrar no Santuário das Raízes'});
+  // Portão do Eco (missão do Eremita da Neve): clareira com quatro pilares ao redor do portão da Câmara do Eco.
+  for(let y=2;y<=10;y++)for(let x=19;x<=31;x++)if(tiles[y][x]===4||tiles[y][x]===2)tiles[y][x]=0;
+  add('stairs',25,6,'echo-gate',{to:'dojo',ax:14,ay:20.4,label:'Entrar na Câmara do Eco'});
+  add('totem',25,3,'echo-pillar-n');add('totem',29,6,'echo-pillar-e');add('totem',25,9,'echo-pillar-s');add('totem',21,6,'echo-pillar-w');
   pois.push({x:48,y:60,r:5},{x:46,y:42,r:4});
   for(const p of pois)for(let y=p.y-1;y<=p.y+1;y++)for(let x=p.x-1;x<=p.x+1;x++)if(inside(x,y)&&(tiles[y][x]===4||tiles[y][x]===2)&&!(p.x===80&&p.y===36))tiles[y][x]=biome[y][x]==='ruins'?0:1;
   // 4b. Conchas Lunares: a da ilha do lago e uma em chão livre de cada região (mais duas extras), longe das estradas
@@ -118,6 +122,7 @@ export function makeWorld(entity:(id:string,x:number,y:number,kind:Entity['kind'
   for(let y=3;y<H-3;y++)for(let x=3;x<W-3;x++){
     if(tiles[y][x]!==0||nearRoad(x,y)||pois.some(p=>Math.abs(p.x-x)<=p.r&&Math.abs(p.y-y)<=p.r))continue;
     if(x>=40&&x<=56&&y>=3&&y<=12)continue;
+    if(x>=19&&x<=31&&y>=2&&y<=10)continue;
     const[tree,rock,bush]=density[biome[y][x]]??[0,0,0],r=hash(x,y,7);
     if(r<tree)props.push({kind:'tree',x:center(x),y:center(y),id:`tree-${x}-${y}`,solid:true});
     else if(r<tree+rock)props.push({kind:'rock',x:center(x),y:center(y),id:`rock-${x}-${y}`,solid:true});
