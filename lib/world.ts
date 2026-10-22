@@ -121,7 +121,7 @@ export function makeWorld(entity:(id:string,x:number,y:number,kind:Entity['kind'
   add('chest',84,7,'potion-chest',{item:'potion'});
   add('chest',105,16,'heart-mountain',{item:'heart',guard:'ridge-guardian-a',challenge:'dungeon',challengeText:'Atravesse as cristas e derrote os guardiões da Serra.'});
   add('chest',118,84,'heart-coast',{item:'heart',guard:'coast-guardian',challenge:'puzzle',challengeText:'Acenda os três faróis na ordem indicada pela Marinheira e vença a criatura da enseada.'});
-  add('torch',108,77,'coast-beacon-a');add('torch',114,77,'coast-beacon-b');add('torch',120,77,'coast-beacon-c');
+  add('torch',108,77,'coast-beacon-a');add('torch',114,72,'coast-beacon-b');add('torch',120,77,'coast-beacon-c');
   add('barrier',116,81,'coast-heart-seal',{by:['coast-beacon-a','coast-beacon-b','coast-beacon-c']});
   add('chest',72,19,'bow-chest',{item:'bow',guard:'golem-autumn'});
   add('chest',7,66,'crystal-chest',{item:'crystals'});
