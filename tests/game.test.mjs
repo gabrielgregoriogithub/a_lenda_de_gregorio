@@ -23,8 +23,7 @@ test('a aventura inteira pode ser concluída, do capítulo 1 ao 6',()=>{
 test('o Santuário das Raízes exige fogo, força e o guardião vegetal',()=>{
   const g=fresh();g.chapter=7;g.zone='grove';g.visited.add('grove');g.bow=true;g.arrowKinds.add('fire');g.gloves=true;
   for(const id of ['grove-torch-a','grove-torch-b']){const p=prop(g,'grove',id);p.open=true;p.solid=false;}g.checkBarriers();assert.equal(prop(g,'grove','grove-root-barrier'),undefined);
-  const push=(rockId,plateId)=>{const rock=prop(g,'grove',rockId),plate=prop(g,'grove',plateId);g.player.x=plate.x;g.player.y=plate.y+84;rock.x=plate.x;rock.y=plate.y+42;g.interact();};
-  push('grove-stone-a','grove-plate-a');push('grove-stone-b','grove-plate-b');assert.equal(prop(g,'grove','grove-heart-barrier'),undefined);
+  assert.equal(prop(g,'grove','grove-plate-a'),undefined,'as placas sem função foram removidas');assert.equal(prop(g,'grove','grove-heart-barrier'),undefined);
   const boss=g.map.enemies.find(e=>e.id==='grove-heartwarden');assert.equal(boss.kind,'vinebeast');const hp=boss.hp;boss.timer=1;g.hitEnemy(boss,1,0,1,'sword');assert.equal(boss.hp,hp-1);boss.hp=0;g.player.x=prop(g,'grove','grove-heart').x;g.player.y=prop(g,'grove','grove-heart').y+30;g.interact();for(let i=0;i<220&&g.heartChestTimer>0;i++)g.update(1/60);g.dismissDialog();assert.equal(g.player.maxHp,7);
   g.map.enemies.forEach(e=>e.hp=0);const core=prop(g,'grove','grove-core');g.player.x=core.x-30;g.player.y=core.y;g.update(1/60);assert.equal(g.finished,true);
 });
@@ -251,7 +250,7 @@ test('itens reimaginados: arco tríplice, arco rúnico, lâmina do vento, varinh
   g.wandShots=[];g.wands.add('missile');g.wand='missile';g.wandMaster=true;g.wandCooldown=0;g.castWand();assert.equal(g.wandShots.length,3,'o míssil se divide em três');
   g.phoenix=true;g.player.hp=0;g.onZeroHp();assert.equal(g.screen,'playing');assert.ok(g.player.hp>0);assert.equal(g.phoenix,false);
   const save=g.serialize(),h=fresh();assert.ok(h.load(save));assert.equal(h.tripleBow,true);assert.equal(h.wandMaster,true);assert.deepEqual(h.snapshot().relics.slice(0,2),['Arco Tríplice','Arco Rúnico']);
-  assert.equal(h.load(save.replace('"v":5','"v":4')),false,'saves antigos são descartados');
+  assert.equal(h.load(save.replace('"v":6','"v":5')),false,'saves antigos são descartados');
 });
 
 test('portais exigem os itens da região anterior e têm atalhos',()=>{
@@ -315,4 +314,8 @@ test('portões e barreiras explicam exatamente o que falta',()=>{
   assert.match(g.hint,/Norte → Leste → Sul → Oeste/);
   g.zone='dojo';const bar=prop(g,'dojo','dojo-rune-barrier');assert.match(g.barrierHint(bar,true),/Lua → Estrela → Sol → Vento/);
   const north=prop(g,'world','north-gate');g.zone='world';g.maps.world.props=[north];g.rebuildGrid('world');g.player.x=north.x;g.player.y=north.y+40;g.interact();assert.match(g.notice,/Relíquia Lunar/);
+});
+test('depois do final dá para continuar explorando e achar as missões opcionais',()=>{
+  const g=fresh();g.chapter=7;g.finished=true;g.screen='won';assert.match(g.sideObjective??'',/Eremita/,'a missão opcional continua visível depois do final');
+  g.keepExploring();assert.equal(g.screen,'playing');assert.equal(g.finished,true);g.update(1/60);assert.equal(g.screen,'playing','o final não se repete sozinho');
 });
