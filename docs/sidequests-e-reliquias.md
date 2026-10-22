@@ -194,3 +194,14 @@ Para cada quest antes de marcar como concluída:
 - **Impacto:** onda circular azul e branca, anéis de energia amplos, flash curto, tremor de câmera, partículas em leque e uma assinatura sonora grave seguida de tons ascendentes e um estalo agudo. O golpe continua bloqueado por paredes e exige linha livre para atingir inimigos.
 - **Persistência:** spinMasterUnlocked é salvo e restaurado. A prova e o baú ficam resolvidos para evitar repetir ou duplicar a recompensa.
 - **QA:** o teste cobre os três alvos, remoção do selo, pickup, persistência e dano/duração do golpe evoluído. Ainda é necessário validar a legibilidade do charge, o som com áudio habilitado e o percurso real em teclado, toque e controle.
+
+
+## Expansão do Vale — Serra dos Sinos e Costa das Conchas
+**Estado:** mapa e ganchos adicionados; percurso e clima precisam de validação em jogo.
+
+- **Expansão:** o Vale de Elara passa de 96×72 para 128×96 tiles. A nova faixa oriental e meridional acrescenta rotas de altitude e costa, com estradas ligando as áreas antigas aos novos pontos de interesse.
+- **Serra dos Sinos:** Téo, o Alpinista, dá a pista de uma travessia de cristas. O Coração da Serra fica em um baú próprio, guardado por um cavaleiro e acompanhado por uma patrulha de criatura da neve. A recompensa não está em um baú comum no caminho.
+- **Costa das Conchas:** Marina, a Marinheira, aponta para três faróis. Acendê-los abre o selo da enseada; o Coração das Marés está separado e protegido por um guardião marítimo. Nilo, o Faroleiro, fornece uma pista de vento e rota costeira.
+- **Fauna e clima:** o renderizador adiciona silhuetas ambientais de aves em passagem, pequenos animais saltando e macacos entre as copas; a costa usa ondas/espuma, a serra usa rajadas de vento, a floresta tropical usa chuva e o deserto mantém partículas de areia. Áreas vulcânicas usam partículas de brasa/erupção. Esses efeitos são decorativos e não devem bloquear colisão ou combate.
+- **Limite de assets desta etapa:** a fauna ambiente é desenhada em canvas e os novos encontros usam tipos/sprites já presentes com paletas regionais. Spritesheets originais de animais, marinheiros e monstros costeiros ainda precisam ser adicionados separadamente para substituir os placeholders visuais.
+- **QA:** confirmar caminhos até os dois corações, gatilhos dos faróis, combate obrigatório, limites do mapa, transição/save, desempenho dos efeitos e controles por toque. O teste automatizado verifica dimensões, NPCs, baús e guardiões, mas não substitui playtest.
