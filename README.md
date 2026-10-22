@@ -14,7 +14,7 @@ Gregório começa no **Bosque de Elara**. Ao redor dele ficam as **Ruínas da Lu
 
 **Missão opcional — Técnica Ancestral:** o Eremita da Neve (noroeste) conta sobre o Portão do Eco. Toque os quatro pilares na ordem Norte → Leste → Sul → Oeste, entre na Câmara do Eco, acenda os símbolos (Lua → Estrela → Sol → Vento), pise nas quatro placas do vento a tempo e abra o grande baú dourado para aprender o **Ataque Giratório** (dano da espada +2, atinge tudo em volta, não atravessa paredes).
 
-**Terras do Norte:** a única entrada da Gruta da Maré fica na ruína do Astrônomo — entre na Caverna da Luz (Planície das Estrelas; abre depois do segundo chefe), leia o mural e acenda os símbolos na ordem Sol → Lua → Estrela. A sequência errada apaga os símbolos. O selo aberto libera o cavaleiro que guarda as Flechas de Luz; depois, desperte os dois totens. Com a Onda Arcana, a Caverna Submersa (opcional, sudoeste) guarda o Arco Tríplice.
+**Terras do Norte:** a única entrada da Gruta da Maré fica na ruína do Astrônomo — entre na Caverna da Luz (Planície das Estrelas; abre depois do segundo chefe), leia o mural e acenda Sol → Lua → Estrela. A sequência errada apaga os símbolos; o selo aberto libera o cavaleiro que guarda as Flechas de Luz. Depois, desperte os dois totens da ruína. Com a Onda Arcana, a Caverna Submersa (opcional, sudoeste) tem um novo puzzle: Maré Baixa → Corrente → Maré Alta abre o selo do Arco Tríplice, guardado pelo Guardião das Correntes.
 
 **Terras do Sul:** terceiro mundo aberto, alcançado pela Passagem Inundada (Terras do Norte) ou pela Estrada do Sul (Vale de Elara), ambas com a Onda Arcana. Cada canto é um cenário com clima e música próprios, e cada um guarda a entrada de uma masmorra independente — entra-se, vence-se o chefe e sai-se pela mesma porta para procurar a próxima:
 
@@ -27,6 +27,10 @@ Gregório começa no **Bosque de Elara**. Ao redor dele ficam as **Ruínas da Lu
 | Campos Abertos (centro) | Fortaleza Esquecida (opcional) | com as Luvas da Força |
 
 Ao vencer um chefe e continuar, Gregório fica onde está: o caminho até o próximo desafio é feito a pé.
+
+## Sidequests e relíquias
+
+O padrão de design, o catálogo de quests por equipamento, as pistas, puzzles, recompensas, dependências e checklist de QA estão em [docs/sidequests-e-reliquias.md](docs/sidequests-e-reliquias.md). A Caverna Submersa agora usa a sequência das Três Marés para abrir o cofre do Arco Tríplice; os testes de motor cobrem a sequência e o selo da Caverna da Luz.
 
 ## Controles
 
