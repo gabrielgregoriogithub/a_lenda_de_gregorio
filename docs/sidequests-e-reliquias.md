@@ -1,0 +1,182 @@
+# Guia de sidequests e relíquias — A Lenda de Gregório
+
+Este documento é o padrão de design para quests opcionais de equipamento. A referência principal é **Técnica Ancestral / Ataque Giratório**: a quest precisa existir no mundo, dar uma pista legível, pedir que o jogador aprenda uma mecânica, aumentar a complexidade sem esconder a solução por tentativa cega, entregar uma recompensa com apresentação e deixar a habilidade útil em áreas posteriores.
+
+## Regras de qualidade para novas quests
+
+1. **Pista em pelo menos dois lugares.** Uma fala ou mural dá a regra; o próprio espaço mostra a ordem, os símbolos ou o tipo de obstáculo.
+2. **A mecânica é ensinada antes da prova.** A primeira sala tem poucos elementos; a sala final combina os mesmos elementos sob pressão.
+3. **Erro custa tempo, não progresso.** Sequências erradas reiniciam símbolos, mas não removem itens, não causam dano gratuito e não fecham uma porta para sempre.
+4. **A recompensa muda a exploração.** O item deve abrir uma rota, resolver um obstáculo recorrente ou oferecer uma opção de combate diferente. Baú com item sem contexto não conta como quest completa.
+5. **O guardião tem uma leitura justa.** Mostrar investida, pausa de vulnerabilidade, projétil ou fase antes de exigir uma estratégia específica.
+6. **Retorno e persistência.** Portas, símbolos, baús e itens conquistados devem permanecer resolvidos no save. Reentrar não pode duplicar item nem repetir a recompensa.
+7. **Dicas graduais.** Primeiro apontar região; depois o mecanismo; por fim, a sequência. A solução completa deve estar disponível sem obrigar o jogador a procurar fora do jogo.
+8. **Compatibilidade com controles.** Tudo que usa teclado também deve ser resolvível por toque e controle; nenhuma sequência depende de precisão de pixel impossível no celular.
+
+## Catálogo de quests
+
+Os estados abaixo distinguem conteúdo que já está no motor de propostas que ainda exigem implementação. Não tratar uma ideia deste guia como mecânica já disponível até ela ser codificada e testada.
+
+### 1. Técnica Ancestral — Ataque Giratório
+**Estado:** implementada; modelo de referência.
+
+- **Gancho:** o Eremita da Neve fala de um antigo dojo escondido no gelo.
+- **Ato I — Portão do Eco:** quatro pilares no vale são tocados na ordem Norte → Leste → Sul → Oeste. A pista vem do Eremita e do desenho circular do portão.
+- **Ato II — Câmara do Eco:** mural e quatro símbolos (Lua → Estrela → Sol → Vento). Errar apaga a sequência.
+- **Ato III — Prova do Vento:** quatro placas precisam ser pisadas dentro do limite de tempo. Correr é útil, mas o jogador deve escolher a rota e não só apertar um botão.
+- **Recompensa:** pergaminho do Ataque Giratório, com revelação visual e tutorial de segurar/soltar o ataque.
+- **Uso posterior:** dano em área, grupos de inimigos e cavaleiros que bloqueiam golpes frontais. Não atravessa paredes.
+- **O que outras quests devem copiar:** rumor → exploração → puzzle em sequência → prova de domínio → recompensa que transforma combate.
+
+### 2. Flecha de Fogo — O Primeiro Braseiro
+**Estado:** implementada no primeiro andar do Templo da Lua.
+
+- **Gancho:** o primeiro corredor tem duas tochas apagadas e uma passagem que não pode ser aberta com espada.
+- **Ato I:** salto e exploração até o baú da flecha.
+- **Ato II:** usar a Flecha de Fogo para acender tochas; o jogador aprende que flechas mágicas interagem com objetos, não só inimigos.
+- **Ato III:** três alvos no corredor leste precisam ser atingidos com flechas comuns para destravar o baú de Fogo. A composição alterna alvos, morcegos e linha de tiro.
+- **Recompensa:** Flechas de Fogo; queimam inimigos vulneráveis, acendem mecanismos e destroem vegetação.
+- **Uso posterior:** abrir o segundo andar do templo, queimar a parede de madeira da Cidadela e ativar braseiros do Santuário das Raízes.
+- **Expansão futura:** incluir um alvo atrás de uma grade e um espelho de fogo em uma sala opcional, sem transformar a quest inicial em requisito obrigatório para terminar o jogo.
+
+### 3. Flecha de Luz — A Caverna da Luz
+**Estado:** implementação em andamento no motor; a sequência Sol → Lua → Estrela e o cavaleiro foram adicionados. A validação de jogo ainda é necessária.
+
+- **Gancho:** o Astrônomo Errante descreve uma estrela que se esconde ao meio-dia.
+- **Ato I:** entrar na Planície das Estrelas depois do segundo chefe e ler o mural.
+- **Ato II:** ativar os símbolos Sol → Lua → Estrela. Uma ordem errada apaga apenas a sequência.
+- **Ato III:** vencer o cavaleiro que protege o baú; depois usar a flecha em dois totens da ruína astral para abrir a entrada da Gruta da Maré.
+- **Recompensa:** Flecha de Luz; energiza totens, quebra selos mágicos e revela caminhos astralmente ocultos.
+- **Uso posterior:** os selos das Ruínas do Sol Afundado, os mecanismos do Caminho do Eclipse e os puzzles de espelho.
+- **Critério de teste:** comprovar a entrada no capítulo correto, a ordem, o reinício, a abertura do selo, o combate, o pickup e a persistência após salvar/carregar.
+
+### 4. Flecha de Gelo — O Terraço das Brasas
+**Estado:** implementação existente na Cidadela da Aurora.
+
+- **Gancho:** a Galeria dos Ecos ensina que fogo abre a madeira, mas não atravessa um lago de lava.
+- **Ato I:** acender as duas tochas da galeria e queimar a parede de madeira (10 impactos de fogo).
+- **Ato II:** alcançar o baú das Flechas de Gelo.
+- **Ato III:** no Terraço das Brasas, congelar slimes e empurrá-los até dois botões. A sala exige leitura do impulso e do alinhamento.
+- **Recompensa:** Flecha de Gelo; congela inimigos pequenos, cria superfícies temporárias em água e atordoa o Colosso.
+- **Uso posterior:** criar ponte até a Arena do Colosso, interromper ameaças e preparar inimigos para empurrões.
+- **Expansão futura:** incluir uma sala de gelo com duas rotas possíveis: uma segura e lenta, outra curta com inimigos que descongelam o caminho.
+
+### 5. Arco Tríplice — As Três Marés
+**Estado:** novo puzzle adicionado à Caverna Submersa; falta executar o teste completo no jogo.
+
+- **Gancho:** a Caverna Submersa só aceita Gregório com a Onda Arcana. O mural diz: “A água recua, a corrente chama, a maré retorna”.
+- **Ato I:** encontrar o mural perto da entrada.
+- **Ato II:** ativar três marcos na ordem Maré Baixa → Corrente → Maré Alta. Errar reinicia os marcos; acertar remove o selo do salão nordeste.
+- **Ato III:** derrotar o Guardião das Correntes, que alterna perseguição curta e uma onda radial. Esquivar da onda é a prova de combate.
+- **Recompensa:** Arco Tríplice; cada disparo abre um leque de três flechas e funciona com flechas mágicas.
+- **Uso posterior:** acertar vários alvos, quebrar grupos e combinar com Flecha de Gelo ou Fogo.
+- **Critério de teste:** sem a Onda Arcana não entra; sem sequência não alcança o cofre; com sequência o baú é alcançável; o guardião não pode ser ignorado; o item é único e salvo.
+
+### 6. Botas Aladas — O Bosque de Cristal
+**Estado:** item e guardião existem; proposta de transformar a obtenção em percurso de domínio.
+
+- **Gancho:** um cavaleiro guarda as botas numa clareira separada por um abismo.
+- **Ato I:** pista da Guardiã do Portão aponta para o Bosque de Cristal.
+- **Ato II:** primeiro salto longo opcional sobre um vão pequeno, com plataforma de retorno.
+- **Ato III:** sequência de três plataformas com larguras diferentes; uma rota tem poção e outra leva ao cavaleiro. Não exigir que o jogador acerte um salto cego.
+- **Recompensa:** Botas Aladas, que ampliam o salto.
+- **Uso posterior:** cruzar o abismo até os Picos do Céu e alcançar o Amuleto da Brasa.
+- **Regra de fairness:** cair deve devolver Gregório à última plataforma segura, com dano moderado e pista do ponto de salto, nunca ao começo de uma região longa.
+
+### 7. Varinha do Relâmpago — O Caminho do Eclipse
+**Estado:** baú e inimigos existem; os espelhos/totem já estão presentes na área.
+
+- **Gancho:** o Astrônomo explica que fogos-fátuos ficam intangíveis e que o relâmpago procura um novo alvo.
+- **Ato I:** derrotar ou contornar um fogo-fátuo para encontrar o baú da varinha.
+- **Ato II:** alinhar três espelhos para fazer o relâmpago alcançar um totem distante. O jogador aprende a ler ângulos e alvos.
+- **Ato III:** abrir a câmara do Guardião do Eclipse ativando dois selos; o chefe alterna armadura e vulnerabilidade, convidando o jogador a trocar espada, arco e varinha.
+- **Recompensa:** Varinha do Relâmpago; raio em linha reta que ricocheteia entre inimigos próximos.
+- **Uso posterior:** grupos de wisps e salas de espelhos. O puzzle não deve exigir que o jogador já possua a própria varinha que está tentando obter; a varinha é a recompensa do baú e os espelhos servem como tutorial opcional depois.
+
+### 8. Luvas da Força e Manto do Eco — Bastião das Pedras
+**Estado:** itens, pedra bloqueadora, selos e Besta Litórea existem.
+
+- **Gancho:** a metade oeste do Bastião mostra pedras que não podem ser movidas e uma muralha que divide a masmorra.
+- **Ato I:** derrotar o golem da ala oeste e obter as Luvas da Força.
+- **Ato II:** empurrar a pedra da coluna para abrir a ligação oeste-leste. Os dois selos de luz abrem a arena.
+- **Ato III:** a Besta Litórea ensina a observar investidas e ondas de impacto; depois do combate, o baú lateral oferece o Manto do Eco.
+- **Recompensas:** Luvas permitem empurrar pedras; Manto rebate automaticamente um projétil e recarrega.
+- **Uso posterior:** Fortaleza Esquecida, Santuário da Repulsão e defesa contra projéteis.
+- **Expansão futura:** uma sala opcional de pedras com três placas e duas soluções (reposicionar blocos ou refletir um projétil), mantendo a rota principal simples.
+
+### 9. Varinha da Repulsão — Santuário da Repulsão
+**Estado:** orbe, botões e barreiras já existem.
+
+- **Gancho:** um orbe está do outro lado de um fosso; empurrá-lo com as Luvas o joga no vazio.
+- **Ato I:** encontrar a Varinha da Repulsão num baú protegido.
+- **Ato II:** disparar o raio roxo da margem para empurrar o orbe até o primeiro botão.
+- **Ato III:** contornar o muro e repetir o movimento até o segundo botão; o núcleo abre.
+- **Recompensa:** Varinha da Repulsão; empurra inimigos, pedras e orbes à distância.
+- **Uso posterior:** Abismo dos Alvos Velozes e placas de pressão.
+- **Critério de teste:** a solução deve ser possível sem Luvas da Força; a força da varinha é o centro do puzzle, não um complemento dispensável.
+
+### 10. Varinha Míssil e Varinha das Varinhas — Abismo dos Alvos Velozes
+**Estado:** alvos, ponte de vento e recompensas já existem.
+
+- **Gancho:** alvos flutuam em uma área de vento; espada e flechas comuns não os alcançam.
+- **Ato I:** obter a Varinha Míssil no baú da entrada.
+- **Ato II:** acertar três alvos de vento na ordem indicada pelo mural. O míssil persegue o alvo, mas o jogador ainda precisa escolher o momento de disparar.
+- **Ato III:** derrotar o Guardião das Dunas e os inimigos voadores para materializar a ponte.
+- **Recompensa principal:** Varinha Míssil; projétil teleguiado.
+- **Recompensa opcional:** Varinha das Varinhas, na alcova do outro lado da placa de borda; amplifica varinhas.
+- **Uso posterior:** atravessar o Abismo e abrir o caminho ao Santuário das Raízes.
+- **Expansão futura:** introduzir um alvo que muda de posição entre disparos, mas manter uma janela longa o bastante para controles de toque.
+
+### 11. Pena da Fênix — Fortaleza Esquecida
+**Estado:** pedras, placas, Cartógrafo e guardião já existem; a pena está no cofre.
+
+- **Gancho:** o Cartógrafo perdeu o mapa e pede ajuda para recuperar o atalho.
+- **Ato I:** mover três pedras até três placas de pressão.
+- **Ato II:** abrir a ala leste e derrotar o guardião do cofre.
+- **Ato III:** abrir o baú opcional da Pena da Fênix.
+- **Recompensa:** uma ressurreição automática com metade dos corações, consumida uma única vez.
+- **Uso posterior:** exploração de masmorras longas e chefes com segunda fase.
+- **Regra de fairness:** mostrar claramente que a pena foi consumida; não prometer ressurreição infinita nem duplicar após rewind/save.
+
+### 12. Anel do Ímã e Lâmina do Vento — recompensas de exploração
+**Estado:** itens já existem como pickups/baús; propostas de quest de descoberta.
+
+- **Anel do Ímã:** pequenas trilhas de cristais conduzem a um baú fora da estrada. O puzzle é perceber o rastro de partículas e encontrar uma passagem que não exige combate. Recompensa: atrair cristais e corações caídos.
+- **Lâmina do Vento:** uma sala opcional do Santuário da Repulsão apresenta arbustos alinhados e inimigos atrás de uma grade. Recompensa: golpe lança corte de ar e corta vegetação, abrindo uma rota alternativa.
+- **Princípio:** quests de utilidade passiva ou combate também precisam de descoberta e payoff; não precisam sempre de chefe.
+
+## Matriz de dependências e uso posterior
+
+| Recompensa | Quest/área | Abre ou melhora |
+|---|---|---|
+| Flecha de Fogo | 1º andar do Templo da Lua | tochas, madeira, Santuário das Raízes |
+| Flecha de Gelo | Cidadela / Terraço das Brasas | slimes, ponte do Colosso |
+| Flecha de Luz | Caverna da Luz | totens, selos, espelhos |
+| Ataque Giratório | Câmara do Eco | grupos e cavaleiros |
+| Botas Aladas | Bosque de Cristal | abismo dos Picos do Céu |
+| Onda Arcana | Gruta da Maré | travessia para Terras do Sul |
+| Arco Tríplice | Caverna Submersa | alvos múltiplos |
+| Varinha do Relâmpago | Caminho do Eclipse | wisps e encadeamento de inimigos |
+| Luvas da Força | Bastião das Pedras | pedras, placas e atalhos |
+| Manto do Eco | Bastião das Pedras | projéteis |
+| Varinha da Repulsão | Santuário da Repulsão | orbes e placas à distância |
+| Varinha Míssil | Abismo dos Alvos Velozes | alvos de vento |
+| Varinha das Varinhas | alcova do Abismo | aprimora todas as varinhas |
+| Pena da Fênix | Fortaleza Esquecida | uma recuperação de emergência |
+| Anel do Ímã | exploração opcional | coleta mais confortável |
+| Lâmina do Vento | exploração opcional | cortes à distância e vegetação |
+
+## Checklist de implementação e QA
+
+Para cada quest antes de marcar como concluída:
+
+- [ ] NPC, mural ou diário aponta para a região e explica a motivação.
+- [ ] O caminho e a entrada estão alcançáveis com os itens exigidos, sem teleportar para dentro de paredes.
+- [ ] A pista é lida perto do mecanismo e existe uma dica gradual.
+- [ ] A ordem correta abre a barreira; erro reinicia sem softlock.
+- [ ] A recompensa só pode ser coletada uma vez.
+- [ ] A recompensa aparece no inventário/HUD e tem texto de uso.
+- [ ] O item resolve pelo menos um obstáculo posterior documentado.
+- [ ] Salvar, carregar e voltar no tempo não duplicam nem apagam o desbloqueio.
+- [ ] Teste teclado, toque e controle.
+- [ ] Teste o percurso completo em jogo; testes de reachability sozinhos não validam sensação, leitura visual ou dificuldade.
