@@ -165,3 +165,28 @@ test('cenários: cada tile do vale usa o próprio bioma e cada bioma tem detalhe
   // a região acompanha o bioma do tile no mundo aberto
   g.player.x=c(44);g.player.y=c(40);g.update(.05);assert.equal(g.region,m.biome[40][44]);
 });
+
+test('puzzles: barreiras resolvidas continuam abertas após salvar/carregar; meio resolvidas continuam fechadas e bloqueiam',()=>{
+  let total=0;
+  for(const z of ZONES){const g=fresh();const bars=g.maps[z].props.filter(b=>b.kind==='barrier'&&b.by?.length);
+    for(const b of bars){total++;
+      // sem atalho: a barreira fechada é sólida no próprio lugar
+      g.zone=z;g.rebuildGrid?.(z);assert.equal(g.collides(b.x,b.y,9),true,`${z}/${b.id} bloqueia enquanto fechada`);
+      if(b.by.length>1){const h=fresh();const p=h.maps[z].props.find(q=>q.id===b.by[0]);p.open=true;const k=fresh();assert.equal(k.load(h.serialize()),true);
+        assert.ok(k.maps[z].props.some(q=>q.id===b.id),`${z}/${b.id}: meio resolvida não abre`);assert.equal(k.maps[z].props.find(q=>q.id===b.by[0]).open,true,'o passo feito é lembrado');}
+      const h=fresh();for(const id of b.by){const p=h.maps[z].props.find(q=>q.id===id);assert.ok(p,`${z}/${b.id}: peça ${id} existe`);p.open=true;}
+      const k=fresh();assert.equal(k.load(h.serialize()),true);assert.ok(!k.maps[z].props.some(q=>q.id===b.id),`${z}/${b.id} continua aberta`);
+      assert.ok(b.by.every(id=>k.maps[z].props.find(q=>q.id===id)?.open),'peças continuam ativadas');
+      const again=fresh();assert.equal(again.load(k.serialize()),true);assert.ok(!again.maps[z].props.some(q=>q.id===b.id),'segundo ciclo de save também');}}
+  assert.ok(total>=10,`barreiras de puzzle verificadas: ${total}`);
+});
+
+test('diário: lista só missões opcionais descobertas, marca concluídas e não revela a solução',async()=>{
+  const {QUESTS}=await import('../lib/sidequests.ts');
+  const g=fresh();assert.deepEqual(g.snapshot().sidequests,[],'no começo nada é revelado');
+  g.visited.add('mailcave');let log=g.snapshot().sidequests;assert.equal(log.length,1);assert.equal(log[0].done,false);assert.match(log[0].title,/Correio/);
+  g.magnet=true;g.visited.add('wingcave');g.chapter=3;log=g.snapshot().sidequests;
+  assert.equal(log.find(q=>q.id==='mailcave').done,true);assert.ok(log.some(q=>q.id==='wingcave'&&!q.done));assert.ok(log.some(q=>q.id==='race'));
+  const text=JSON.stringify(log);for(const q of QUESTS)for(const w of q.mural.text.match(/[A-ZÀ-Ú][a-zà-ú]+ → [A-ZÀ-Ú][a-zà-ú]+/g)??[])assert.ok(!text.includes(w),'a ordem do puzzle não aparece no diário');
+  const k=fresh();assert.equal(k.load(g.serialize()),true);assert.deepEqual(k.snapshot().sidequests.map(q=>[q.id,q.done]),log.map(q=>[q.id,q.done]),'persiste no save');
+});
