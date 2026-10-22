@@ -72,3 +72,7 @@ Recursos de menu, saves, voltar no tempo, filtros e trapaças inspirados no [Moo
 
 
 **Nova exploração costeira:** a enseada oriental agora inclui o Manguezal das Lanternas. Acenda os três faróis com Flechas de Fogo na ordem A → B → C, abra o selo e enfrente o Leviatã para conquistar o Coração das Marés.
+
+
+### Corrida do Anel Verde
+A partir do capítulo 3, encontre Lia no Vale de Elara e inscreva-se por 25 cristais. Complete uma volta no circuito circular, acelere com ↑, use Shift para arrancar com fôlego e troque de faixa com ←/→ para evitar os fardos de feno. A vitória concede a Bota do Vento, que aumenta a velocidade de corrida de Gregório; depois, Lia aceita corridas de treino pelo mesmo preço.
