@@ -148,3 +148,20 @@ test('relâmpago, flechas e golpes não atravessam paredes',()=>{
   g.player.x=c(9);g.player.y=c(9);g.player.dir='down';g.bow=true;g.ranged='bow';g.arrow='normal';g.player.cooldown=0;g.shoot();run(g,.6);
   assert.equal(e.hp,hp,'a parede do templo bloqueia a flecha');
 });
+
+test('cenários: cada tile do vale usa o próprio bioma e cada bioma tem detalhes próprios, sem colisão',async()=>{
+  const {BIOMES}=await import('../lib/world.ts');const {DECOR_BIOMES,decorAt,drawDecor}=await import('../lib/decor.ts');
+  assert.deepEqual([...DECOR_BIOMES].sort(),Object.keys(BIOMES).sort(),'todo bioma tem um conjunto de detalhes');
+  const g=fresh(),m=g.maps.world;const seen=new Map();
+  for(let y=0;y<m.tiles.length;y++)for(let x=0;x<m.tiles[0].length;x++){const b=m.biome[y][x];const d=decorAt(b,x,y);if(!d)continue;assert.deepEqual(decorAt(b,x,y),d,'determinístico');if(!seen.has(b))seen.set(b,new Set());seen.get(b).add(d.motif);}
+  assert.ok(seen.size>=8,`o vale mostra detalhes de vários biomas (${seen.size})`);
+  // os detalhes de biomas diferentes não são os mesmos (não é só troca de cor)
+  assert.notDeepEqual([...(seen.get('desert')??[])].sort(),[...(seen.get('forest')??[])].sort());
+  const calls=[];const ctx=new Proxy({},{get:(_,k)=>k==='fillRect'?(...a)=>calls.push(a):()=>{},set:()=>true});
+  for(const b of DECOR_BIOMES)for(let i=0;i<400;i++)drawDecor(ctx,b,i,i*7,0,0);
+  assert.ok(calls.length>0&&calls.every(([x,y,w,h])=>x>=-4&&y>=-4&&x+w<=40&&y+h<=40),'detalhes ficam dentro do próprio tile');
+  // decoração é só desenho: a colisão do mapa não muda
+  const before=JSON.stringify(m.tiles);g.render?.();assert.equal(JSON.stringify(m.tiles),before);
+  // a região acompanha o bioma do tile no mundo aberto
+  g.player.x=c(44);g.player.y=c(40);g.update(.05);assert.equal(g.region,m.biome[40][44]);
+});
