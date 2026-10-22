@@ -16,7 +16,8 @@
     "preview:pages": "vite preview --config vite.pages.config.ts",
     "test": "node --import ./tests/register.mjs --test tests/game.test.mjs tests/regressions.test.mjs",
     "test:e2e": "pnpm build:pages && node --test tests/e2e/browser.test.mjs",
-    "typecheck": "tsc --noEmit -p ."
+    "typecheck": "tsc --noEmit -p .",
+    "balance": "node --import ./tests/register.mjs tests/balance.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",

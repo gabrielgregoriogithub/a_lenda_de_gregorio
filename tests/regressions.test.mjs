@@ -190,3 +190,18 @@ test('diário: lista só missões opcionais descobertas, marca concluídas e nã
   const text=JSON.stringify(log);for(const q of QUESTS)for(const w of q.mural.text.match(/[A-ZÀ-Ú][a-zà-ú]+ → [A-ZÀ-Ú][a-zà-ú]+/g)??[])assert.ok(!text.includes(w),'a ordem do puzzle não aparece no diário');
   const k=fresh();assert.equal(k.load(g.serialize()),true);assert.deepEqual(k.snapshot().sidequests.map(q=>[q.id,q.done]),log.map(q=>[q.id,q.done]),'persiste no save');
 });
+
+test('balanceamento: parâmetros dentro das faixas medidas na análise (docs/auditoria.md)',async()=>{
+  const {shopItems}=await import('../lib/adventure.ts');
+  const g=fresh();const BOSS=new Set(['boss','colossus','tidewarden','stonebeast','vinebeast']);
+  for(const z of ZONES)for(const e of g.maps[z].enemies){const hp=e.maxHp??e.hp,elite=String(e.id).startsWith('elite-');
+    if(BOSS.has(e.kind)){assert.ok(hp>=40&&hp<=140,`${z}/${e.id}: chefe com ${hp} de vida`);continue;}
+    if(elite){assert.ok(hp<=15,`${z}/${e.id}: elite com ${hp}`);continue;}
+    assert.ok(hp<=10,`${z}/${e.id} (${e.kind}): inimigo comum com ${hp} de vida passa de 3 golpes da espada final`);}
+  // dano recebido: 1 coração por golpe, meio com a Armadura de Granito
+  g.player.hp=6;g.player.hurt=0;g.damage();assert.equal(g.player.hp,5);g.armor=true;g.player.hurt=0;g.damage();assert.equal(g.player.hp,4.5);
+  // economia: as compras únicas cabem nos cristais que a campanha medida rendeu (6080)
+  const once=[...shopItems('shop'),...shopItems('merchant')].filter(i=>i.id!=='potion').reduce((s,i)=>s+i.price,0);
+  assert.ok(once<=6080*0.5,`compras únicas (${once}) exigem no máximo metade dos cristais da campanha`);
+  assert.equal(shopItems('shop').find(i=>i.id==='potion').price,25);
+});

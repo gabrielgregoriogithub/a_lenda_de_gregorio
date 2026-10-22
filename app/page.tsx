@@ -10,7 +10,7 @@ const WAND_BUTTON_COLOR={lightning:'#fff6a8',missile:'#f5f7ff',repulse:'#c98cff'
 const STORE='lenda-gregorio:';
 // Versão dos dados salvos. Ao mudar, só caches e service workers antigos são limpos; os saves são convertidos pelo motor (migrateSave).
 const DATA_VERSION='10';
-const GAME_VERSION='22.10.2026 · 7.6';
+const GAME_VERSION='22.10.2026 · 7.7';
 function purgeOldData(){try{if(localStorage.getItem(STORE+'data-version')===DATA_VERSION)return;localStorage.setItem(STORE+'data-version',DATA_VERSION);}catch{return;}try{if('caches' in window)caches.keys().then(keys=>keys.forEach(k=>caches.delete(k))).catch(()=>{});navigator.serviceWorker?.getRegistrations?.().then(rs=>rs.forEach(r=>r.unregister())).catch(()=>{});}catch{}}
 type SaveMeta={data:string;location:string;hp:number;maxHp:number;coins:number;fragments:number;elapsed:number;at:number};
 type Filter='sharp'|'smooth'|'crt'|'lcd';
