@@ -137,8 +137,8 @@ test('mapas consistentes: barreiras, inimigos e chegada',()=>{
 });
 
 test('a passagem para o Eclipse exige conquistar a Gruta da Maré',()=>{
-  const g=fresh();g.chapter=2;g.colossusDead=true;g.screen='won';g.continueAdventure();
-  assert.equal(g.zone,'north','a continuação retorna ao mundo aberto');
+  const g=fresh();g.chapter=2;g.colossusDead=true;g.screen='won';g.zone='citadel';g.continueAdventure();
+  assert.equal(g.zone,'citadel','continuar a jornada não teletransporta: o herói segue a pé');assert.equal(g.chapter,3);g.zone='north';
   const gate=prop(g,'north','north-eclipse-gate');g.player.x=gate.x;g.player.y=gate.y+30;g.interact();
   assert.equal(g.zone,'north','a passagem permanece fechada sem a Onda Arcana');
   g.zone='grotto';assert.equal(g.maps.grotto.props.filter(p=>p.kind==='barrier').length,2);
@@ -221,7 +221,7 @@ test('entrar na arena registra checkpoint antes da luta',()=>{
 });
 
 test('o Núcleo dos Ventos encerra o capítulo final quando a ponte está pronta',()=>{
-  const g=fresh();g.chapter=6;g.zone='aerie';g.visited.add('aerie');g.wands.add('missile');for(const p of g.map.props)if(p.id.startsWith('aerie-wind-target-')||p.id.startsWith('aerie-bridge-')){p.open=true;p.solid=false;}for(const e of g.map.enemies)e.hp=0;const core=prop(g,'aerie','aerie-core');g.player.x=core.x-30;g.player.y=core.y;g.update(1/60);assert.equal(g.finished,false);assert.equal(g.screen,'won');g.continueStory();assert.equal(g.chapter,7);assert.equal(g.zone,'grove');
+  const g=fresh();g.chapter=6;g.zone='aerie';g.visited.add('aerie');g.wands.add('missile');for(const p of g.map.props)if(p.id.startsWith('aerie-wind-target-')||p.id.startsWith('aerie-bridge-')){p.open=true;p.solid=false;}for(const e of g.map.enemies)e.hp=0;const core=prop(g,'aerie','aerie-core');g.player.x=core.x-30;g.player.y=core.y;g.update(1/60);assert.equal(g.finished,false);assert.equal(g.screen,'won');g.continueStory();assert.equal(g.chapter,7);assert.equal(g.zone,'aerie','sem teletransporte: o herói continua no Abismo');assert.ok(!g.missingNeed(prop(g,'aerie','aerie-shortcut')),'a corrente de vento leva de volta ao vale');assert.equal(prop(g,'world','world-grove-gate').minChapter<=g.chapter,true,'o Santuário das Raízes fica aberto para quem chegar a pé');
 });
 
 test('a Repulsão empurra pedras de borda que a Luva não alcança',()=>{
