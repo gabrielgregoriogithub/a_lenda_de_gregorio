@@ -303,6 +303,26 @@ test('o giro causa a espada +2, acerta em volta e não atravessa paredes',()=>{
   g.spinAttack();assert.equal(99-a.hp,0,'inimigo atrás da parede não é atingido');assert.equal(99-b.hp,g.swordPower+2,'giro = espada +2');
   P.spin=0;g.spinUnlocked=false;g.spinAttack();assert.equal(P.spin,0,'sem a técnica não há giro');
 });
+test('Tempestade Ancestral: puzzle de três alvos, recompensa e golpe evoluído persistem',()=>{
+  const g=fresh();g.chapter=3;g.spinUnlocked=true;g.visited.add('dojo');g.zone='dojo';
+  const P=g.player;P.x=c(14);P.y=c(9);P.dir='down';
+  assert.ok(prop(g,'dojo','dojo-ascension-barrier'),'o selo da prova existe');
+  g.spinAttack();
+  assert.equal(prop(g,'dojo','dojo-asc-target-a').open,true,'o giro acerta o alvo esquerdo');
+  assert.equal(prop(g,'dojo','dojo-asc-target-b').open,true,'o giro acerta o alvo central');
+  assert.equal(prop(g,'dojo','dojo-asc-target-c').open,true,'o giro acerta o alvo direito');
+  assert.equal(prop(g,'dojo','dojo-ascension-barrier'),undefined,'um único giro remove o selo');
+  const chest=prop(g,'dojo','dojo-ascension-chest');assert.ok(chest);
+  P.x=chest.x;P.y=chest.y+30;g.interact();
+  assert.equal(g.spinMasterUnlocked,true,'a recompensa desbloqueia a evolução');
+  assert.match(g.dialogTitle,/Tempestade Ancestral/);
+  const g2=makeGame(Adventure);g2.start();assert.equal(g2.load(g.serialize()),true);
+  assert.equal(g2.spinMasterUnlocked,true,'a evolução permanece no save');
+  const e=g2.map.enemies[0];e.hp=e.maxHp=99;e.hit=0;
+  g2.spinAttack(true);
+  assert.equal(99-e.hp,g2.swordPower+5,'a Tempestade causa espada +5');
+  assert.equal(g2.player.spin,.72,'a animação do golpe evoluído tem duração maior');
+});
 test('a forja da espada vale uma vez: +1 de ataque por 250 cristais, depois esgota',()=>{
   const g=fresh();g.coins=1000;g.openShop();const before=g.swordPower;g.buy('sword');assert.equal(g.swordPower,before+1);assert.equal(g.coins,750);
   g.buy('sword');assert.equal(g.coins,750,'segunda compra recusada');assert.equal(g.soldOut('sword'),true);
