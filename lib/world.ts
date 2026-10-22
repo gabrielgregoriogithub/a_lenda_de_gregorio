@@ -2,7 +2,7 @@
 // Toda a arte vem do atlas original; cada região só aplica um filtro de cor por cima.
 import type {Entity,GameMap,Prop} from './adventure';
 
-export type Biome='village'|'forest'|'lake'|'desert'|'snow'|'autumn'|'swamp'|'ruins'|'canyon'|'crystal'|'sky'|'starfall'|'ash'|'darkwood'|'rainforest'|'plains'|'stormdesert'|'coast';
+export type Biome='village'|'forest'|'lake'|'desert'|'snow'|'autumn'|'swamp'|'ruins'|'canyon'|'crystal'|'sky'|'starfall'|'ash'|'darkwood'|'rainforest'|'plains'|'stormdesert'|'coast'|'mangrove';
 export type BiomeStyle={name:string;ground:number;filter:string;pathFilter:string;propFilter:string;enemyFilter:string;waterFilter:string;wallFilter:string;mini:string;music:number[]};
 export const WORLD_W=128,WORLD_H=96;
 const CELL_W=32,CELL_H=24;
@@ -27,6 +27,7 @@ export const BIOMES:Record<Biome,BiomeStyle>={
   plains:{name:'Campos Abertos',ground:0,filter:'saturate(1.3) brightness(1.12) hue-rotate(-18deg)',pathFilter:'saturate(1.1) brightness(1.05)',propFilter:'saturate(1.25) brightness(1.06)',enemyFilter:'none',waterFilter:'brightness(1.1)',wallFilter:'sepia(.2) brightness(1.05)',mini:'#8fbf5a',music:[293.66,369.99,440,587.33,493.88,440,369.99,293.66]},
   stormdesert:{name:'Deserto das Tempestades',ground:1,filter:'sepia(.5) saturate(1.6) brightness(1.05) hue-rotate(-12deg)',pathFilter:'saturate(1.2) brightness(1.05)',propFilter:'sepia(.7) saturate(1.3) brightness(1.02)',enemyFilter:'hue-rotate(-50deg) saturate(1.5)',waterFilter:'hue-rotate(-12deg) brightness(1.1)',wallFilter:'sepia(.9) saturate(1.4) brightness(1.05)',mini:'#cfa45a',music:[220,233.08,277.18,329.63,311.13,277.18,233.08,220]},
   coast:{name:'Costa das Conchas',ground:0,filter:'hue-rotate(12deg) saturate(1.25) brightness(1.12)',pathFilter:'brightness(1.08) saturate(1.1)',propFilter:'hue-rotate(8deg) saturate(1.15)',enemyFilter:'hue-rotate(145deg) saturate(1.2)',waterFilter:'hue-rotate(8deg) saturate(1.35) brightness(1.08)',wallFilter:'sepia(.25) brightness(1.15)',mini:'#58b9c7',music:[293.66,349.23,440,523.25,493.88,440,349.23,329.63]},
+  mangrove:{name:'Manguezal das Lanternas',ground:0,filter:'hue-rotate(155deg) saturate(1.35) brightness(.78)',pathFilter:'hue-rotate(155deg) saturate(1.1) brightness(.82)',propFilter:'hue-rotate(145deg) saturate(1.25) brightness(.78)',enemyFilter:'hue-rotate(155deg) saturate(1.35)',waterFilter:'hue-rotate(165deg) saturate(1.25) brightness(.72)',wallFilter:'hue-rotate(145deg) saturate(1.1) brightness(.7)',mini:'#345c50',music:[196,233.08,293.66,349.23,329.63,293.66,233.08,207.65]},
   canyon:{name:'Desfiladeiro Rubro',ground:1,filter:'sepia(.6) saturate(1.55) hue-rotate(-22deg) brightness(.9)',pathFilter:'sepia(.3) brightness(.95)',propFilter:'sepia(.6) saturate(1.3) hue-rotate(-20deg)',enemyFilter:'hue-rotate(-115deg) saturate(1.3)',waterFilter:NONE,wallFilter:'sepia(1) saturate(1.4) hue-rotate(-18deg) brightness(.82)',mini:'#a9643b',music:[207.65,246.94,311.13,277.18,246.94,207.65,185,207.65]},
 };
 export const SPITTER_TINT='hue-rotate(250deg) saturate(1.7) brightness(.9)';
@@ -67,6 +68,8 @@ const center=(n:number)=>n*32+16;
 export function makeWorld(entity:(id:string,x:number,y:number,kind:Entity['kind'],tint?:string)=>Entity):GameMap{
   const W=WORLD_W,H=WORLD_H;
   const biome:Biome[][]=Array.from({length:H},(_,y)=>Array.from({length:W},(_,x)=>biomeAt(x,y)));
+  // Uma faixa de manguezal na enseada oriental: chão escuro, água rasa e vegetação densa.
+  for(let y=72;y<=91;y++)for(let x=99;x<=124;x++)if(biome[y][x]==='coast')biome[y][x]='mangrove';
   const tiles:number[][]=Array.from({length:H},(_,y)=>Array.from({length:W},(_,x)=>x===0||y===0||x===W-1||y===H-1?4:0));
   const inside=(x:number,y:number)=>x>0&&y>0&&x<W-1&&y<H-1;
   const set=(x:number,y:number,t:number)=>{if(inside(x,y))tiles[y][x]=t;};
@@ -142,7 +145,7 @@ export function makeWorld(entity:(id:string,x:number,y:number,kind:Entity['kind'
   // 5. borda de árvores e vegetação por região
   for(let x=1;x<W-1;x++){if(Math.abs(x-48)>2){props.push({kind:'tree',x:center(x),y:center(1),id:`border-n-${x}`,solid:true});}props.push({kind:'tree',x:center(x),y:center(H-2),id:`border-s-${x}`,solid:true});}
   for(let y=3;y<H-2;y+=2){props.push({kind:'tree',x:center(1),y:center(y),id:`border-w-${y}`,solid:true});props.push({kind:'tree',x:center(W-2),y:center(y),id:`border-e-${y}`,solid:true});}
-  const density:Partial<Record<Biome,[number,number,number]>>={village:[.02,.006,.02],forest:[.13,.008,.025],lake:[.04,.01,.025],desert:[0,.035,.012],snow:[.05,.04,0],autumn:[.14,.01,.02],swamp:[.06,.01,.04],ruins:[0,.03,.01],canyon:[0,.045,.006],sky:[.03,.05,.01],ash:[.01,.05,0],darkwood:[.2,.01,.03],rainforest:[.16,.01,.07],plains:[.02,.012,.03],stormdesert:[0,.045,.006],coast:[.015,.01,.045]};
+  const density:Partial<Record<Biome,[number,number,number]>>={village:[.02,.006,.02],forest:[.13,.008,.025],lake:[.04,.01,.025],desert:[0,.035,.012],snow:[.05,.04,0],autumn:[.14,.01,.02],swamp:[.06,.01,.04],ruins:[0,.03,.01],canyon:[0,.045,.006],sky:[.03,.05,.01],ash:[.01,.05,0],darkwood:[.2,.01,.03],rainforest:[.16,.01,.07],plains:[.02,.012,.03],stormdesert:[0,.045,.006],coast:[.015,.01,.045],mangrove:[.07,.025,.11]};
   const nearRoad=(x:number,y:number)=>{for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){const t=tiles[y+dy]?.[x+dx];if(t===1||t===5)return true;}return false;};
   for(let y=3;y<H-3;y++)for(let x=3;x<W-3;x++){
     if(tiles[y][x]!==0||nearRoad(x,y)||pois.some(p=>Math.abs(p.x-x)<=p.r&&Math.abs(p.y-y)<=p.r))continue;
@@ -156,7 +159,7 @@ export function makeWorld(entity:(id:string,x:number,y:number,kind:Entity['kind'
   for(const[x,y]of[[47,20],[48,20],[47,44],[48,44],[24,36],[25,36],[62,28],[63,28]])props.push({kind:'bush',x:center(x),y:center(y),id:`gate-bush-${x}-${y}`,solid:true});
   // 6. inimigos: slimes e morcegos tingidos pela região, golems guardando os fragmentos
   const enemies:Entity[]=[];
-  const counts:Partial<Record<Biome,[number,number,number]>>={village:[0,0,0],forest:[5,1,0],lake:[3,1,1],desert:[4,0,2],snow:[3,2,1],autumn:[4,1,1],swamp:[3,3,2],ruins:[2,2,2],canyon:[2,3,2],sky:[1,4,1],ash:[2,2,3],darkwood:[4,3,1],rainforest:[5,2,2],plains:[3,1,1],stormdesert:[2,3,2],coast:[2,3,1]};
+  const counts:Partial<Record<Biome,[number,number,number]>>={village:[0,0,0],forest:[5,1,0],lake:[3,1,1],desert:[4,0,2],snow:[3,2,1],autumn:[4,1,1],swamp:[3,3,2],ruins:[2,2,2],canyon:[2,3,2],sky:[1,4,1],ash:[2,2,3],darkwood:[4,3,1],rainforest:[5,2,2],plains:[3,1,1],stormdesert:[2,3,2],coast:[2,3,1],mangrove:[3,2,3]};
   LAYOUT.forEach((row,ry)=>row.forEach((b,rx)=>{const[slimes,bats,spitters]=counts[b]??[0,0,0];let placed=0;for(let i=0;placed<slimes+bats+spitters&&i<400;i++){const x=rx*CELL_W+3+Math.floor(hash(i,ry*3+rx,8)*(CELL_W-6)),y=ry*CELL_H+3+Math.floor(hash(i,ry*3+rx,9)*(CELL_H-6));if(tiles[y][x]!==0&&tiles[y][x]!==1&&tiles[y][x]!==3)continue;if(Math.abs(x-46)<10&&Math.abs(y-42)<8)continue;if(biome[y][x]!==b||props.some(p=>p.solid&&Math.abs(p.x-center(x))<40&&Math.abs(p.y-center(y))<40))continue;const kind=placed<slimes?'slime':placed<slimes+bats?'bat':'spitter';enemies.push(entity(`${b}-${kind}-${placed}`,x,y,kind,kind==='spitter'?SPITTER_TINT:BIOMES[b].enemyFilter));placed++;}}));
   enemies.push(entity('golem-desert',12,44,'golem',BIOMES.desert.wallFilter),entity('golem-snow',13,7,'golem',BIOMES.snow.wallFilter),entity('golem-swamp',86,66,'golem',BIOMES.swamp.wallFilter),entity('golem-autumn',74,19,'golem',BIOMES.autumn.wallFilter),entity('golem-ruins',50,7,'golem',BIOMES.ruins.wallFilter),entity('lake-guard',79,35,'spitter',SPITTER_TINT));
   enemies.push(entity('snow-wolf-alpha',18,8,'frostwolf','#d8f4ff'),entity('snow-wolf-beta',22,10,'frostwolf','#c4e8f4'),entity('swamp-shadow',86,62,'shade','#5c7f62'));
