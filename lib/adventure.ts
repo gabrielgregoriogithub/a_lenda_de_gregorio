@@ -49,7 +49,7 @@ const JUMP_TIME=.5,JUMP_SPEED=230,JUMP_HEIGHT=26,ATTACK_TIME=.23;
 const DAY_LENGTH=240,FADE_TIME=.45,BOSS_NOTES=[220,261.63,293.66,261.63,329.63,293.66,261.63,246.94];
 const FIREFLY_BIOMES=new Set<Biome>(['forest','swamp','lake','autumn','village','crystal','starfall']);
 const CAVE_NOTES=[196,233.08,293.66,261.63,220,196,174.61,220],TEMPLE_NOTES=[220,261.63,329.63,293.66,246.94,220,196,246.94];
-const SAVE_VERSION=7;
+const SAVE_VERSION=8;
 export const NEED_NAME:Record<string,string>={relic:'a Relíquia Lunar',bosskey:'a Chave do Guardião',tide:'a Onda Arcana',gloves:'as Luvas da Força',boots:'as Botas Aladas',amulet:'o Amuleto da Brasa',fire:'a Flecha de Fogo',ice:'a Flecha de Gelo',light:'a Flecha de Luz','wand-lightning':'a Varinha do Relâmpago','wand-repulse':'a Varinha da Repulsão','wand-missile':'a Varinha Míssil'};
 const NEED_COLOR:Record<string,string>={tide:'#57c7df',gloves:'#d3c5ad',boots:'#9fd8ff',amulet:'#ff9a3c',fire:'#ff9a3c',ice:'#9fe6ff',light:'#fff3a0','wand-lightning':'#ffe56b','wand-repulse':'#b27cff','wand-missile':'#ff9d66',relic:'#efce79',bosskey:'#d8c9a8'};
 const BOW_CHARGE=.9,ECHO_RECHARGE=6;
