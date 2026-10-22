@@ -4,7 +4,6 @@ import {QUESTS,QUEST_SEQ_IDS} from '../lib/sidequests.ts';
 import {WING_START} from '../lib/wingcave.ts';
 import {crossWingCave} from './wingcross.mjs';
 const ORDERED_SKIP=id=>QUEST_SEQ_IDS.has(id)||id.startsWith('coast-beacon-')||id.startsWith('lightcave-rune-')||id.startsWith('tidecave-rune-')||id.endsWith('-mural');
-const T=32,c=n=>n*T+T/2;
 export function solve(g,{log=()=>{}}={}){
   g.cheats.life=true;g.start();
   const entries=new Map();const addEntry=(z,x,y)=>{const l=entries.get(z)??[];if(!l.some(e=>e.x===x&&e.y===y)){l.push({x,y});entries.set(z,l);return true;}return false;};
@@ -26,7 +25,7 @@ export function solve(g,{log=()=>{}}={}){
       // índice por célula de 32px: a busca do ponto alcançável mais próximo olha só as células vizinhas
       const cells=new Map();for(const p of pts){const k=(p[1]>>5)*4096+(p[0]>>5);const l=cells.get(k);if(l)l.push(p);else cells.set(k,[p]);}
       const near=(x,y,r)=>{let best=null,bd=r;const cr=Math.ceil(r/32),cx=x>>5,cy=y>>5;for(let gy=cy-cr;gy<=cy+cr;gy++)for(let gx=cx-cr;gx<=cx+cr;gx++){const l=cells.get(gy*4096+gx);if(l)for(const p of l){const d=Math.hypot(p[0]-x,p[1]-y);if(d<bd){bd=d;best=p;}}}return best;};
-      const act=(prop,r=50)=>{const p=near(prop.x,prop.y,r);if(!p)return false;place(p[0],p[1]);g.player.dir=dirTo(p[0],p[1],prop.x,prop.y);const before=g.zone;g.interact();settle();if(g.heartChestTimer>0){for(let i=0;i<220&&g.heartChestTimer>0;i++){g.update(1/60);settle();}}if(g.spinReveal>0){for(let i=0;i<400&&g.spinReveal>0;i++)g.update(1/60);settle();}return true;};
+      const act=(prop,r=50)=>{const p=near(prop.x,prop.y,r);if(!p)return false;place(p[0],p[1]);g.player.dir=dirTo(p[0],p[1],prop.x,prop.y);g.interact();settle();if(g.heartChestTimer>0){for(let i=0;i<220&&g.heartChestTimer>0;i++){g.update(1/60);settle();}}if(g.spinReveal>0){for(let i=0;i<400&&g.spinReveal>0;i++)g.update(1/60);settle();}return true;};
       const aim=s=>{place(s[0],s[1]);g.player.dir=s[2]?(s[2]>0?'right':'left'):(s[3]>0?'down':'up');};
       const fire=(p,kind)=>{if(!g.bow||(kind!=='normal'&&!g.arrowKinds.has(kind)))return false;const s=canShoot(g,R,p);if(!s)return false;aim(s);g.ranged='bow';g.arrow=kind;g.player.cooldown=0;g.shoot();for(let i=0;i<80;i++)g.updateShots(1/60);settle();return true;};
       const cast=(p,kind)=>{if(!g.wands.has(kind))return false;const s=canShoot(g,R,p);if(!s)return false;aim(s);g.wand=kind;g.ranged='wand';g.wandCooldown=0;g.castWand();for(let i=0;i<150;i++)g.updateWandShots(1/60);settle();return true;};

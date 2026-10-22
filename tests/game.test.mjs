@@ -236,7 +236,7 @@ test('a Repulsão empurra pedras de borda que a Luva não alcança',()=>{
   for(let i=0;i<3;i++){g.player.x=c(2);g.player.y=c(17);g.player.dir='right';g.wandCooldown=0;g.castWand();}
   assert.equal(plate.open,true,'o raio leva a pedra até a placa');assert.equal(prop(g,'sanctum','sanctum-alcove-barrier'),undefined);
   assert.equal(reachable(g,'sanctum',{x:c(3),y:c(20)},'sanctum-alcove-cache'),true);
-  const h=fresh();g.zone='aerie';g.visited.add('aerie');g.map.enemies.forEach(e=>e.hp=0);
+  g.zone='aerie';g.visited.add('aerie');g.map.enemies.forEach(e=>e.hp=0);
   for(const b of g.map.props.filter(q=>q.id.startsWith('aerie-bridge'))){b.open=true;g.map.tiles[Math.floor(b.y/32)][Math.floor(b.x/32)]=3;}g.rebuildGrid('aerie');
   const ap=prop(g,'aerie','aerie-ledge-plate');
   for(let i=0;i<3;i++){g.player.x=c(18);g.player.y=c(2);g.player.dir='right';g.wandCooldown=0;g.castWand();}
@@ -551,7 +551,7 @@ test('bestiário: cada família nova tem comportamento, aviso e fraqueza própri
   let g=arena(),e=spawn(g,'spider',90,0);g.update(1/60);assert.equal(e.st,'rise','a aranha avisa antes do bote');run(g,.6);assert.ok(['lunge','recover'].includes(e.st));
   // arqueiro: mira com linha de aviso e dispara um projétil
   g=arena();e=spawn(g,'archer',180,0);g.cheats.life=true;let shots=0,aimed=false;for(let i=0;i<240;i++){g.update(1/60);shots=Math.max(shots,g.projectiles.length);aimed||=e.st==='aim';}assert.ok(aimed,'o arqueiro mira antes (linha de aviso)');assert.ok(shots>0,'o arqueiro atira de longe');
-  const before=Math.hypot(e.x-g.player.x,e.y-g.player.y);e.x=g.player.x+60;e.st='idle';e.stT=5;run(g,.5);assert.ok(Math.hypot(e.x-g.player.x,e.y-g.player.y)>60,'o arqueiro recua quando o herói chega perto');
+  e.x=g.player.x+60;e.st='idle';e.stT=5;run(g,.5);assert.ok(Math.hypot(e.x-g.player.x,e.y-g.player.y)>60,'o arqueiro recua quando o herói chega perto');
   // esqueleto: desmonta uma vez e se remonta; ossos no chão morrem de vez
   g=arena();e=spawn(g,'skeleton',200,0);g.hitEnemy(e,1,0,99,'sword');assert.equal(e.st,'bones');assert.ok(e.hp>0,'não morre no primeiro golpe fatal');
   run(g,3.2);assert.ok(e.hp>=2&&e.st!=='bones','remonta-se');run(g,.7);g.hitEnemy(e,1,0,99,'sword');assert.ok(e.hp<=0,'depois de remontado, cai de vez');
@@ -560,7 +560,7 @@ test('bestiário: cada família nova tem comportamento, aviso e fraqueza própri
   g=arena();g.cheats.life=true;e=spawn(g,'mole',150,0);g.update(1/60);assert.equal(e.st,'under');const hp0=e.hp;g.hitEnemy(e,1,0,2,'sword');assert.equal(e.hp,hp0,'enterrada não sofre dano');
   run(g,4.5);assert.ok(['emerge','exposed'].includes(e.st),'emerge perto do herói');run(g,.7);if(e.st==='exposed'){g.hitEnemy(e,1,0,1,'sword');assert.ok(e.hp<hp0,'exposta sofre dano');}
   // xamã: cura aliados feridos
-  g=arena();const s=spawn(g,'shaman',200,0),ally=spawn(g,'skeleton',230,10);ally.hp=1;run(g,4.4);assert.ok(ally.hp>1,'o xamã cura aliados');
+  g=arena();spawn(g,'shaman',200,0);const ally=spawn(g,'skeleton',230,10);ally.hp=1;run(g,4.4);assert.ok(ally.hp>1,'o xamã cura aliados');
   // brasa viva: incha, explode e deixa brasas que ferem quem fica em cima
   g=arena();e=spawn(g,'magmite',60,0);g.update(1/60);assert.equal(e.st,'swell','avisa antes de explodir');run(g,.8);assert.equal(e.st,'cool');assert.ok(g.beastZones.length===1,'deixa brasas no chão');
   const z=g.beastZones[0],hp1=g.player.hp;g.player.x=z.x;g.player.y=z.y;g.player.hurt=0;run(g,.5);assert.ok(g.player.hp<hp1,'as brasas ferem');

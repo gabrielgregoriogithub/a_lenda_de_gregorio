@@ -1,7 +1,6 @@
 // Ciclo completo da Técnica Ancestral com o motor real:
 // Eremita → Portão do Eco (pilares) → Câmara do Eco (símbolos e placas) → baú dourado → animação → Ataque Giratório.
 import {reach} from './reach.mjs';
-const T=32,c=n=>n*T+T/2;
 export const prop=(g,z,id)=>g.maps[z].props.find(p=>p.id===id);
 // Leva o jogador até perto de um objeto usando só pontos realmente alcançáveis pela colisão do motor.
 export function walkTo(g,id,from,r=56){const p=prop(g,g.zone,id);const pts=reach(g,from).pts;let best=null,bd=r;for(const q of pts){const d=Math.hypot(q[0]-p.x,q[1]-p.y);if(d<bd){bd=d;best=q;}}if(!best)throw new Error(`${id} inalcançável em ${g.zone}`);g.player.x=best[0];g.player.y=best[1];g.player.dir=Math.abs(p.x-best[0])>Math.abs(p.y-best[1])?(p.x>best[0]?'right':'left'):(p.y>best[1]?'down':'up');return best;}
