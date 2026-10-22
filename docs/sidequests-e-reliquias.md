@@ -180,3 +180,17 @@ Para cada quest antes de marcar como concluída:
 - [ ] Salvar, carregar e voltar no tempo não duplicam nem apagam o desbloqueio.
 - [ ] Teste teclado, toque e controle.
 - [ ] Teste o percurso completo em jogo; testes de reachability sozinhos não validam sensação, leitura visual ou dificuldade.
+
+
+## 13. Tempestade Ancestral — evolução do Ataque Giratório
+**Estado:** implementada no motor; teste automatizado adicionado, execução de jogo ainda pendente.
+
+- **Momento:** após o capítulo 3, quando Gregório já conquistou o Ataque Giratório.
+- **Gancho:** ao retornar à Câmara do Eco, o mural da Tempestade revela uma prova de maestria que não existia no primeiro treinamento.
+- **Puzzle:** três alvos celestes estão alinhados na sala superior. Um único Ataque Giratório precisa alcançar os três. O selo desaparece e libera o baú da Tempestade Ancestral.
+- **Recompensa:** Tempestade Ancestral, uma evolução do Ataque Giratório.
+- **Entrada:** segure J / Espaço por 1,35 s (mais que o brilho normal) e solte. A carga maior é visualmente indicada por aura azul-clara, mais faíscas e oito raios de foco.
+- **Balanceamento atual:** dano = poder da espada +5 (Ataque Giratório original: espada +2); raio de alcance aproximado de 138 px contra 82 px no golpe original; animação dura 0,72 s.
+- **Impacto:** onda circular azul e branca, anéis de energia amplos, flash curto, tremor de câmera, partículas em leque e uma assinatura sonora grave seguida de tons ascendentes e um estalo agudo. O golpe continua bloqueado por paredes e exige linha livre para atingir inimigos.
+- **Persistência:** spinMasterUnlocked é salvo e restaurado. A prova e o baú ficam resolvidos para evitar repetir ou duplicar a recompensa.
+- **QA:** o teste cobre os três alvos, remoção do selo, pickup, persistência e dano/duração do golpe evoluído. Ainda é necessário validar a legibilidade do charge, o som com áudio habilitado e o percurso real em teclado, toque e controle.
