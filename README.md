@@ -55,6 +55,10 @@ O padrão de design, o catálogo completo, as dependências e o checklist de QA 
 
 Cada região tem sua fauna: aranhas que emboscam na Floresta de Outono, toupeiras que cavam no deserto, xamãs que curam aliados no pântano, brasas vivas que deixam o chão em chamas nas Terras de Cinza, serpentes que mergulham no lago e caranguejos de carapaça na costa, além de esqueletos que se remontam e goblins arqueiros que miram de longe. Todo ataque tem aviso visual, e cada região tem um encontro marcante (elite com coroa e nome). Detalhes em [docs/bestiario.md](docs/bestiario.md).
 
+## Mundo vivo
+
+Cada bioma tem vento, clima que muda aos poucos (garoa, chuva, tempestade com relâmpagos, neve e nevasca, poeira e tempestade de areia, cinzas, névoa), fauna ambiente própria que reage ao herói (coelhos fogem para os arbustos, aves levantam voo, esquilos sobem nas árvores), água corrente, folhas caindo, pegadas na areia e na neve, sons ambientes em camadas e pequenos acontecimentos espontâneos. Tudo é decorativo e configurado por bioma. Detalhes em [docs/mundo-vivo.md](docs/mundo-vivo.md).
+
 ## Qualidade e auditoria
 
 `pnpm typecheck`, `pnpm lint`, `pnpm test` (motor, campanha completa pelo jogador automático e regressões) e `pnpm test:e2e` (build de produção no Chromium com teclado real) rodam no CI a cada push em `main`. O relatório da auditoria — inventário de missões opcionais, balanceamento medido, saves e limitações — está em [docs/auditoria.md](docs/auditoria.md).

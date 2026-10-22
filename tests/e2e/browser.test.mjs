@@ -75,3 +75,12 @@ test('armazenamento indisponível: o jogo roda e avisa que não pôde salvar',as
   await hold(page,'ArrowRight',300);await page.keyboard.press('m');await page.getByRole('button',{name:/^Salvar$/}).first().click();
   await page.waitForFunction(()=>/Não foi possível salvar/.test(window.__lendaSnapshot?.().notice??''));assert.equal((await snap()).screen!=='dead',true);assert.deepEqual(errors,[]);await ctx.close();
 });
+
+test('mundo vivo no navegador: animais, partículas e clima rodando sem erros e com quadros leves',async()=>{
+  const {ctx,page,errors,failed,snap}=await open();await page.getByRole('button',{name:/Começar aventura/}).click();await page.waitForFunction(()=>window.__lendaSnapshot?.().screen==='playing');
+  await page.keyboard.press('e').catch(()=>{});await page.waitForTimeout(6000);
+  const s=await snap();assert.ok(s.ambient.critters>0,`animais em cena (${JSON.stringify(s.ambient)})`);assert.ok(s.ambient.particles>0,'partículas ambientes');assert.ok(s.ambient.wind>0,'vento soprando');
+  const avg=await page.evaluate(()=>new Promise(r=>{let n=0;const t0=performance.now();const f=()=>{if(++n<120)requestAnimationFrame(f);else r((performance.now()-t0)/n);};requestAnimationFrame(f);}));
+  assert.ok(avg<40,`quadro médio ${avg.toFixed(1)} ms`);console.log(`# quadro médio no navegador de teste: ${avg.toFixed(1)} ms; ambiente ${JSON.stringify((await snap()).ambient)}`);
+  assert.deepEqual(failed,[]);assert.deepEqual(errors,[]);await ctx.close();
+});

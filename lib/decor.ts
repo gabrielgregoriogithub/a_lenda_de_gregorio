@@ -61,8 +61,16 @@ const BY_BIOME:Partial<Record<Biome,{d:number;m:string[]}>>={
   starfall:{d:.07,m:['starshard','crystal','stones']},
   darkwood:{d:.09,m:['darkroot','toadstool','mushroom']},
 };
+// motivos que se movem (vento, brilho, água): desenhados a cada quadro pelo sistema de ambiente, não no cache do chão
+export const LIVE_MOTIFS=new Set(['mushroom','clover','leaves','icecrystal','pinelet','reeds','toadstool','lavacrack','fern','flowers','wildflowers','tallgrass','crystal','starshard','bloom']);
+// motivos que brilham e pulsam
+export const GLOW_MOTIFS:Record<string,string>={icecrystal:'#e9fbff',toadstool:'#c9a8ff',lavacrack:'#ffb347',crystal:'#d9f0ff',starshard:'#fff6b0'};
 export function decorAt(biome:Biome,x:number,y:number){const def=BY_BIOME[biome];if(!def||hash(x,y,77)>def.d)return null;return {motif:def.m[Math.floor(hash(x,y,78)*def.m.length)],v:hash(x,y,79)};}
-export function drawDecor(g:CanvasRenderingContext2D,biome:Biome,x:number,y:number,px:number,py:number){const d=decorAt(biome,x,y);if(!d)return;
-  const ox=px+Math.floor(hash(x,y,80)*6)-3,oy=py+Math.floor(hash(x,y,81)*6)-3;const p:Px=(a,b,w,h,c)=>{g.fillStyle=c;g.fillRect(Math.round(ox+a*1.6),Math.round(oy+b*1.6),Math.max(1,Math.round(w*1.6)),Math.max(1,Math.round(h*1.6)));};
-  g.save();g.globalAlpha=.95;M[d.motif](p,d.v);g.restore();}
+export const decorOffset=(x:number,y:number)=>[Math.floor(hash(x,y,80)*6)-3,Math.floor(hash(x,y,81)*6)-3] as const;
+/** Desenha um motivo. `shear` inclina o topo (em px) e mantém a base presa ao chão, como uma planta ao vento. */
+export function drawMotif(g:CanvasRenderingContext2D,motif:string,v:number,ox:number,oy:number,shear=0){
+  const p:Px=(a,b,w,h,c)=>{g.fillStyle=c;g.fillRect(Math.round(ox+a*1.6+shear*Math.max(0,20-b)/14),Math.round(oy+b*1.6),Math.max(1,Math.round(w*1.6)),Math.max(1,Math.round(h*1.6)));};
+  M[motif]?.(p,v);}
+export function drawDecor(g:CanvasRenderingContext2D,biome:Biome,x:number,y:number,px:number,py:number,live:'all'|'static'='all'){const d=decorAt(biome,x,y);if(!d||(live==='static'&&LIVE_MOTIFS.has(d.motif)))return;
+  const [dx,dy]=decorOffset(x,y);g.save();g.globalAlpha=.95;drawMotif(g,d.motif,d.v,px+dx,py+dy);g.restore();}
 export const DECOR_BIOMES=Object.keys(BY_BIOME) as Biome[];

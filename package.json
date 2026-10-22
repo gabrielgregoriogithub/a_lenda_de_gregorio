@@ -14,7 +14,7 @@
     "db:generate": "drizzle-kit generate",
     "build:pages": "vite build --config vite.pages.config.ts",
     "preview:pages": "vite preview --config vite.pages.config.ts",
-    "test": "node --import ./tests/register.mjs --test tests/game.test.mjs tests/regressions.test.mjs",
+    "test": "node --import ./tests/register.mjs --test tests/game.test.mjs tests/regressions.test.mjs tests/ambient.test.mjs",
     "test:e2e": "pnpm build:pages && node --test tests/e2e/browser.test.mjs",
     "typecheck": "tsc --noEmit -p .",
     "balance": "node --import ./tests/register.mjs tests/balance.mjs"
