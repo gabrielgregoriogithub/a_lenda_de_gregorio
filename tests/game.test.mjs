@@ -527,3 +527,16 @@ test('Gruta das Botas Aladas: entrada no lugar do baú, oito plataformas, queda 
   const s=fresh();assert.ok(s.load(g.serialize()));assert.equal(s.boots,true,'as botas ficam no save');assert.equal(prop(s,'wingcave','wingcave-boots').open,true);
   s.player.hp=0;s.onZeroHp();s.retry();assert.equal(s.boots,true,'morrer depois não remove as botas');
 });
+
+
+test('Tempestade Ancestral: avisa ao pegar o giro e de novo quando o selo desperta',async()=>{
+  const {runSpinQuest}=await import('./spinquest.mjs');
+  const g=fresh();assert.equal(runSpinQuest(g),true);for(let i=0;i<400&&g.spinReveal>0;i++)g.update(1/60);
+  assert.match(g.dialog,/segundo selo/);assert.match(g.dialog,/capítulo 3/);assert.equal(g.spinMasterNotified,false,'antes do capítulo 3 o selo ainda dorme');
+  g.dismissDialog();for(let i=0;i<30;i++)g.update(1/60);assert.equal(g.dialog,'','nenhum aviso repetido antes da hora');
+  g.chapter=3;g.update(1/60);assert.equal(g.dialogTitle,'A Câmara do Eco desperta','avisa assim que o herói avança o suficiente');assert.match(g.dialog,/Tempestade Ancestral/);
+  g.dismissDialog();for(let i=0;i<30;i++)g.update(1/60);assert.equal(g.dialog,'','o aviso aparece uma única vez');
+  const h=fresh();assert.ok(h.load(g.serialize()));h.update(1/60);assert.equal(h.dialog,'','o aviso já dado fica no save');
+  const late=fresh();late.chapter=3;assert.equal(runSpinQuest(late),true);for(let i=0;i<400&&late.spinReveal>0;i++)late.update(1/60);
+  assert.match(late.dialog,/já pode enfrentá-la agora/,'quem aprende o giro depois do capítulo 3 é avisado na hora');late.dismissDialog();late.update(1/60);assert.equal(late.dialog,'','sem aviso duplicado');
+});
