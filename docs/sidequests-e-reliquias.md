@@ -237,3 +237,42 @@ Para cada quest antes de marcar como concluída:
 - **Recompensa:** vencer concede Bota do Vento (swift-boots), que aumenta bastante a velocidade de corrida no mundo aberto. Depois de obter a bota, o circuito segue aberto para corridas de treino: cada nova tentativa custa 25 cristais, mas não duplica a recompensa.
 - **Referência de design:** inspirado no gerenciamento de aceleração/fôlego e no uso estratégico de arrancada das corridas de chocobo de Final Fantasy VII; o percurso, NPC, arte, comandos e economia são próprios do jogo.
 - **QA automatizado:** teste cobre saldo insuficiente, cobrança de 25, concessão da bota apenas ao vencer e cobrança em nova tentativa. O balanceamento real de tempos, faixa e obstáculos precisa de playtest.
+
+
+## 16. Três relíquias opcionais — trilhas separadas do caminho principal
+**Estado:** design adicionado; requer implementação e playtest antes de ser considerado conteúdo jogável.
+
+Estas recompensas ficam fora dos gatilhos de capítulo e não devem ser exigidas para abrir a próxima missão principal. O jogador pode ignorá-las sem bloquear o save ou o objetivo principal.
+
+### Manto do Eco — O Teatro das Três Sombras (Floresta de Outono)
+- **Local:** uma entrada escondida atrás de uma cortina de folhas no extremo leste da Floresta de Outono; saída própria para o mapa aberto. Não fica no Bastião nem no corredor da missão principal.
+- **Gancho:** a Lenhadora ou um diário de viajante menciona um teatro onde “a sombra atua antes do ator”.
+- **Ato I — Ensaio:** numa sala segura, três sombras repetem movimentos de projéteis em sequência (linha, pausa, leque). O jogador observa o padrão e ativa os refletores na mesma ordem; a parede mostra a sequência em pictogramas para não depender de texto.
+- **Ato II — Palco vivo:** três ondas curtas de disparos, com cobertura móvel. A cada padrão evitado, uma lanterna acende; levar dano não reinicia a sala inteira.
+- **Ato III — Bis:** o Mestre de Cena lança um orbe lento. Gregório deve conduzi-lo até um espelho de palco e fazê-lo atingir o chefe; depois, abrir o baú lateral.
+- **Recompensa/uso:** Manto do Eco, rebate automaticamente um projétil quando a proteção está carregada (recarga de 6 s). O anel visual indica disponibilidade. Útil em áreas de tiros, mas não abre portas obrigatórias.
+- **Fairness:** pistas no diário e no palco; dica gradual; checkpoint entre atos; recompensa única e persistente.
+
+### Anel do Ímã — O Correio das Moedas (Costa das Conchas)
+- **Local:** uma gruta opcional sob a costa, acessível pela trilha de areia e não pela passagem da Onda Arcana. O cofre fica numa alcova lateral, longe do caminho para o capítulo seguinte.
+- **Gancho:** um caranguejo-carteiro perdeu três cargas de cristais. Pequenos rastros metálicos e placas de bússola apontam para o circuito da gruta.
+- **Ato I — Recolha:** seguir três grupos de cristais que se afastam do caminho; cada grupo termina num sino que precisa ser tocado com espada, revelando uma seta na parede.
+- **Ato II — Entrega:** empurrar duas caixas de cobre até placas de pressão. Se uma caixa cair na água, ela reaparece no ponto inicial; não há softlock.
+- **Ato III — Triagem:** o Caranguejo-Correio protege o último pacote. Desvie da pinça, ataque durante a pausa e abra o pequeno cofre atrás dele.
+- **Recompensa/uso:** Anel do Ímã, atrai cristais e corações caídos num raio moderado. É conveniência de exploração, não requisito para coletar nenhum item de missão principal.
+- **Fairness:** trilhas de partículas, placas com pictogramas e retorno das caixas; a sequência é resolvível sem o próprio anel.
+
+### Armadura de Granito — O Julgamento do Sino (Montanhas Geladas)
+- **Local:** uma cripta opcional na encosta sul das Montanhas Geladas, distante do acesso ao Fragmento Lunar e da rota do Templo. A entrada abre ao tocar um sino rachado no mapa aberto.
+- **Gancho:** Téo, o Alpinista, conta que a armadura só reconhece quem “faz a montanha responder sem quebrar o silêncio”.
+- **Ato I — Ressonância:** tocar três sinos pequenos na ordem indicada por marcas de neve (baixo → alto → médio). O som e o brilho confirmam cada acerto; erro apaga só a sequência.
+- **Ato II — Peso e contrapeso:** empurrar blocos de granito sobre placas, usando o impulso das rajadas de vento para mover o bloco maior. Há uma rota de retorno segura para cada sala.
+- **Ato III — Guardião do Sino:** enfrentar um cavaleiro de granito que anuncia a investida com um toque grave e fica vulnerável após bater na parede. A luta é vencível sem a armadura que está sendo buscada.
+- **Recompensa/uso:** Armadura de Granito, reduz em 50% o dano recebido. O prêmio é opcional; não pode ser pré-requisito de capítulo, porta, chefe ou objetivo principal.
+- **Fairness:** aviso claro do golpe, pistas repetidas em mural e cenário, checkpoint antes do chefe e persistência após salvar/carregar.
+
+### Redistribuição proposta e regra de progressão
+- Retirar Manto e Armadura dos baús de progressão do Bastião; manter o Bastião com as Luvas e o desafio da Besta Litórea como conteúdo de capítulo.
+- Tirar o Anel do Ímã do baú trivial da Caverna Submersa e movê-lo para o Correio das Moedas na Costa das Conchas.
+- Colocar Manto, Anel e Armadura nas três áreas opcionais acima. Não reutilizar os mesmos IDs/guards do capítulo: cada quest precisa de IDs próprios, guardiões próprios e flag de conclusão persistente.
+- **Nota de implementação:** esta seção é especificação de design. A mecânica, os mapas, os gatilhos e os testes ainda precisam ser codificados; não anunciar essas quests como jogáveis até concluir o checklist de QA.
