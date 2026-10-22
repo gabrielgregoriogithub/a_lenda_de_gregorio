@@ -281,12 +281,18 @@ props.push({kind:'chest',id:'dojo-scroll',x:center(14.5),y:center(1.4),solid:tru
 const ice='hue-rotate(170deg) saturate(.6) brightness(1.3)';
 return{width,height,tiles,props,enemies:[entity('dojo-slime-a',9,19,'slime',ice),entity('dojo-slime-b',20,15,'slime',ice),entity('dojo-bat-a',7,8,'bat',ice),entity('dojo-bat-b',22,8,'bat',ice)]};
 }
-// Caverna da Luz (Planície das Estrelas): abre depois do segundo chefe e guarda as Flechas de Luz.
+// Caverna da Luz: puzzle de sequência antes do guardião e das Flechas de Luz.
 function makeLightCave():GameMap{
 const width=26,height=18,tiles=blankFloor(width,height),props:Prop[]=[];
 fill(tiles,4,8,10,9,4);fill(tiles,15,8,21,9,4);fill(tiles,6,12,7,13,4);fill(tiles,18,12,19,13,4);
+// Mural dá a pista; os três símbolos devem ser despertados na ordem Sol → Lua → Estrela.
+props.push({kind:'totem',id:'lightcave-mural',x:center(13),y:center(14),solid:true});
+props.push({kind:'totem',id:'lightcave-rune-sun',x:center(5),y:center(12),solid:true});
+props.push({kind:'totem',id:'lightcave-rune-moon',x:center(13),y:center(12),solid:true});
+props.push({kind:'totem',id:'lightcave-rune-star',x:center(21),y:center(12),solid:true});
+props.push({kind:'barrier',id:'lightcave-seal',x:center(13),y:center(8),solid:true,by:['lightcave-rune-sun','lightcave-rune-moon','lightcave-rune-star']});
 props.push({kind:'stairs',id:'lightcave-exit',x:center(13),y:center(16),solid:true,to:'north',ax:25,ay:42.6,label:'Voltar à Planície das Estrelas'});
-props.push({kind:'chest',id:'lightcave-light',x:center(13),y:center(2.5),solid:true,item:'light',guard:'lightcave-knight'},{kind:'chest',id:'lightcave-potion',x:center(3),y:center(3),solid:true,item:'potion'});
+props.push({kind:'chest',id:'lightcave-light',x:center(13),y:center(2.5),solid:true,item:'light',guard:'lightcave-knight',challenge:'dungeon',challengeText:'Leia o mural, desperte os três símbolos na ordem Sol → Lua → Estrela, abra o selo e derrote o cavaleiro que guarda as Flechas de Luz.'},{kind:'chest',id:'lightcave-potion',x:center(3),y:center(3),solid:true,item:'potion'});
 props.push({kind:'torch',id:'lightcave-torch-a',x:center(10),y:center(2),solid:true,open:true},{kind:'torch',id:'lightcave-torch-b',x:center(16),y:center(2),solid:true,open:true});
 const glow='sepia(.6) saturate(1.8) hue-rotate(10deg) brightness(1.3)';
 return{width,height,tiles,props,enemies:[entity('lightcave-knight',13,5,'knight',KNIGHT_TINT),entity('lightcave-bat-a',5,5,'bat',glow),entity('lightcave-bat-b',21,5,'bat',glow),entity('lightcave-slime',13,11,'slime',glow)]};
@@ -381,6 +387,8 @@ if(p.kind==='npc'&&p.id==='astronomo'){const sealed=this.maps.north.props.some(q
 if(p.kind==='npc'&&p.id==='cartografo'){const guardian=this.maps.fortress.enemies.find(e=>e.id==='fortress-warden');if(!p.open&&guardian?.hp>0){this.openDialog('Cartógrafo das Marés','O guardião ainda vigia o cofre da ala leste. Derrote-o e eu abrirei o atalho atrás da muralha.');this.emit();return;}if(!p.open){p.open=true;this.coins+=20;this.checkBarriers();this.openDialog('Cartógrafo das Marés','O mapa voltou para minhas mãos. Aceite estes 20 cristais e siga pela muralha norte: o atalho até as Terras do Norte está aberto.');this.emit();return;}this.openDialog('Cartógrafo das Marés','O atalho permanece aberto. A Fortaleza e as Ruínas do Sol agora formam uma rota segura de retorno.');this.emit();return;}
 if(p.kind==='npc'&&p.id==='eremita'){this.talkHermit();return;}
 if(p.kind==='totem'&&(p.id.startsWith('echo-pillar-')||p.id.startsWith('dojo-sym-'))){this.touchRune(p);return;}
+if(p.kind==='totem'&&p.id.startsWith('lightcave-rune-')){this.touchLightRune(p);return;}
+if(p.kind==='totem'&&p.id==='lightcave-mural'){this.openDialog('Mural do Astrônomo','“A luz revela o caminho quando as estrelas são despertadas em sua ordem celeste.” Toque nos três símbolos da câmara inferior nesta sequência: Sol → Lua → Estrela. Se errar, a sequência se apaga e você recomeça. Depois, vença o cavaleiro que guarda as Flechas de Luz.');return;}
 if(p.kind==='totem'&&p.id==='dojo-mural'){this.openDialog('Mural do Mestre Espadachim',`“Quem deseja a Técnica Ancestral deve despertar os quatro símbolos na ordem em que o mestre girava a lâmina.” Toque (E) ou golpeie os símbolos nesta ordem: 1 ${DOJO_LABEL[0]} (oeste) → 2 ${DOJO_LABEL[1]} (sudeste) → 3 ${DOJO_LABEL[2]} (leste) → 4 ${DOJO_LABEL[3]} (sudoeste). Se errar, todos se apagam e você recomeça. Depois, no salão norte, pise nas quatro placas do vento em menos de ${PLATE_TIME} segundos — corra com Shift.`);return;}
 if(p.kind==='target'&&p.id.startsWith('dojo-plate-')){this.message(p.open?'Esta placa já ecoa. Pise nas outras antes que o tempo acabe!':`Placa do vento: pise nas quatro placas em menos de ${PLATE_TIME} segundos. A contagem começa na primeira. Corra (Shift).`);return;}
 if(p.kind==='stairs'&&p.id==='echo-gate'&&!this.echoGateOpen){this.message(`O Portão do Eco está selado pelo gelo. Toque (E) ou golpeie os quatro pilares ao redor nesta ordem: ${ECHO_LABEL.join(' → ')}.`);this.ring(p.x,p.y-20,'#bfefff',50);this.tone(196,.12,'square');return;}
@@ -590,6 +598,7 @@ if(p.id!==next){for(const q of group)if(q)q.open=false;this.burst(p.x,p.y-20,'#9
 p.open=true;this.burst(p.x,p.y-24,color,22);this.ring(p.x,p.y-12,color,64);this.tone(523+i*131,.16,'triangle');
 if(group.every(q=>q?.open)){if(echo){const g=this.map.props.find(q=>q.id==='echo-gate');if(g){this.ring(g.x,g.y-20,'#bfefff',150);this.burst(g.x,g.y-30,'#e6faff',44);}this.kick(6,.4);this.tone(392,.25,'triangle');this.tone(784,.35,'triangle');this.message('O gelo se partiu! O Portão do Eco está aberto: aproxime-se e entre (E) na Câmara do Eco.');}else{this.checkBarriers();this.kick(5,.3);this.tone(784,.3,'triangle');this.message('Os quatro símbolos responderam! A porta norte do salão se abriu: siga para as placas do vento.');}}
 else this.message(`${labels[i]} aceso (${i+1}/4). Próximo: ${labels[i+1]}.`);this.emit();}
+touchLightRune(p:Prop){const order=['lightcave-rune-sun','lightcave-rune-moon','lightcave-rune-star'],labels=['Sol','Lua','Estrela'],group=order.map(id=>this.map.props.find(q=>q.id===id)),i=order.indexOf(p.id),next=order.find(id=>!this.map.props.find(q=>q.id===id)?.open);if(p.open){this.message(`O símbolo ${labels[i]} já está aceso.`);return;}if(p.id!==next){for(const q of group)if(q)q.open=false;this.burst(p.x,p.y-20,'#9fb4c8',14);this.kick(2,.12);this.tone(196,.14,'square');this.message('Sequência errada: os símbolos se apagaram. Comece pelo Sol e siga: Sol → Lua → Estrela.');this.emit();return;}p.open=true;this.burst(p.x,p.y-24,'#fff3a0',22);this.ring(p.x,p.y-12,'#fff3a0',64);this.tone(523+i*131,.16,'triangle');if(group.every(q=>q?.open)){this.checkBarriers();this.kick(5,.3);this.tone(784,.3,'triangle');this.message('Sol, Lua e Estrela responderam! O selo da Câmara da Luz se desfez. O cavaleiro ainda guarda o baú.');}else this.message(`${labels[i]} aceso (${i+1}/3). Próximo: ${labels[i+1]}.`);this.emit();}
 strikeRune(d:{x:number;y:number}){const p=this.player,q=this.map.props.find(q=>q.kind==='totem'&&!q.open&&(q.id.startsWith('echo-pillar-')||q.id.startsWith('dojo-sym-'))&&Math.hypot(q.x-p.x,q.y-p.y)<60&&(q.x-p.x)*d.x+(q.y-p.y)*d.y>0);if(q)this.touchRune(q);}
 // Dica completa de cada barreira: o que fazer, com o quê e quanto já foi feito.
 barrierHint(p:Prop,full:boolean){const src=(p.by??[]).map(id=>this.map.props.find(q=>q.id===id)).filter(Boolean) as Prop[],n=src.filter(q=>q.open).length,t=src.length,count=t>1?` (${n}/${t})`:'',k=src.find(q=>!q.open)?.kind??src[0]?.kind;let how='';
