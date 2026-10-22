@@ -77,7 +77,7 @@ export function makeNorth(entity:MakeEntity):GameMap{
   }
   // 6. inimigos por região (longe da chegada); guardiões fixos dos baús
   const enemies:Entity[]=[];
-  const plan:[Biome,Entity['kind'],number,string?][]=[['crystal','slime',3],['crystal','knight',2,KNIGHT_TINT],['sky','bat',3],['sky','wisp',2,WISP_TINT],['starfall','wisp',2,WISP_TINT],['starfall','spitter',3,'hue-rotate(250deg) saturate(1.7) brightness(.9)'],['starfall','slime',2,'hue-rotate(230deg)'],['ash','spitter',3,FIRE_SPITTER_TINT],['ash','knight',2,KNIGHT_TINT],['ash','bat',2,'hue-rotate(-40deg) saturate(1.8)']];
+  const plan:[Biome,Entity['kind'],number,string?][]=[['crystal','magmite',2],['crystal','spider',1],['crystal','knight',2,KNIGHT_TINT],['sky','bat',2],['sky','archer',2],['sky','wisp',2,WISP_TINT],['starfall','wisp',2,WISP_TINT],['starfall','skeleton',2],['starfall','spitter',2,'hue-rotate(250deg) saturate(1.7) brightness(.9)'],['ash','magmite',2],['ash','spitter',2,FIRE_SPITTER_TINT],['ash','knight',2,KNIGHT_TINT],['ash','bat',1,'hue-rotate(-40deg) saturate(1.8)']];
   plan.forEach(([b,kind,count,tint],pi)=>{let placed=0;for(let i=0;placed<count&&i<600;i++){const x=2+Math.floor(hash(i,pi,28)*(W-4)),y=2+Math.floor(hash(i,pi,29)*(H-4));if(biome[y][x]!==b||(tiles[y][x]!==0&&tiles[y][x]!==1))continue;if(Math.abs(x-16)<9&&y>36)continue;if(props.some(p=>p.solid&&Math.abs(p.x-center(x))<40&&Math.abs(p.y-center(y))<40))continue;enemies.push(entity(`n-${b}-${kind}-${placed}`,x,y,kind,tint));placed++;}});
   enemies.push(entity('k-heart',56,43,'knight',KNIGHT_TINT),entity('k-boots',8,31,'knight',KNIGHT_TINT),entity('sentinel',16,5,'golem','hue-rotate(170deg) saturate(.6) brightness(1.3)'));
   return{width:W,height:H,tiles,props,enemies,biome};

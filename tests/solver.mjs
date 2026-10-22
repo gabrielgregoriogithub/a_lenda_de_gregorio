@@ -13,7 +13,8 @@ export function solve(g,{log=()=>{}}={}){
   const place=(x,y)=>{g.player.x=x;g.player.y=y;g.player.jump=0;g.player.cooldown=0;g.player.hurt=0;};
   const dirTo=(x,y,tx,ty)=>Math.abs(tx-x)>Math.abs(ty-y)?(tx>x?'right':'left'):(ty>y?'down':'up');
   const settle=()=>{if(g.dialog)g.dismissDialog();if(g.shopOpen)g.closeShop();};
-  const kill=e=>{if(e.hp<=0)return;e.hp=1;e.hit=0;e.timer=2;e.frozen=0;e.stun=1;e.st='idle';e.bossHitUntil=0;const src=e.kind==='wisp'?'light':e.kind==='knight'||e.kind==='shieldknight'?'spin':'sword';g.hitEnemy(e,0,1,99,src);e.dying=0;};
+  const kill=e=>{if(e.hp<=0)return;e.hp=1;e.hit=0;e.timer=2;e.frozen=0;e.stun=1;e.st='idle';e.bossHitUntil=0;const src=e.kind==='wisp'?'light':e.kind==='knight'||e.kind==='shieldknight'?'spin':'sword';g.hitEnemy(e,0,1,99,src);if(e.hp>0){e.mi=1;e.hp=0;} // carapaça, ossos ou toca: o combate real tem testes próprios
+  e.dying=0;};
   const cache=new Map();let progress=true,rounds=0;
   while(progress&&rounds++<200){progress=false;
     for(const [z,list] of [...entries]){

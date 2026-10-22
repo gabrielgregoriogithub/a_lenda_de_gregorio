@@ -15,7 +15,7 @@ export type BossDef={name:string;title:string;weak:Source[];weakText:string;colo
 export const BOSSES:Record<string,BossDef>={
   guardian:{name:'Guardião de Pedra',title:'Sentinela do Templo Lunar',weak:['fire'],color:'#e8bd74',
     weakText:'A pedra racha com fogo: acerte uma Flecha de Fogo. Ou desvie da investida para ele se chocar contra a parede.',
-    moves:[['charge','fan','charge'],['charge','slam','rocks','fan']]},
+    moves:[['charge','fan','charge'],['charge','slam','summon','rocks','fan']],minion:'skeleton'},
   'eclipse-warden':{name:'Guardião do Eclipse',title:'Senhor das Sombras Gêmeas',weak:['light','lightning'],color:'#b48cff',
     weakText:'Sombras temem a luz: Flecha de Luz ou o Relâmpago o deixam indefeso. As ilusões não sentem a luz.',
     moves:[['blink','fan','blink','ring'],['blink','clones','ring','spiral'],['blink','spiral','clones','rocks']],minion:'shade',minionTint:'#a88cff'},
@@ -24,10 +24,10 @@ export const BOSSES:Record<string,BossDef>={
     moves:[['pull','charge','fan'],['pull','spiral','charge'],['pull','summon','slam','spiral']],minion:'wisp',minionTint:'#c7c5ff'},
   'aerie-dune-warden':{name:'Guardião das Dunas',title:'Rei da Tempestade de Areia',weak:['missile'],color:'#d7a56b',
     weakText:'Ele salta alto demais para a espada. Um Míssil de energia o derruba no ar.',
-    moves:[['slam','fan','slam'],['slam','spiral','summon'],['slam','rocks','charge','spiral']],minion:'bat',minionTint:'#e0b56a'},
+    moves:[['slam','fan','slam'],['slam','spiral','summon'],['slam','rocks','charge','spiral']],minion:'mole',minionTint:'#e0b56a'},
   'fortress-warden':{name:'Guardião da Fortaleza',title:'A Armadura Esquecida',weak:['light','lightning'],color:'#6f8fc4',
     weakText:'A armadura conduz energia: Flecha de Luz ou Relâmpago a paralisam. Desviar da investida também abre a guarda.',
-    moves:[['charge','fan'],['charge','ring','summon','rocks']],minion:'slime'},
+    moves:[['charge','fan'],['charge','ring','summon','rocks']],minion:'skeleton'},
   // chefes com IA própria: recebem fases, fraqueza (atordoamento) e intro, mas mantêm seus movimentos
   tidewarden:{name:'Guardião das Correntes',title:'Senhor da Maré Profunda',weak:['fire','ice','lightning'],color:'#57c7df',
     weakText:'O choque térmico o paralisa: flechas de Fogo ou de Gelo.',moves:[[],[]]},

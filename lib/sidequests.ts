@@ -111,7 +111,7 @@ export function makeQuestMap(zone:QuestZone,entity:MakeEntity):GameMap{
     fill(t,9,10,11,11,2);fill(t,17,13,19,14,2);fill(t,3,2,5,4,2);fill(t,21,2,23,4,2);
     props.push({kind:'chest',id:'mail-crystals',x:center(23),y:center(16),solid:true,item:'crystals'});
     const copper='sepia(.8) saturate(2.5) hue-rotate(-20deg) brightness(1.05)';
-    en.push(entity('mail-crab',13,4,'golem',copper),entity('mail-bat-a',7,5,'bat',copper),entity('mail-bat-b',19,5,'bat',copper),entity('mail-slime',15,12,'slime',copper));
+    en.push(entity('mail-crab',13,4,'golem',copper),entity('mail-bat-a',7,5,'bat',copper),entity('mail-bat-b',19,5,'bat',copper),entity('mail-slime',15,12,'crab',copper));
   },[[20,15],[5,11],[13,13]],13);
   if(zone==='theater')return room(q,entity,(t,props,en)=>{
     for(let x=4;x<=22;x+=6){t[4][x]=4;t[5][x]=4;}fill(t,10,11,11,12,4);fill(t,16,11,17,12,4);

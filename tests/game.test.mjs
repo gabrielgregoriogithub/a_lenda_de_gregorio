@@ -133,8 +133,8 @@ test('mapas consistentes: barreiras, inimigos e chegada',()=>{
   const g=fresh();
   for(const z of ZONES){g.zone=z;const m=g.map;
     for(const b of m.props.filter(p=>p.by))for(const id of b.by)assert.ok(m.props.some(p=>p.id===id),`${z}:${b.id} depende de ${id}, que existe`);
-    for(const e of m.enemies){const heavy=['boss','golem','colossus','tidewarden','stonebeast','vinebeast'].includes(e.kind),air=e.kind==='bat'||e.kind==='wisp';
-      assert.equal(g.collides(e.x,e.y,heavy?16:7,air),false,`${z}:${e.id} não nasce preso`);}
+    for(const e of m.enemies){const heavy=['boss','golem','colossus','tidewarden','stonebeast','vinebeast'].includes(e.kind),air=e.kind==='bat'||e.kind==='wisp'||e.kind==='serpent';
+      assert.equal(g.collides(e.x,e.y,heavy?16:7,air),false,`${z}:${e.id} não nasce preso`);if(e.kind==='serpent')assert.equal(m.tiles[Math.floor(e.y/32)][Math.floor(e.x/32)],2,`${z}:${e.id} nasce na água`);}
     const ids=m.props.map(p=>p.id);assert.equal(new Set(ids).size,ids.length,`${z}: ids únicos`);}
   for(const z of ZONES)assert.ok(makeMap(z).width>0);
 });
@@ -539,4 +539,42 @@ test('Tempestade Ancestral: avisa ao pegar o giro e de novo quando o selo desper
   const h=fresh();assert.ok(h.load(g.serialize()));h.update(1/60);assert.equal(h.dialog,'','o aviso já dado fica no save');
   const late=fresh();late.chapter=3;assert.equal(runSpinQuest(late),true);for(let i=0;i<400&&late.spinReveal>0;i++)late.update(1/60);
   assert.match(late.dialog,/já pode enfrentá-la agora/,'quem aprende o giro depois do capítulo 3 é avisado na hora');late.dismissDialog();late.update(1/60);assert.equal(late.dialog,'','sem aviso duplicado');
+});
+
+
+test('bestiário: cada família nova tem comportamento, aviso e fraqueza próprios',async()=>{
+  const {BEAST_HP}=await import('../lib/bestiary.ts');
+  const arena=()=>{const g=makeGame(Adventure);g.start();g.dismissDialog();g.zone='world';g.player.x=c(46);g.player.y=c(42);g.map.enemies=[];return g;};
+  const spawn=(g,kind,dx,dy)=>{g.spawnMinion(`t-${kind}`,kind,g.player.x+dx,g.player.y+dy);const e=g.map.enemies.at(-1);e.hp=e.maxHp=BEAST_HP[kind];return e;};
+  const run=(g,s)=>{for(let i=0;i<s*60;i++)g.update(1/60);};
+  // aranha: escondida, avisa e salta
+  let g=arena(),e=spawn(g,'spider',90,0);g.update(1/60);assert.equal(e.st,'rise','a aranha avisa antes do bote');run(g,.6);assert.ok(['lunge','recover'].includes(e.st));
+  // arqueiro: mira com linha de aviso e dispara um projétil
+  g=arena();e=spawn(g,'archer',180,0);g.cheats.life=true;let shots=0,aimed=false;for(let i=0;i<240;i++){g.update(1/60);shots=Math.max(shots,g.projectiles.length);aimed||=e.st==='aim';}assert.ok(aimed,'o arqueiro mira antes (linha de aviso)');assert.ok(shots>0,'o arqueiro atira de longe');
+  const before=Math.hypot(e.x-g.player.x,e.y-g.player.y);e.x=g.player.x+60;e.st='idle';e.stT=5;run(g,.5);assert.ok(Math.hypot(e.x-g.player.x,e.y-g.player.y)>60,'o arqueiro recua quando o herói chega perto');
+  // esqueleto: desmonta uma vez e se remonta; ossos no chão morrem de vez
+  g=arena();e=spawn(g,'skeleton',200,0);g.hitEnemy(e,1,0,99,'sword');assert.equal(e.st,'bones');assert.ok(e.hp>0,'não morre no primeiro golpe fatal');
+  run(g,3.2);assert.ok(e.hp>=2&&e.st!=='bones','remonta-se');run(g,.7);g.hitEnemy(e,1,0,99,'sword');assert.ok(e.hp<=0,'depois de remontado, cai de vez');
+  g=arena();e=spawn(g,'skeleton',200,0);g.hitEnemy(e,1,0,99,'sword');g.hitEnemy(e,1,0,1,'sword');assert.ok(e.hp<=0,'golpear os ossos no chão impede que se remonte');
+  // toupeira: enterrada é imune; sai avisando e fica exposta
+  g=arena();g.cheats.life=true;e=spawn(g,'mole',150,0);g.update(1/60);assert.equal(e.st,'under');const hp0=e.hp;g.hitEnemy(e,1,0,2,'sword');assert.equal(e.hp,hp0,'enterrada não sofre dano');
+  run(g,4.5);assert.ok(['emerge','exposed'].includes(e.st),'emerge perto do herói');run(g,.7);if(e.st==='exposed'){g.hitEnemy(e,1,0,1,'sword');assert.ok(e.hp<hp0,'exposta sofre dano');}
+  // xamã: cura aliados feridos
+  g=arena();const s=spawn(g,'shaman',200,0),ally=spawn(g,'skeleton',230,10);ally.hp=1;run(g,4.4);assert.ok(ally.hp>1,'o xamã cura aliados');
+  // brasa viva: incha, explode e deixa brasas que ferem quem fica em cima
+  g=arena();e=spawn(g,'magmite',60,0);g.update(1/60);assert.equal(e.st,'swell','avisa antes de explodir');run(g,.8);assert.equal(e.st,'cool');assert.ok(g.beastZones.length===1,'deixa brasas no chão');
+  const z=g.beastZones[0],hp1=g.player.hp;g.player.x=z.x;g.player.y=z.y;g.player.hurt=0;run(g,.5);assert.ok(g.player.hp<hp1,'as brasas ferem');
+  // serpente: submersa é imune, emerge e cospe em leque
+  g=arena();g.cheats.life=true;e=spawn(g,'serpent',150,0);g.update(1/60);const hs=e.hp;g.hitEnemy(e,1,0,2,'sword');assert.equal(e.hp,hs,'submersa não sofre dano');run(g,2.6);assert.ok(g.projectiles.length>=3,'cospe três projéteis');
+  // caranguejo: a carapaça bloqueia de frente; pelas costas ou com o giro ele sofre
+  g=arena();e=spawn(g,'crab',80,0);e.phase=Math.PI;const hc=e.hp;g.hitEnemy(e,1,0,1,'sword');assert.equal(e.hp,hc,'carapaça bloqueia de frente');
+  g.hitEnemy(e,-1,0,1,'sword');assert.ok(e.hp<hc,'pelas costas sofre dano');const hc2=e.hp;e.phase=Math.PI;g.hitEnemy(e,1,0,1,'spin');assert.ok(e.hp<hc2,'o giro atravessa a defesa');
+});
+
+test('cada região do Vale tem fauna própria, com encontro marcante, e slimes deixam de dominar',()=>{
+  const g=fresh(),m=g.maps.world,by={};for(const e of m.enemies){let b=m.biome[Math.floor(e.y/32)][Math.floor(e.x/32)];if(b==='mangrove')b='coast';(by[b]??=new Set()).add(e.kind);}
+  for(const b of ['forest','lake','desert','snow','autumn','swamp','ruins','canyon','sky','ash','rainforest','plains','stormdesert','coast'])assert.ok([...by[b]].filter(k=>k!=='slime'&&k!=='bat').length>=2,`${b} tem pelo menos duas famílias além de slime e morcego`);
+  const all=ZONES.flatMap(z=>g.maps[z].enemies),slimes=all.filter(e=>e.kind==='slime').length;assert.ok(slimes/all.length<.15,`slimes são ${(100*slimes/all.length).toFixed(0)}% dos inimigos`);
+  const elites=m.enemies.filter(e=>e.id.startsWith('elite-'));assert.ok(elites.length>=6,'encontros marcantes nas regiões');for(const e of elites)assert.ok(e.maxHp>=9&&e.scale>1);
+  const kinds=new Set(all.map(e=>e.kind));for(const k of ['spider','archer','skeleton','mole','shaman','magmite','serpent','crab'])assert.ok(kinds.has(k),`${k} aparece no jogo`);
 });

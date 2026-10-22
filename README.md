@@ -51,6 +51,10 @@ A Varinha do Relâmpago continua no Caminho do Eclipse. O Bastião das Pedras fi
 
 O padrão de design, o catálogo completo, as dependências e o checklist de QA estão em [docs/sidequests-e-reliquias.md](docs/sidequests-e-reliquias.md).
 
+## Bestiário
+
+Cada região tem sua fauna: aranhas que emboscam na Floresta de Outono, toupeiras que cavam no deserto, xamãs que curam aliados no pântano, brasas vivas que deixam o chão em chamas nas Terras de Cinza, serpentes que mergulham no lago e caranguejos de carapaça na costa, além de esqueletos que se remontam e goblins arqueiros que miram de longe. Todo ataque tem aviso visual, e cada região tem um encontro marcante (elite com coroa e nome). Detalhes em [docs/bestiario.md](docs/bestiario.md).
+
 ## Controles
 
 | Ação | Teclado | Controle |
