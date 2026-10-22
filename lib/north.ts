@@ -36,7 +36,7 @@ export function makeNorth(entity:MakeEntity):GameMap{
   for(let y=1;y<=25;y++){set(31,y,4);set(32,y,4);}
   // 3. estradas (2 tiles); sobre a água viram ponte; terminam na beira do abismo e do anel de lava
   const road=(pts:number[][])=>{for(let i=1;i<pts.length;i++){let[x,y]=pts[i-1];const[tx,ty]=pts[i];while(true){for(const[dx,dy]of[[0,0],[1,0],[0,1],[1,1]]){const px=x+dx,py=y+dy;if(inside(px,py)&&tiles[py][px]!==6)tiles[py][px]=tiles[py][px]===2?5:1;}if(x===tx&&y===ty)break;x+=Math.sign(tx-x);if(x===tx)y+=Math.sign(ty-y);}}};
-  road([[15,45],[15,26]]);road([[15,34],[52,34]]);road([[52,34],[52,24]]);road([[52,24],[48,24],[48,20]]);road([[15,20],[8,20],[8,6],[20,6]]);road([[52,40],[58,40]]);
+  road([[15,45],[15,26]]);road([[15,34],[52,34]]);road([[52,34],[52,24]]);road([[52,24],[48,24],[48,20]]);road([[15,20],[8,20],[8,6],[20,6]]);road([[52,40],[58,40]]);road([[15,38],[10,38]]);road([[15,42],[25,42]]);
   // 4. pontos de interesse
   const props:Prop[]=[];const pois:{x:number;y:number;r:number}[]=[];
   const add=(kind:Prop['kind'],x:number,y:number,id:string,extra:Partial<Prop>={})=>{props.push({kind,x:center(x),y:center(y),id,solid:kind!=='relic',...extra});pois.push({x:Math.round(x),y:Math.round(y),r:kind==='npc'?2:3});};
@@ -51,8 +51,10 @@ export function makeNorth(entity:MakeEntity):GameMap{
   add('chest',14,4,'amulet-chest',{item:'amulet',guard:'sentinel'});
   add('chest',58,44,'north-heart',{item:'heart',guard:'k-heart'});
   add('chest',40,27,'north-crystals',{item:'crystals'});
-  // Flechas de Luz: ficam no norte para despertar os totens da ruína, a única entrada da Gruta da Maré.
-  add('chest',25,41,'north-light',{item:'light',guard:'k-light'});
+  // Caverna da Luz: abre depois do segundo chefe (capítulo 3) e guarda as Flechas de Luz, que despertam os totens da ruína.
+  add('stairs',25,41,'north-lightcave',{to:'lightcave',ax:13,ay:14.6,minChapter:3,label:'Entrar na Caverna da Luz'});
+  // Caverna Submersa: missão opcional, só com a Onda Arcana; guarda o Arco Tríplice.
+  add('stairs',10,38,'north-tidecave',{to:'tidecave',ax:4,ay:15.6,needs:'tide',label:'Mergulhar na Caverna Submersa'});
   add('chest',24,10,'sky-crystals',{item:'crystals'});
   add('totem',35,31,'north-ruin-seal-a');add('totem',43,31,'north-ruin-seal-b');
   add('barrier',39,28,'north-ruin-barrier',{by:['north-ruin-seal-a','north-ruin-seal-b']});
@@ -77,7 +79,7 @@ export function makeNorth(entity:MakeEntity):GameMap{
   const enemies:Entity[]=[];
   const plan:[Biome,Entity['kind'],number,string?][]=[['crystal','slime',3],['crystal','knight',2,KNIGHT_TINT],['sky','bat',3],['sky','wisp',2,WISP_TINT],['starfall','wisp',2,WISP_TINT],['starfall','spitter',3,'hue-rotate(250deg) saturate(1.7) brightness(.9)'],['starfall','slime',2,'hue-rotate(230deg)'],['ash','spitter',3,FIRE_SPITTER_TINT],['ash','knight',2,KNIGHT_TINT],['ash','bat',2,'hue-rotate(-40deg) saturate(1.8)']];
   plan.forEach(([b,kind,count,tint],pi)=>{let placed=0;for(let i=0;placed<count&&i<600;i++){const x=2+Math.floor(hash(i,pi,28)*(W-4)),y=2+Math.floor(hash(i,pi,29)*(H-4));if(biome[y][x]!==b||(tiles[y][x]!==0&&tiles[y][x]!==1))continue;if(Math.abs(x-16)<9&&y>36)continue;if(props.some(p=>p.solid&&Math.abs(p.x-center(x))<40&&Math.abs(p.y-center(y))<40))continue;enemies.push(entity(`n-${b}-${kind}-${placed}`,x,y,kind,tint));placed++;}});
-  enemies.push(entity('k-heart',56,43,'knight',KNIGHT_TINT),entity('k-boots',8,31,'knight',KNIGHT_TINT),entity('k-light',27,41,'knight',KNIGHT_TINT),entity('sentinel',16,5,'golem','hue-rotate(170deg) saturate(.6) brightness(1.3)'));
+  enemies.push(entity('k-heart',56,43,'knight',KNIGHT_TINT),entity('k-boots',8,31,'knight',KNIGHT_TINT),entity('sentinel',16,5,'golem','hue-rotate(170deg) saturate(.6) brightness(1.3)'));
   return{width:W,height:H,tiles,props,enemies,biome};
 }
 

@@ -342,3 +342,15 @@ test('o Mercador Errante surge depois de dois chefes e vende um coração por 20
   g.buy('bigheart');assert.equal(g.coins,500,'compra única');assert.equal(g.soldOut('bigheart'),true);
   const h=makeGame(Adventure);h.start();h.load(g.serialize());assert.equal(h.merchantHeart,true);
 });
+test('Caverna da Luz abre depois do segundo chefe; Caverna Submersa (Arco Tríplice) só com a Onda Arcana',()=>{
+  const g=fresh();g.zone='north';const lc=prop(g,'north','north-lightcave'),tc=prop(g,'north','north-tidecave');
+  assert.ok(reachable(g,'north',{x:c(16),y:c(43.5)},'north-lightcave'),'a Caverna da Luz é alcançável a pé');
+  g.chapter=2;g.zone='north';g.player.x=lc.x;g.player.y=lc.y+40;g.interact();assert.equal(g.zone,'north','fechada antes do segundo chefe');
+  g.chapter=3;g.interact();assert.equal(g.zone,'lightcave','abre no capítulo 3, sem a Onda Arcana');
+  assert.ok(reachable(g,'lightcave',{x:c(13),y:c(14.6)},'lightcave-light'),'as Flechas de Luz estão alcançáveis');
+  const light=prop(g,'lightcave','lightcave-light');assert.equal(light.item,'light');
+  g.zone='north';g.player.x=tc.x;g.player.y=tc.y+40;g.interact();assert.equal(g.zone,'north','a Caverna Submersa exige a Onda Arcana');
+  g.tide=true;g.interact();assert.equal(g.zone,'tidecave');assert.ok(reachable(g,'tidecave',{x:c(4),y:c(15.6)},'tidecave-triple-bow'),'o Arco Tríplice está alcançável');
+  assert.equal(ZONES.flatMap(z=>g.maps[z].props).filter(p=>p.item==='triple-bow').length,1,'só existe um Arco Tríplice');
+  assert.equal(prop(g,'tidecave','tidecave-triple-bow').item,'triple-bow');
+});
