@@ -1,8 +1,7 @@
 // Gruta das Botas Aladas: um abismo profundo atravessado por oito plataformas (ímpares fixas, pares móveis).
 // As distâncias foram calculadas para o salto comum (0,5 s a 230 px/s ≈ 115 px), sem as Botas Aladas.
-import type {Entity,GameMap,Prop} from './adventure';
+import type {GameMap,Prop} from './adventure';
 
-type MakeEntity=(id:string,x:number,y:number,kind:Entity['kind'],tint?:string,bossAsset?:number)=>Entity;
 const T=32,center=(n:number)=>n*T+T/2;
 
 export type WingPlatform={n:number;x:number;y:number;w:number;h:number;axis:'fixed'|'x'|'y';amp:number;period:number;phase:number};
@@ -30,7 +29,7 @@ export function wingPlatformPos(p:WingPlatform,t:number){const o=p.axis==='fixed
 
 export const WING_MURAL='Aviso dos antigos alpinistas: “As Botas Aladas esperam do outro lado do abismo. Oito plataformas formam a ponte: as de número ímpar (1, 3, 5 e 7) nunca se movem; as pares (2, 4, 6 e 8) sobem e descem ou vão e voltam sem parar. Salte (K) de uma em uma, na ordem de 1 a 8, e espere a plataforma móvel chegar à sua linha antes de pular. Quem cai no abismo perde um coração e volta para a entrada.”';
 
-export function makeWingCave(_entity?:MakeEntity):GameMap{
+export function makeWingCave():GameMap{
   const W=WING_W,H=WING_H,tiles:number[][]=Array.from({length:H},(_,y)=>Array.from({length:W},(_,x)=>x===0||y===0||x===W-1||y===H-1?4:3));
   for(let y=1;y<H-1;y++)for(let x=5;x<37;x++)tiles[y][x]=6;
   // estalactites e paredes irregulares nas margens deixam a gruta com cara de passagem secreta

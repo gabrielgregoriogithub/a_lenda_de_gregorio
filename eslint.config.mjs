@@ -12,7 +12,16 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // build estático do GitHub Pages e saídas geradas
+    "dist-pages/**",
+    "dist/**",
   ]),
+  {
+    // O jogo é publicado como build estático do Vite (GitHub Pages): next/image não existe nesse destino
+    // e os sprites são pixel art que não deve ser reamostrada.
+    files: ["app/page.tsx"],
+    rules: { "@next/next/no-img-element": "off" },
+  },
   {
     files: ["components/ui/**/*.{ts,tsx}", "hooks/use-mobile.ts"],
     rules: {

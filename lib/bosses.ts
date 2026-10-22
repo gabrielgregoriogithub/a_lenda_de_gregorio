@@ -103,7 +103,7 @@ function begin(g:Game,e:Entity,move:BossMove){const phase=e.phase??0,p=g.player;
   if(move==='charge'){const d=dist(p.x,p.y,e.x,e.y)||1;e.cdx=(p.x-e.x)/d;e.cdy=(p.y-e.y)/d;}
   if(move==='slam'){e.tx=p.x;e.ty=p.y;}
   g.tone(220,.08,'square');}
-function execute(g:Game,e:Entity,r:number){const def=bossDef(e),phase=e.phase??0,p=g.player,c=def.color;switch(e.move){
+function execute(g:Game,e:Entity){const def=bossDef(e),phase=e.phase??0,p=g.player,c=def.color;switch(e.move){
   case 'charge':e.st='charge';e.stT=1.05;g.tone(140,.2,'sawtooth');return;
   case 'fan':aim(g,e,120+phase*18,5+phase*2,.9+phase*.15,c);e.st='rest';e.stT=.75;g.tone(196,.1,'sawtooth');return;
   case 'ring':ring(g,e,10+phase*3,110+phase*12,c,g.elapsed);g.ring(e.x,e.y-20,c,70);e.st='rest';e.stT=.8;return;
@@ -125,7 +125,7 @@ export function updateBoss(g:Game,e:Entity,d:number,ex:number,ey:number,dt:numbe
     case 'stun':e.st='rest';e.stT=.5;break;
     case 'transform':if(e.stT<=0){e.st='rest';e.stT=.6;}return;
     case 'idle':case 'rest':{const keep=e.st==='rest'?0:90;if(far>230){const sp=(60+phase*10)*dt,hx=e.homeX-e.x,hy=e.homeY-e.y;step(g,e,hx/far*sp,hy/far*sp,r);}else if(d>keep+20){const sp=(28+phase*10)*dt;step(g,e,ex/(d||1)*sp,ey/(d||1)*sp,r);}if(e.stT<=0){const list=def.moves[Math.min(phase,def.moves.length-1)];e.mi=(e.mi??-1)+1;begin(g,e,list[e.mi%list.length]);}break;}
-    case 'windup':if(e.stT<=0)execute(g,e,r);break;
+    case 'windup':if(e.stT<=0)execute(g,e);break;
     case 'charge':{const sp=(320+phase*35)*dt,hit=step(g,e,(e.cdx??0)*sp,(e.cdy??0)*sp,r);if(Math.random()<.6)g.particles.push({x:e.x+(Math.random()-.5)*30,y:e.y,vx:-(e.cdx??0)*60,vy:-20,life:.35,color:'#d9cfb4'});
       if(hit){g.kick(10,.4);g.ring(e.x,e.y-20,'#ffffff',90);g.message(`${def.name} se chocou contra a parede! Ataque agora!`);stunBoss(g,e,2.2);e.stunReady=g.elapsed+2.2+3;return;}
       if(e.stT<=0||far>300){e.st='recover';e.stT=1.1;}break;}
