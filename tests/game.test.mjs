@@ -397,3 +397,19 @@ test('expansão do Vale abre a Costa das Conchas e a Serra dos Sinos',()=>{
   assert.ok(m.enemies.some(e=>e.id==='coast-guardian'),'guardião marítimo existe');
   assert.ok(m.enemies.some(e=>e.id==='ridge-guardian-a'),'guardião da serra existe');
 });
+
+
+test('Manguezal das Lanternas: faróis em sequência, selo e guardião do coração',()=>{
+  const g=fresh();g.zone='world';
+  assert.ok(g.map.biome.some(row=>row.includes('mangrove')),'o litoral ganhou um bioma próprio');
+  const a=prop(g,'world','coast-beacon-a'),b=prop(g,'world','coast-beacon-b'),d=prop(g,'world','coast-beacon-c');
+  assert.ok(a&&b&&d,'os três faróis existem');
+  g.touchCoastBeacon(b);
+  assert.equal(a.open,false,'a sequência errada apaga os faróis');
+  g.touchCoastBeacon(a);g.touchCoastBeacon(b);g.touchCoastBeacon(d);
+  assert.equal(prop(g,'world','coast-heart-seal'),undefined,'A → B → C abre a enseada');
+  const heart=prop(g,'world','heart-coast');assert.ok(heart);
+  g.player.x=heart.x;g.player.y=heart.y+30;g.interact();
+  assert.equal(heart.open,false,'o Leviatã ainda precisa ser derrotado');
+  assert.match(g.notice,/guardião/i);
+});
