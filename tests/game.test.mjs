@@ -413,3 +413,27 @@ test('Manguezal das Lanternas: faróis em sequência, selo e guardião do coraç
   assert.equal(heart.open,false,'o Leviatã ainda precisa ser derrotado');
   assert.match(g.notice,/guardião/i);
 });
+
+
+test('Corrida do Anel Verde cobra 25 cristais e a Bota do Vento só vem na vitória',()=>{
+  const g=fresh();g.chapter=3;g.zone='world';g.coins=24;
+  const jockey=prop(g,'world','jockey');assert.ok(jockey,'Lia está no vale');
+  g.player.x=jockey.x;g.player.y=jockey.y+28;g.interact();
+  assert.equal(g.coins,24,'inscrição não cobra quando falta dinheiro');
+  assert.equal(g.raceActive,false);
+  g.dismissDialog();
+
+  g.coins=40;g.interact();
+  assert.equal(g.coins,15,'a tentativa desconta exatamente 25 cristais');
+  assert.equal(g.raceActive,true,'inscrição inicia a corrida');
+  g.raceCountdown=0;g.racePlayer=.98;g.raceRival=.65;g.update(1/60);
+  assert.equal(g.raceActive,false,'a corrida termina ao cruzar a linha');
+  assert.equal(g.swiftBoots,true,'a vitória concede a Bota do Vento');
+  assert.match(g.dialog,/Bota do Vento/);
+
+  g.dismissDialog();g.swiftBoots=false;g.coins=25;g.interact();
+  assert.equal(g.coins,0,'cada nova tentativa paga novamente');
+  g.raceCountdown=0;g.raceRival=.99;g.racePlayer=.4;g.update(1/60);
+  assert.equal(g.raceActive,false);
+  assert.equal(g.swiftBoots,false,'perder não entrega a bota');
+});
