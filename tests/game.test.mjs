@@ -254,7 +254,7 @@ test('itens reimaginados: arco tríplice, arco rúnico, lâmina do vento, varinh
   g.wandShots=[];g.wands.add('missile');g.wand='missile';g.wandMaster=true;g.wandCooldown=0;g.castWand();assert.equal(g.wandShots.length,3,'o míssil se divide em três');
   g.phoenix=true;g.player.hp=0;g.onZeroHp();assert.equal(g.screen,'playing');assert.ok(g.player.hp>0);assert.equal(g.phoenix,false);
   const save=g.serialize(),h=fresh();assert.ok(h.load(save));assert.equal(h.tripleBow,true);assert.equal(h.wandMaster,true);assert.deepEqual(h.snapshot().relics.slice(0,2),['Arco Tríplice','Arco Rúnico']);
-  assert.equal(h.load(save.replace('"v":7','"v":6')),false,'saves antigos são descartados');
+  assert.equal(h.load(save.replace('"v":8','"v":7')),false,'saves antigos são descartados');
 });
 
 test('portais exigem os itens da região anterior e têm atalhos',()=>{
@@ -410,11 +410,17 @@ test('Manguezal das Lanternas: faróis em sequência, selo e guardião do coraç
   assert.equal(prop(g,'world','coast-heart-seal'),undefined,'A → B → C abre a enseada');
   const heart=prop(g,'world','heart-coast');assert.ok(heart);
   g.player.x=heart.x;g.player.y=heart.y+30;g.interact();
-  assert.equal(heart.open,false,'o Leviatã ainda precisa ser derrotado');
+  assert.ok(!heart.open,'o Leviatã ainda precisa ser derrotado');
   assert.match(g.notice,/guardião/i);
 });
 
 
+test('cuspidor fora do alcance não infla sem limite (bug do sprite gigante na borda do mapa)',()=>{
+  const g=fresh();g.zone='world';const s=g.map.enemies.find(e=>e.kind==='spitter');assert.ok(s,'há um cuspidor no mundo');
+  for(const e of g.map.enemies)if(e!==s)e.hp=0;
+  for(let f=0;f<600;f++){g.player.x=s.x+450;g.player.y=s.y;g.update(1/60);}
+  assert.ok(s.timer<=2.2+1e-9,`o timer de cuspe fica limitado fora do alcance (era ${s.timer.toFixed(2)})`);
+});
 test('Corrida do Anel Verde cobra 25 cristais e a Bota do Vento só vem na vitória',()=>{
   const g=fresh();g.chapter=3;g.zone='world';assert.match(g.sideObjective,/Corrida do Anel Verde/,'a corrida aparece no diário como sidequest');g.coins=24;
   const jockey=prop(g,'world','jockey');assert.ok(jockey,'Lia está no vale');

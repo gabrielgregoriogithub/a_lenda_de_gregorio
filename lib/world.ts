@@ -165,6 +165,6 @@ export function makeWorld(entity:(id:string,x:number,y:number,kind:Entity['kind'
   enemies.push(entity('golem-desert',12,44,'golem',BIOMES.desert.wallFilter),entity('golem-snow',13,7,'golem',BIOMES.snow.wallFilter),entity('golem-swamp',86,66,'golem',BIOMES.swamp.wallFilter),entity('golem-autumn',74,19,'golem',BIOMES.autumn.wallFilter),entity('golem-ruins',50,7,'golem',BIOMES.ruins.wallFilter),entity('lake-guard',79,35,'spitter',SPITTER_TINT));
   enemies.push(entity('snow-wolf-alpha',18,8,'frostwolf','#d8f4ff'),entity('snow-wolf-beta',22,10,'frostwolf','#c4e8f4'),entity('swamp-shadow',86,62,'shade','#5c7f62'));
   enemies.push(entity('ridge-guardian-a',104,15,'knight','#d7e8ef'),entity('ridge-guardian-b',108,18,'frostwolf','#eaf8ff'),entity('coast-guardian',117,83,'sandworm','#4aa7b8'));
-  enemies.push(entity('coast-crab-a',99,84,'slime','#e88b75'),entity('coast-crab-b',107,87,'slime','#f0b57c'),entity('coast-ray',121,88,'wisp','#75d7e8'),entity('volcanic-newt',91,67,'salamander','#e96b45'),entity('mountain-ibex',103,12,'frostwolf','#b6c4cc'));
+  enemies.push(entity('coast-crab-a',100,84,'slime','#e88b75'),entity('coast-crab-b',105,89,'slime','#f0b57c'),entity('coast-ray',121,88,'wisp','#75d7e8'),entity('volcanic-newt',91,67,'salamander','#e96b45'),entity('mountain-ibex',103,12,'frostwolf','#b6c4cc'));
   return{width:W,height:H,tiles,props,enemies,biome};
 }
