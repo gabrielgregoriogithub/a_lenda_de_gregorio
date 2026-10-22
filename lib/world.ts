@@ -46,6 +46,7 @@ export function biomeAt(x:number,y:number):Biome{
 export type NpcInfo={name:string;tint:string;talk:(s:{hasKey:boolean;fragments:number})=>string};
 export const NPCS:Record<string,NpcInfo>={
   iris:{name:'Iris, guardiã do vale',tint:NONE,talk:({hasKey,fragments})=>!hasKey?'Gregório, o brilho da lua sumiu do vale. A Chave Lunar está num baú aqui no Bosque de Elara, a leste da estrada. Use K para dar um salto longo sobre a água. Depois, recupere os três Fragmentos Lunares espalhados pelo mundo: no Deserto do Sol, nas Montanhas Geladas e no Pântano Sombrio.':fragments<3?`Você tem a chave! Agora faltam ${3-fragments} Fragmento(s) Lunar(es). Golems de pedra guardam cada um deles. Corra (Shift) para sair do caminho quando eles avançarem.`:'Os três fragmentos brilham com você. Siga a estrada para o norte até as Ruínas da Lua e desça pelos três andares do Templo.'},
+  jockey:{name:'Lia, cavaleira do circuito',tint:'hue-rotate(25deg) saturate(1.2)',talk:()=>'A pista do Anel Verde está pronta. Cada inscrição custa 25 cristais. Uma volta completa, três curvas apertadas e duas barreiras de feno: escolha a linha certa, poupe fôlego e use a arrancada na reta final. A Bota do Vento é o prêmio para quem vencer.'},
   marinheira:{name:'Marina, marinheira',tint:'hue-rotate(185deg) saturate(1.3)',talk:()=>'A costa abriu depois da última maré. O Manguezal das Lanternas esconde três faróis: acenda-os com Flechas de Fogo na ordem Enseada (A) → Copa (B) → Ponta (C). Se errar, a maré apaga a sequência. O Coração das Marés está no cofre da baía, guardado pelo Leviatã da Enseada.'},
   faroleiro:{name:'Nilo, faroleiro',tint:'hue-rotate(35deg) brightness(1.1)',talk:()=>'Quando o vento vem do leste, os pássaros voam rente à água. O farol mais alto só pode ser alcançado pela trilha de pedras, não pelo cais.'},
   alpinista:{name:'Téo, alpinista',tint:'grayscale(.5) brightness(1.2)',talk:()=>'A Serra dos Sinos tem duas cristas e uma ponte de corda. O coração que procuro não está num baú fácil: os guardiões patrulham a rota e a nevasca apaga suas pegadas.'},
@@ -110,7 +111,7 @@ export function makeWorld(entity:(id:string,x:number,y:number,kind:Entity['kind'
   // 4. pontos de interesse
   const props:Prop[]=[];const pois:Poi[]=[];
   const add=(kind:Prop['kind'],x:number,y:number,id:string,extra:Partial<Prop>={})=>{props.push({kind,x:center(x),y:center(y),id,solid:kind!=='exit'&&kind!=='lever'&&kind!=='relic',...extra});pois.push({x,y,r:kind==='door'?4:kind==='npc'?2:3});};
-  add('npc',44,40,'iris');
+  add('npc',44,40,'iris');add('npc',57,65,'jockey',{minChapter:3});
   add('npc',101,79,'marinheira');add('npc',113,82,'faroleiro');add('npc',105,20,'alpinista');add('npc',54,5,'ferreiro');add('npc',18,40,'sabio');add('npc',68,40,'pescadora');add('npc',20,14,'eremita');add('npc',50,14,'guarda');add('npc',78,25,'lenhadora');add('npc',72,58,'bruxa');
   add('chest',54,30,'key-chest',{item:'key'});add('chest',38,30,'coin-chest',{item:'coins'});
   add('rock',50,5,'lake-sword-stone',{solid:true});add('relic',50,4,'lake-sword',{solid:true,label:'Espada Lunar do Lago',guard:'golem-ruins'});
