@@ -416,7 +416,7 @@ test('Manguezal das Lanternas: faróis em sequência, selo e guardião do coraç
 
 
 test('Corrida do Anel Verde cobra 25 cristais e a Bota do Vento só vem na vitória',()=>{
-  const g=fresh();g.chapter=3;g.zone='world';g.coins=24;
+  const g=fresh();g.chapter=3;g.zone='world';assert.match(g.sideObjective,/Corrida do Anel Verde/,'a corrida aparece no diário como sidequest');g.coins=24;
   const jockey=prop(g,'world','jockey');assert.ok(jockey,'Lia está no vale');
   g.player.x=jockey.x;g.player.y=jockey.y+28;g.interact();
   assert.equal(g.coins,24,'inscrição não cobra quando falta dinheiro');
