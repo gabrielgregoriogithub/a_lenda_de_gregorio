@@ -226,3 +226,14 @@ Para cada quest antes de marcar como concluída:
 - **Combate e recompensa:** o Leviatã da Enseada continua protegendo o Coração das Marés. O puzzle abre o acesso, mas não entrega o coração sem derrotar o guardião.
 - **Assets:** caranguejos costeiros e Leviatã usam sprites pixel-art desenhados em Canvas, com silhuetas e paletas próprias.
 - **QA automatizado:** verifica bioma, reinício por ordem errada, abertura do selo e bloqueio da recompensa. Ainda precisa validar trajeto, leitura dos faróis, combate e controles no jogo.
+
+## 15. Corrida do Anel Verde — A Bota do Vento
+**Estado:** minijogo implementado no motor e controles táteis; falta playtest de ritmo e balanceamento.
+
+- **NPC e acesso:** Lia, cavaleira do circuito, fica perto da Estrada do Sul no Vale. A corrida aparece a partir do capítulo 3. A Bota do Vento não é mais um baú no Caminho do Eclipse: a vitória na corrida é a única forma de obtê-la nesta jornada.
+- **Inscrição:** 25 cristais por tentativa. A cobrança ocorre somente se o jogador tiver saldo suficiente e confirmar a inscrição. Abandonar ou perder consome o valor; a vitória não cobra extra nem concede cristais.
+- **Circuito:** uma volta completa no Anel Verde, em pista fechada/circular. Lia corre contra Gregório; há três fardos de feno em pontos fixos. O jogador pode trocar de faixa para contornar os obstáculos.
+- **Controles:** ↑ acelera; ↓ freia; Shift/control usa arrancada e consome fôlego; ←/→ muda de faixa. O fôlego recupera gradualmente quando a arrancada não está ativa. No celular, os botões de corrida substituem o joystick e os comandos de aventura.
+- **Recompensa:** vencer concede Bota do Vento (swift-boots), que aumenta bastante a velocidade de corrida no mundo aberto. Perder permite tentar de novo pagando 25 cristais.
+- **Referência de design:** inspirado no gerenciamento de aceleração/fôlego e no uso estratégico de arrancada das corridas de chocobo de Final Fantasy VII; o percurso, NPC, arte, comandos e economia são próprios do jogo.
+- **QA automatizado:** teste cobre saldo insuficiente, cobrança de 25, concessão da bota apenas ao vencer e cobrança em nova tentativa. O balanceamento real de tempos, faixa e obstáculos precisa de playtest.
