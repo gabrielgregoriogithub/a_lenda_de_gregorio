@@ -93,16 +93,26 @@ Os estados abaixo distinguem conteúdo que já está no motor de propostas que a
 - **Recompensa:** Varinha do Relâmpago; raio em linha reta que ricocheteia entre inimigos próximos.
 - **Uso posterior:** grupos de wisps e salas de espelhos. O puzzle não deve exigir que o jogador já possua a própria varinha que está tentando obter; a varinha é a recompensa do baú e os espelhos servem como tutorial opcional depois.
 
-### 8. Luvas da Força e Manto do Eco — Bastião das Pedras
-**Estado:** itens, pedra bloqueadora, selos e Besta Litórea existem.
+### 8. Luvas da Força — A Coluna Partida
+**Estado:** Luvas já implementadas no Bastião das Pedras; obtenção separada do Manto.
 
-- **Gancho:** a metade oeste do Bastião mostra pedras que não podem ser movidas e uma muralha que divide a masmorra.
-- **Ato I:** derrotar o golem da ala oeste e obter as Luvas da Força.
-- **Ato II:** empurrar a pedra da coluna para abrir a ligação oeste-leste. Os dois selos de luz abrem a arena.
-- **Ato III:** a Besta Litórea ensina a observar investidas e ondas de impacto; depois do combate, o baú lateral oferece o Manto do Eco.
-- **Recompensas:** Luvas permitem empurrar pedras; Manto rebate automaticamente um projétil e recarrega.
-- **Uso posterior:** Fortaleza Esquecida, Santuário da Repulsão e defesa contra projéteis.
-- **Expansão futura:** uma sala opcional de pedras com três placas e duas soluções (reposicionar blocos ou refletir um projétil), mantendo a rota principal simples.
+- **Gancho:** ao entrar no Bastião, Gregório encontra uma coluna rachada bloqueando a passagem central.
+- **Ato I:** enfrentar o Golem da Ala Oeste e abrir o baú das Luvas da Força.
+- **Ato II:** empurrar as pedras marcadas para liberar o corredor da coluna. A passagem revela a rota para a ala leste.
+- **Recompensa:** Luvas da Força, que permitem empurrar pedras e abrir atalhos.
+- **Uso posterior:** Fortaleza Esquecida e puzzles de placas.
+
+### 9. Manto do Eco — O Vigia das Três Reverberações
+**Estado:** quest dedicada planejada para o Bastião; o baú atual já é exclusivo, mas ainda usa o guardião wisp existente. O puzzle abaixo é especificação de implementação, não declarar como jogável até codificar e testar.
+
+- **Gancho:** perto da ala oeste, uma inscrição no pedestal do Manto diz: “O eco não nasce do primeiro golpe, mas da resposta”. O diário do Bastião registra que o antigo vigia dispara três rajadas: uma direta, uma atrasada e uma em leque.
+- **Ato I — Aprender o ritmo:** na antecâmara do Manto, o Vigia do Eco dispara uma sequência curta de projéteis. O jogador precisa observar e sobreviver a três padrões distintos: linha reta, rajada com pausa e leque. O pedestal acende uma marca após cada padrão ser evitado ou refletido.
+- **Ato II — Devolver o eco:** com as três marcas acesas, o Vigia concentra um projétil azul lento. Gregório deve posicionar-se no caminho dele e deixar o Manto ancestral (a proteção do pedestal) refletir a esfera contra o próprio Vigia. O combate ensina o efeito que a recompensa terá, sem exigir o Manto que está sendo buscado.
+- **Ato III — Câmara da Reverberação:** depois de vencer o Vigia, alinhar os três símbolos gravados no chão — Pulso → Pausa → Retorno. Erro reinicia só os símbolos; a luta e os padrões não reaparecem. O baú individual do Manto se abre.
+- **Recompensa:** Manto do Eco. Ao equipá-lo, Gregório rebate automaticamente um projétil inimigo e a proteção recarrega em 6 segundos; o anel azul no personagem indica quando está pronto.
+- **Uso posterior:** Fortaleza Esquecida e Santuário da Repulsão, onde refletir ou evitar projéteis oferece uma rota/abertura alternativa.
+- **Fairness e persistência:** pistas no pedestal e no diário; dicas graduais; sequência não depende de timing de pixel; derrota permite tentar novamente; baú e quest persistem no save e não duplicam.
+- **Critério de teste:** confirmar que o Vigia pode ser vencido sem o Manto, padrões legíveis, reflexão válida, símbolos e reinício, coleta única e persistência após salvar/carregar. Testar teclado, toque e controle.
 
 ### 9. Varinha da Repulsão — Santuário da Repulsão
 **Estado:** orbe, botões e barreiras já existem.
