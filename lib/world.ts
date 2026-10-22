@@ -39,7 +39,7 @@ const clamp=(n:number,lo:number,hi:number)=>Math.max(lo,Math.min(hi,n));
 
 export function biomeAt(x:number,y:number):Biome{
   const jx=(smooth(x/5,y/5,1)-.5)*7,jy=(smooth(x/5,y/5,2)-.5)*7;
-  return LAYOUT[clamp(Math.floor((y+jy)/CELL_H),0,2)][clamp(Math.floor((x+jx)/CELL_W),0,2)];
+  const row=LAYOUT[clamp(Math.floor((y+jy)/CELL_H),0,LAYOUT.length-1)];return row[clamp(Math.floor((x+jx)/CELL_W),0,row.length-1)];
 }
 
 export type NpcInfo={name:string;tint:string;talk:(s:{hasKey:boolean;fragments:number})=>string};
@@ -94,6 +94,7 @@ export function makeWorld(entity:(id:string,x:number,y:number,kind:Entity['kind'
   road([[6,60],[89,60]]);
   road([[16,36],[16,12],[11,12],[11,8]]);
   road([[62,36],[62,22],[83,22],[83,9]]);
+  road([[83,22],[100,22],[105,16]]);
   road([[10,36],[10,43]]);
   road([[86,60],[86,65]]);
   road([[47,62],[47,67]]);
