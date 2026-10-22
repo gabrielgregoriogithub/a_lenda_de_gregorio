@@ -35,7 +35,7 @@ Ao vencer um chefe e continuar, Gregório fica onde está: o caminho até o pró
 
 O padrão de design, o catálogo de quests por equipamento, as pistas, puzzles, recompensas, dependências e checklist de QA estão em [docs/sidequests-e-reliquias.md](docs/sidequests-e-reliquias.md). A Caverna Submersa agora usa a sequência das Três Marés para abrir o cofre do Arco Tríplice; os testes de motor cobrem a sequência e o selo da Caverna da Luz.
 
-## Controles
+### Três relíquias opcionais planejadas\nO guia de sidequests descreve três desafios independentes para o Manto do Eco (Teatro das Três Sombras, Floresta de Outono), Anel do Ímã (Correio das Moedas, Costa das Conchas) e Armadura de Granito (Julgamento do Sino, Montanhas Geladas). São propostas de design, ainda não implementadas no motor; não fazem parte dos requisitos das main quests.\n\n## Controles
 
 | Ação | Teclado | Controle |
 |---|---|---|
