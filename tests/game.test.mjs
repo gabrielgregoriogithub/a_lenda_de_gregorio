@@ -385,3 +385,15 @@ test('Caverna da Luz abre depois do segundo chefe; Caverna Submersa (Arco Trípl
   assert.equal(ZONES.flatMap(z=>g.maps[z].props).filter(p=>p.item==='triple-bow').length,1,'só existe um Arco Tríplice');
   assert.equal(prop(g,'tidecave','tidecave-triple-bow').item,'triple-bow');
 });
+
+
+test('expansão do Vale abre a Costa das Conchas e a Serra dos Sinos',()=>{
+  const g=fresh(),m=g.maps.world;
+  assert.equal(m.width,128);assert.equal(m.height,96);
+  assert.ok(m.props.some(p=>p.id==='heart-mountain'&&p.item==='heart'),'coração da serra é uma recompensa própria');
+  assert.ok(m.props.some(p=>p.id==='heart-coast'&&p.item==='heart'),'coração costeiro é uma recompensa própria');
+  assert.ok(m.props.some(p=>p.id==='marinheira'),'NPC da costa existe');
+  assert.ok(m.props.some(p=>p.id==='alpinista'),'NPC das montanhas existe');
+  assert.ok(m.enemies.some(e=>e.id==='coast-guardian'),'guardião marítimo existe');
+  assert.ok(m.enemies.some(e=>e.id==='ridge-guardian-a'),'guardião da serra existe');
+});
