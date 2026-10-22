@@ -228,7 +228,7 @@ Para cada quest antes de marcar como concluída:
 - **QA automatizado:** verifica bioma, reinício por ordem errada, abertura do selo e bloqueio da recompensa. Ainda precisa validar trajeto, leitura dos faróis, combate e controles no jogo.
 
 ## 15. Corrida do Anel Verde — A Bota do Vento
-**Estado:** minijogo implementado no motor e controles táteis; falta playtest de ritmo e balanceamento.
+**Estado:** sidequest opcional, minijogo implementado no motor e controles táteis; falta playtest de ritmo e balanceamento.
 
 - **NPC e acesso:** Lia, cavaleira do circuito, fica perto da Estrada do Sul no Vale. A corrida aparece a partir do capítulo 3. A Bota do Vento não é mais um baú no Caminho do Eclipse: a vitória na corrida é a única forma de obtê-la nesta jornada.
 - **Inscrição:** 25 cristais por tentativa. A cobrança ocorre ao interagir com Lia se o jogador tiver saldo suficiente. Abandonar ou perder consome o valor; a vitória não cobra extra nem concede cristais.
