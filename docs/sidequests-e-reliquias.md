@@ -40,7 +40,7 @@ Os estados abaixo distinguem conteúdo que já está no motor de propostas que a
 - **Expansão futura:** incluir um alvo atrás de uma grade e um espelho de fogo em uma sala opcional, sem transformar a quest inicial em requisito obrigatório para terminar o jogo.
 
 ### 3. Flecha de Luz — A Caverna da Luz
-**Estado:** implementação em andamento no motor; a sequência Sol → Lua → Estrela e o cavaleiro foram adicionados. A validação de jogo ainda é necessária.
+**Estado:** implementada e coberta por teste automatizado (ordem, reinício, selo e baú). A muralha da câmara foi fechada nas laterais para o selo não poder ser contornado.
 
 - **Gancho:** o Astrônomo Errante descreve uma estrela que se esconde ao meio-dia.
 - **Ato I:** entrar na Planície das Estrelas depois do segundo chefe e ler o mural.
@@ -62,7 +62,7 @@ Os estados abaixo distinguem conteúdo que já está no motor de propostas que a
 - **Expansão futura:** incluir uma sala de gelo com duas rotas possíveis: uma segura e lenta, outra curta com inimigos que descongelam o caminho.
 
 ### 5. Arco Tríplice — As Três Marés
-**Estado:** novo puzzle adicionado à Caverna Submersa; falta executar o teste completo no jogo.
+**Estado:** implementada e coberta por teste automatizado. A linha de água do salão norte virou parede com uma única passagem no selo, porque antes dava para saltar a água e contornar o puzzle.
 
 - **Gancho:** a Caverna Submersa só aceita Gregório com a Onda Arcana. O mural diz: “A água recua, a corrente chama, a maré retorna”.
 - **Ato I:** encontrar o mural perto da entrada.
@@ -93,29 +93,25 @@ Os estados abaixo distinguem conteúdo que já está no motor de propostas que a
 - **Recompensa:** Varinha do Relâmpago; raio em linha reta que ricocheteia entre inimigos próximos.
 - **Uso posterior:** grupos de wisps e salas de espelhos. O puzzle não deve exigir que o jogador já possua a própria varinha que está tentando obter; a varinha é a recompensa do baú e os espelhos servem como tutorial opcional depois.
 
-### 8. Armadura de Granito — A Prova do Bastião
-**Estado:** desafio de combate implementado no código; ainda precisa de teste manual no jogo.
+### 8. Armadura de Granito — O Julgamento do Sino (Cripta do Sino)
+**Estado:** implementada num cenário próprio e coberta por teste automatizado. A Armadura saiu do Bastião das Pedras.
 
-- **Gancho:** o baú exclusivo da Armadura fica na Ala Leste do Bastião das Pedras.
-- **Prova:** três guardiões bloqueiam a recompensa: duas Sentinelas de Granito (cavaleiros) posicionadas na aproximação da ala e o Golem da Armadura junto ao baú. Todos precisam ser derrotados; enquanto qualquer um estiver vivo, interagir com o baú mostra a instrução para concluir a prova e não entrega o item.
-- **Recompensa:** só depois dos três inimigos derrotados, o baú concede a Armadura de Granito, que reduz pela metade o dano recebido e altera a aparência de Gregório.
-- **Independência:** a prova não exige Luvas, Manto ou outra recompensa do próprio Bastião.
-- **Critério de teste:** confirmar que os três inimigos aparecem e podem ser derrotados sem a Armadura, que o baú permanece bloqueado enquanto qualquer guardião estiver vivo, que a redução de dano é exatamente 50% e que a recompensa persiste após salvar/carregar.
+- **Entrada:** encosta sul das Montanhas Geladas, logo a sudeste do Eremita da Neve; desperta no capítulo 4.
+- **Pistas:** o Eremita fala dos sinos debaixo da neve; a inscrição da cripta ensina Grave → Agudo → Médio; cada sino mostra o próprio tom.
+- **Puzzle:** tocar os três sinos (que não estão em fila) na ordem Grave → Agudo → Médio. Erro apaga a sequência; acerto abre o portão da cripta.
+- **Guardiões:** Guardião do Sino (cavaleiro) e duas Sentinelas de Granito (cavaleiros de escudo). O baú só abre com os três derrotados.
+- **Recompensa:** Armadura de Granito, metade do dano recebido. Opcional: não é requisito de capítulo, porta ou chefe.
+- **Bastião:** a antiga Prova do Bastião (duas sentinelas e o golem da Ala Leste) continua lá, mas agora guarda um cofre de cristais.
 
-**Limite atual:** as sentinelas estão colocadas no mapa como encontro simultâneo; não foi criado sistema de ondas, mural, marcas no chão ou sequência dinâmica de salas.
-### 9. Manto do Eco — O Vigia das Três Reverberações
-**Estado:** quest dedicada planejada para o Bastião; o baú atual já é exclusivo, mas ainda usa o guardião wisp existente. O puzzle abaixo é especificação de implementação, não declarar como jogável até codificar e testar.
+### 9. Manto do Eco — O Ensaio das Sombras (Teatro das Três Sombras)
+**Estado:** implementada num cenário próprio e coberta por teste automatizado. O Manto saiu do Bastião das Pedras.
 
-- **Gancho:** perto da ala oeste, uma inscrição no pedestal do Manto diz: “O eco não nasce do primeiro golpe, mas da resposta”. O diário do Bastião registra que o antigo vigia dispara três rajadas: uma direta, uma atrasada e uma em leque.
-- **Ato I — Aprender o ritmo:** na antecâmara do Manto, o Vigia do Eco dispara uma sequência curta de projéteis. O jogador precisa observar e sobreviver a três padrões distintos: linha reta, rajada com pausa e leque. O pedestal acende uma marca após cada padrão ser evitado ou refletido.
-- **Ato II — Devolver o eco:** com as três marcas acesas, o Vigia concentra um projétil azul lento. Gregório deve posicionar-se no caminho dele e deixar o Manto ancestral (a proteção do pedestal) refletir a esfera contra o próprio Vigia. O combate ensina o efeito que a recompensa terá, sem exigir o Manto que está sendo buscado.
-- **Ato III — Câmara da Reverberação:** depois de vencer o Vigia, alinhar os três símbolos gravados no chão — Pulso → Pausa → Retorno. Erro reinicia só os símbolos; a luta e os padrões não reaparecem. O baú individual do Manto se abre.
-- **Recompensa:** Manto do Eco. Ao equipá-lo, Gregório rebate automaticamente um projétil inimigo e a proteção recarrega em 6 segundos; o anel azul no personagem indica quando está pronto.
-- **Uso posterior:** Fortaleza Esquecida e Santuário da Repulsão, onde refletir ou evitar projéteis oferece uma rota/abertura alternativa.
-- **Fairness e persistência:** pistas no pedestal e no diário; dicas graduais; sequência não depende de timing de pixel; derrota permite tentar novamente; baú e quest persistem no save e não duplicam.
-- **Critério de teste:** confirmar que o Vigia pode ser vencido sem o Manto, padrões legíveis, reflexão válida, símbolos e reinício, coleta única e persistência após salvar/carregar. Testar teclado, toque e controle.
+- **Entrada:** extremo leste da Floresta de Outono; desperta no capítulo 3. A Lenhadora menciona o teatro.
+- **Puzzle:** marcas do palco Pulso → Pausa → Retorno (toque). Erro apaga as marcas, sem fechar o teatro; acerto ergue a cortina.
+- **Guardiões:** Mestre de Cena (sombra) e dois atiradores que disparam projéteis: a luta ensina o que o Manto faz.
+- **Recompensa:** Manto do Eco, rebate um projétil e recarrega em 6 s.
 
-### 9. Varinha da Repulsão — Santuário da Repulsão
+### 9-A. Varinha da Repulsão — Santuário da Repulsão
 **Estado:** orbe, botões e barreiras já existem.
 
 - **Gancho:** um orbe está do outro lado de um fosso; empurrá-lo com as Luvas o joga no vazio.
@@ -126,17 +122,14 @@ Os estados abaixo distinguem conteúdo que já está no motor de propostas que a
 - **Uso posterior:** Abismo dos Alvos Velozes e placas de pressão.
 - **Critério de teste:** a solução deve ser possível sem Luvas da Força; a força da varinha é o centro do puzzle, não um complemento dispensável.
 
-### 10. Varinha Míssil e Varinha das Varinhas — Abismo dos Alvos Velozes
-**Estado:** alvos, ponte de vento e recompensas já existem.
+### 10. Varinha Míssil — Abismo dos Alvos Velozes
+**Estado:** alvos, ponte de vento e recompensa existem.
 
 - **Gancho:** alvos flutuam em uma área de vento; espada e flechas comuns não os alcançam.
 - **Ato I:** obter a Varinha Míssil no baú da entrada.
-- **Ato II:** acertar três alvos de vento na ordem indicada pelo mural. O míssil persegue o alvo, mas o jogador ainda precisa escolher o momento de disparar.
+- **Ato II:** acertar três alvos de vento na ordem indicada pelo mural.
 - **Ato III:** derrotar o Guardião das Dunas e os inimigos voadores para materializar a ponte.
-- **Recompensa principal:** Varinha Míssil; projétil teleguiado.
-- **Recompensa opcional:** Varinha das Varinhas, na alcova do outro lado da placa de borda; amplifica varinhas.
-- **Uso posterior:** atravessar o Abismo e abrir o caminho ao Santuário das Raízes.
-- **Expansão futura:** introduzir um alvo que muda de posição entre disparos, mas manter uma janela longa o bastante para controles de toque.
+- **Alcova:** a alcova do outro lado da placa de borda agora guarda poções; a Varinha das Varinhas tem quest própria (seção 17).
 
 ### 11. Pena da Fênix — Fortaleza Esquecida
 **Estado:** pedras, placas, Cartógrafo e guardião já existem; a pena está no cofre.
@@ -149,12 +142,8 @@ Os estados abaixo distinguem conteúdo que já está no motor de propostas que a
 - **Uso posterior:** exploração de masmorras longas e chefes com segunda fase.
 - **Regra de fairness:** mostrar claramente que a pena foi consumida; não prometer ressurreição infinita nem duplicar após rewind/save.
 
-### 12. Anel do Ímã e Lâmina do Vento — recompensas de exploração
-**Estado:** itens já existem como pickups/baús; propostas de quest de descoberta.
-
-- **Anel do Ímã:** pequenas trilhas de cristais conduzem a um baú fora da estrada. O puzzle é perceber o rastro de partículas e encontrar uma passagem que não exige combate. Recompensa: atrair cristais e corações caídos.
-- **Lâmina do Vento:** uma sala opcional do Santuário da Repulsão apresenta arbustos alinhados e inimigos atrás de uma grade. Recompensa: golpe lança corte de ar e corta vegetação, abrindo uma rota alternativa.
-- **Princípio:** quests de utilidade passiva ou combate também precisam de descoberta e payoff; não precisam sempre de chefe.
+### 12. Anel do Ímã e Lâmina do Vento
+**Estado:** os dois saíram das cenas compartilhadas (Gruta da Maré e Santuário da Repulsão) e ganharam quests próprias; veja a seção 17. A alcova do Santuário agora guarda cristais.
 
 ## Matriz de dependências e uso posterior
 
@@ -169,13 +158,16 @@ Os estados abaixo distinguem conteúdo que já está no motor de propostas que a
 | Arco Tríplice | Caverna Submersa | alvos múltiplos |
 | Varinha do Relâmpago | Caminho do Eclipse | wisps e encadeamento de inimigos |
 | Luvas da Força | Bastião das Pedras | pedras, placas e atalhos |
-| Manto do Eco | Bastião das Pedras | projéteis |
+| Manto do Eco | Teatro das Três Sombras (Floresta de Outono) | projéteis |
+| Armadura de Granito | Cripta do Sino (Montanhas Geladas) | metade do dano |
+| Anel do Ímã | Gruta do Correio (Costa das Conchas) | coleta mais confortável |
+| Lâmina do Vento | Desfiladeiro dos Ventos (Bosque de Cristal) | cortes à distância e vegetação |
+| Arco Rúnico | Torre Rúnica (Campos Abertos, Sul) | disparo carregado com flechas mágicas |
 | Varinha da Repulsão | Santuário da Repulsão | orbes e placas à distância |
 | Varinha Míssil | Abismo dos Alvos Velozes | alvos de vento |
-| Varinha das Varinhas | alcova do Abismo | aprimora todas as varinhas |
+| Varinha das Varinhas | Cofre das Varinhas (Deserto das Tempestades) | aprimora todas as varinhas |
 | Pena da Fênix | Fortaleza Esquecida | uma recuperação de emergência |
-| Anel do Ímã | exploração opcional | coleta mais confortável |
-| Lâmina do Vento | exploração opcional | cortes à distância e vegetação |
+| Bota do Vento | Corrida do Anel Verde | velocidade de corrida |
 
 ## Checklist de implementação e QA
 
@@ -194,18 +186,12 @@ Para cada quest antes de marcar como concluída:
 
 
 ## 13. Tempestade Ancestral — evolução do Ataque Giratório
-**Estado:** implementada no motor; teste automatizado adicionado, execução de jogo ainda pendente.
+**Estado:** implementada e coberta por teste automatizado.
 
 - **Momento:** após o capítulo 3, quando Gregório já conquistou o Ataque Giratório.
-- **Gancho:** ao retornar à Câmara do Eco, o mural da Tempestade revela uma prova de maestria que não existia no primeiro treinamento.
-- **Puzzle:** três alvos celestes estão alinhados na sala superior. Um único Ataque Giratório precisa alcançar os três. O selo desaparece e libera o baú da Tempestade Ancestral.
-- **Recompensa:** Tempestade Ancestral, uma evolução do Ataque Giratório.
-- **Entrada:** segure J / Espaço por 1,35 s (mais que o brilho normal) e solte. A carga maior é visualmente indicada por aura azul-clara, mais faíscas e oito raios de foco.
-- **Balanceamento atual:** dano = poder da espada +5 (Ataque Giratório original: espada +2); raio de alcance aproximado de 138 px contra 82 px no golpe original; animação dura 0,72 s.
-- **Impacto:** onda circular azul e branca, anéis de energia amplos, flash curto, tremor de câmera, partículas em leque e uma assinatura sonora grave seguida de tons ascendentes e um estalo agudo. O golpe continua bloqueado por paredes e exige linha livre para atingir inimigos.
-- **Persistência:** spinMasterUnlocked é salvo e restaurado. A prova e o baú ficam resolvidos para evitar repetir ou duplicar a recompensa.
-- **QA:** o teste cobre os três alvos, remoção do selo, pickup, persistência e dano/duração do golpe evoluído. Ainda é necessário validar a legibilidade do charge, o som com áudio habilitado e o percurso real em teclado, toque e controle.
-
+- **Puzzle:** três alvos celestes no salão central da Câmara do Eco. Um único Ataque Giratório comum, no meio dos três, precisa alcançar todos; se acertar só alguns, eles se apagam e o jogador tenta de novo. O mural e o Diário descrevem exatamente isso (antes diziam para carregar mais o golpe, o que não correspondia ao motor).
+- **Correção de mapa:** o mural ficava na frente da passagem do selo dos símbolos e bloqueava o caminho até as placas do vento; foi movido para o lado.
+- **Recompensa:** Tempestade Ancestral (segure J / Espaço por 1,35 s e solte; espada +5, alcance ~138 px, onda azul). spinMasterUnlocked é salvo.
 
 ## Expansão do Vale — Serra dos Sinos e Costa das Conchas
 **Estado:** mapa e ganchos adicionados; percurso e clima precisam de validação em jogo.
@@ -228,51 +214,31 @@ Para cada quest antes de marcar como concluída:
 - **QA automatizado:** verifica bioma, reinício por ordem errada, abertura do selo e bloqueio da recompensa. Ainda precisa validar trajeto, leitura dos faróis, combate e controles no jogo.
 
 ## 15. Corrida do Anel Verde — A Bota do Vento
-**Estado:** sidequest opcional, minijogo implementado no motor e controles táteis; falta playtest de ritmo e balanceamento.
+**Estado:** implementada e coberta por teste automatizado (inscrição, vitória, derrota, faixas e Corrida de Mestre).
 
-- **NPC e acesso:** Lia, cavaleira do circuito, fica perto da Estrada do Sul no Vale. A corrida aparece a partir do capítulo 3. A Bota do Vento não é mais um baú no Caminho do Eclipse: a vitória na corrida é a única forma de obtê-la nesta jornada.
-- **Inscrição:** 25 cristais por tentativa. A cobrança ocorre ao interagir com Lia se o jogador tiver saldo suficiente. Abandonar ou perder consome o valor; a vitória não cobra extra nem concede cristais.
-- **Circuito:** uma volta completa no Anel Verde, em pista fechada/circular. Lia corre contra Gregório; há três fardos de feno em pontos fixos. O jogador pode trocar de faixa para contornar os obstáculos.
-- **Controles:** ↑ acelera; ↓ freia; Shift/control usa arrancada e consome fôlego; ←/→ muda de faixa. O fôlego recupera gradualmente quando a arrancada não está ativa. No celular, os botões de corrida substituem o joystick e os comandos de aventura.
-- **Recompensa:** vencer concede Bota do Vento (swift-boots), que aumenta bastante a velocidade de corrida no mundo aberto. Depois de obter a bota, o circuito segue aberto para corridas de treino: cada nova tentativa custa 25 cristais, mas não duplica a recompensa.
-- **Referência de design:** inspirado no gerenciamento de aceleração/fôlego e no uso estratégico de arrancada das corridas de chocobo de Final Fantasy VII; o percurso, NPC, arte, comandos e economia são próprios do jogo.
-- **QA automatizado:** teste cobre saldo insuficiente, cobrança de 25, concessão da bota apenas ao vencer e cobrança em nova tentativa. O balanceamento real de tempos, faixa e obstáculos precisa de playtest.
+- **NPC e acesso:** Lia fica perto da Estrada do Sul no Vale e aparece a partir do capítulo 3. A Bota do Vento só vem da vitória.
+- **Inscrição:** 25 cristais por tentativa, cobrados só quando há saldo.
+- **Circuito:** uma volta no Anel Verde contra Lia, montada. Três fardos de feno em faixas diferentes (meio, externa, meio). A faixa do meio é a linha mais rápida (as outras custam 4% de ritmo), então o jogador precisa ler a pista e voltar ao meio depois de desviar.
+- **Equilíbrio (simulado com o motor):** só acelerar no meio bate em dois fardos e perde; desviar no tempo certo vence; desviar e usar a arrancada vence com folga.
+- **Corrida de Mestre:** com a Bota, Lia corre 16% mais rápido. Vencer concede um Coração uma única vez (raceHeart salvo); só ganha quem desvia cedo e usa bem o fôlego.
+- **Referência de design:** gerenciamento de aceleração e fôlego das corridas de chocobo de Final Fantasy VII; percurso, NPC, arte e economia são próprios do jogo.
 
+## 16. Distribuição das relíquias
+**Estado:** concluída. Nenhuma masmorra entrega dois equipamentos especiais (a única exceção é a Câmara do Eco, que guarda o Ataque Giratório e, depois do capítulo 3, a sua evolução). Um teste automatizado garante isso.
 
-## 16. Três relíquias opcionais — trilhas separadas do caminho principal
-**Estado:** design adicionado; requer implementação e playtest antes de ser considerado conteúdo jogável.
+## 17. Seis relíquias com cenário próprio
+**Estado:** implementadas em `lib/sidequests.ts`, com mapas, portas, murais, sequências, guardiões, objetivos do Diário e teste automatizado de ponta a ponta para cada uma (entrada, ordem errada, sequência certa, selo, guardiões, baú, save e não duplicação).
 
-Estas recompensas ficam fora dos gatilhos de capítulo e não devem ser exigidas para abrir a próxima missão principal. O jogador pode ignorá-las sem bloquear o save ou o objetivo principal.
+| Relíquia | Cenário | Entrada | Desperta | Sequência | Guardiões |
+|---|---|---|---|---|---|
+| Anel do Ímã | Gruta do Correio | Costa das Conchas, ao sul do farol de Nilo | cap. 2 | Concha → Âncora → Farol (toque) | Caranguejo-Correio e dois morcegos |
+| Manto do Eco | Teatro das Três Sombras | leste da Floresta de Outono | cap. 3 | Pulso → Pausa → Retorno (toque) | Mestre de Cena e dois atiradores |
+| Lâmina do Vento | Desfiladeiro dos Ventos | sul do Bosque de Cristal | cap. 3 | Leste → Oeste → Centro, saltando entre ilhas | cavaleiro e dois lobos |
+| Armadura de Granito | Cripta do Sino | sul das Montanhas Geladas | cap. 4 | Grave → Agudo → Médio (toque) | Guardião do Sino e duas Sentinelas |
+| Arco Rúnico | Torre Rúnica | oeste dos Campos Abertos | cap. 4 + Fogo, Gelo e Luz | Brasa (fogo) → Geada (gelo) → Aurora (luz) → Eco (comum) | cavaleiro de escudo, salamandra e dois fogos-fátuos |
+| Varinha das Varinhas | Cofre das Varinhas | Deserto das Tempestades | cap. 6 + três varinhas | Relâmpago → Míssil → Repulsão | Verme das Areias e duas sombras |
 
-### Manto do Eco — O Teatro das Três Sombras (Floresta de Outono)
-- **Local:** uma entrada escondida atrás de uma cortina de folhas no extremo leste da Floresta de Outono; saída própria para o mapa aberto. Não fica no Bastião nem no corredor da missão principal.
-- **Gancho:** a Lenhadora ou um diário de viajante menciona um teatro onde “a sombra atua antes do ator”.
-- **Ato I — Ensaio:** numa sala segura, três sombras repetem movimentos de projéteis em sequência (linha, pausa, leque). O jogador observa o padrão e ativa os refletores na mesma ordem; a parede mostra a sequência em pictogramas para não depender de texto.
-- **Ato II — Palco vivo:** três ondas curtas de disparos, com cobertura móvel. A cada padrão evitado, uma lanterna acende; levar dano não reinicia a sala inteira.
-- **Ato III — Bis:** o Mestre de Cena lança um orbe lento. Gregório deve conduzi-lo até um espelho de palco e fazê-lo atingir o chefe; depois, abrir o baú lateral.
-- **Recompensa/uso:** Manto do Eco, rebate automaticamente um projétil quando a proteção está carregada (recarga de 6 s). O anel visual indica disponibilidade. Útil em áreas de tiros, mas não abre portas obrigatórias.
-- **Fairness:** pistas no diário e no palco; dica gradual; checkpoint entre atos; recompensa única e persistente.
-
-### Anel do Ímã — O Correio das Moedas (Costa das Conchas)
-- **Local:** uma gruta opcional sob a costa, acessível pela trilha de areia e não pela passagem da Onda Arcana. O cofre fica numa alcova lateral, longe do caminho para o capítulo seguinte.
-- **Gancho:** um caranguejo-carteiro perdeu três cargas de cristais. Pequenos rastros metálicos e placas de bússola apontam para o circuito da gruta.
-- **Ato I — Recolha:** seguir três grupos de cristais que se afastam do caminho; cada grupo termina num sino que precisa ser tocado com espada, revelando uma seta na parede.
-- **Ato II — Entrega:** empurrar duas caixas de cobre até placas de pressão. Se uma caixa cair na água, ela reaparece no ponto inicial; não há softlock.
-- **Ato III — Triagem:** o Caranguejo-Correio protege o último pacote. Desvie da pinça, ataque durante a pausa e abra o pequeno cofre atrás dele.
-- **Recompensa/uso:** Anel do Ímã, atrai cristais e corações caídos num raio moderado. É conveniência de exploração, não requisito para coletar nenhum item de missão principal.
-- **Fairness:** trilhas de partículas, placas com pictogramas e retorno das caixas; a sequência é resolvível sem o próprio anel.
-
-### Armadura de Granito — O Julgamento do Sino (Montanhas Geladas)
-- **Local:** uma cripta opcional na encosta sul das Montanhas Geladas, distante do acesso ao Fragmento Lunar e da rota do Templo. A entrada abre ao tocar um sino rachado no mapa aberto.
-- **Gancho:** Téo, o Alpinista, conta que a armadura só reconhece quem “faz a montanha responder sem quebrar o silêncio”.
-- **Ato I — Ressonância:** tocar três sinos pequenos na ordem indicada por marcas de neve (baixo → alto → médio). O som e o brilho confirmam cada acerto; erro apaga só a sequência.
-- **Ato II — Peso e contrapeso:** empurrar blocos de granito sobre placas, usando o impulso das rajadas de vento para mover o bloco maior. Há uma rota de retorno segura para cada sala.
-- **Ato III — Guardião do Sino:** enfrentar um cavaleiro de granito que anuncia a investida com um toque grave e fica vulnerável após bater na parede. A luta é vencível sem a armadura que está sendo buscada.
-- **Recompensa/uso:** Armadura de Granito, reduz em 50% o dano recebido. O prêmio é opcional; não pode ser pré-requisito de capítulo, porta, chefe ou objetivo principal.
-- **Fairness:** aviso claro do golpe, pistas repetidas em mural e cenário, checkpoint antes do chefe e persistência após salvar/carregar.
-
-### Redistribuição proposta e regra de progressão
-- Retirar Manto e Armadura dos baús de progressão do Bastião; manter o Bastião com as Luvas e o desafio da Besta Litórea como conteúdo de capítulo.
-- Tirar o Anel do Ímã do baú trivial da Caverna Submersa e movê-lo para o Correio das Moedas na Costa das Conchas.
-- Colocar Manto, Anel e Armadura nas três áreas opcionais acima. Não reutilizar os mesmos IDs/guards do capítulo: cada quest precisa de IDs próprios, guardiões próprios e flag de conclusão persistente.
-- **Nota de implementação:** esta seção é especificação de design. A mecânica, os mapas, os gatilhos e os testes ainda precisam ser codificados; não anunciar essas quests como jogáveis até concluir o checklist de QA.
+- **Pistas:** NPC próximo (Nilo, Lenhadora, Guardiã do Portão, Eremita e Viajante do Sul), mural na entrada com a ordem exata, rótulo em cada marco e o Diário, que mostra o próximo passo.
+- **Meio errado:** atirar a flecha ou a varinha errada numa runa não apaga a sequência; só explica qual meio ela aceita. A ordem errada apaga os marcos.
+- **Progressão:** nenhuma dessas relíquias é exigida por porta, capítulo ou chefe. A Varinha do Relâmpago permaneceu no Caminho do Eclipse.
+- **Limites desta etapa:** os guardiões usam tipos de inimigo já existentes, com paletas próprias; não foram desenhados sprites novos. O equilíbrio de dano foi validado pelo motor e pelos testes, não por playtest humano.

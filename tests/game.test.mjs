@@ -49,7 +49,7 @@ test('puzzles não podem ser contornados',()=>{
   open(g,'citadel2','cit2-lever-a','cit2-lever-b');assert.equal(reachable(g,'citadel2',cit2,'cit2-up'),true);
   assert.equal(reachable(g,'citadel',{x:c(15),y:c(22)},'aurora-crown'),false,'coroa só depois dos braseiros');
   const bas={x:c(4),y:c(20)};
-  assert.equal(reachable(g,'bastion',bas,'bastion-armor'),false,'a pedra da coluna fecha o leste (nem saltando)');
+  assert.equal(reachable(g,'bastion',bas,'bastion-trial-cache'),false,'a pedra da coluna fecha o leste (nem saltando)');
   assert.equal(reachable(g,'bastion',bas,'bastion-core'),false);
   assert.equal(reachable(g,'bastion',bas,'bastion-gloves'),true,'as Luvas ficam do lado da chegada');
   g.zone='bastion';g.map.props=g.map.props.filter(p=>p.id!=='bastion-gate');g.rebuildGrid('bastion');g.arrowKinds.add('light');open(g,'bastion','bastion-seal-a','bastion-seal-b');
@@ -120,7 +120,7 @@ test('itens únicos não podem ser coletados duas vezes',()=>{
 });
 
 test('equipamentos importantes precisam ser conquistados',()=>{
-  const g=fresh(),needGuard=['bow','heart','fragment','bosskey','boots','amulet','tide','ice','light','swift-boots','wand-lightning','armor','gloves','cloak','wand-repulse','wand-missile'];
+  const g=fresh(),needGuard=['bow','heart','fragment','bosskey','boots','amulet','tide','ice','light','swift-boots','wand-lightning','armor','gloves','cloak','wand-repulse','wand-missile','magnet','rune-bow','wind-blade','wand-master'];
   for(const z of ZONES)for(const p of g.maps[z].props){if(p.kind!=='chest'||!needGuard.includes(p.item))continue;
     const guard=p.guard&&ZONES.some(q=>g.maps[q].enemies.some(e=>e.id===p.guard));
     assert.ok(guard,`${z}:${p.id} (${p.item}) tem um guardião existente`);}
@@ -216,7 +216,7 @@ test('a Fortaleza Esquecida usa as Luvas e exige a sequência dos selos',()=>{
 });
 
 test('o Cartógrafo transforma a Fortaleza em missão e libera um atalho persistente',()=>{
-  const g=fresh();g.chapter=4;g.gloves=true;g.zone='fortress';g.visited.add('fortress');const npc=prop(g,'fortress','cartografo');const guardian=g.map.enemies.find(e=>e.id==='fortress-warden');assert.match(g.snapshot().sideObjective,/guardião|Cartógrafo/i);g.player.x=npc.x-30;g.player.y=npc.y;g.interact();assert.match(g.dialog,/guardião|atalho/i);g.dismissDialog();guardian.hp=0;const before=g.coins;g.player.x=npc.x-30;g.player.y=npc.y;g.interact();assert.equal(g.coins,before+20);assert.equal(prop(g,'fortress','fortress-shortcut-barrier'),undefined,'a missão remove a barreira do atalho');g.dismissDialog();assert.equal(g.snapshot().sideObjective,null,'a pista opcional some após liberar o atalho');const saved=g.serialize(),h=fresh();assert.ok(h.load(saved));assert.equal(prop(h,'fortress','fortress-shortcut-barrier'),undefined,'o atalho persiste após carregar');
+  const g=fresh();g.chapter=4;g.gloves=true;g.zone='fortress';g.visited.add('fortress');const npc=prop(g,'fortress','cartografo');const guardian=g.map.enemies.find(e=>e.id==='fortress-warden');assert.match(g.snapshot().sideObjective,/guardião|Cartógrafo/i);g.player.x=npc.x-30;g.player.y=npc.y;g.interact();assert.match(g.dialog,/guardião|atalho/i);g.dismissDialog();guardian.hp=0;const before=g.coins;g.player.x=npc.x-30;g.player.y=npc.y;g.interact();assert.equal(g.coins,before+20);assert.equal(prop(g,'fortress','fortress-shortcut-barrier'),undefined,'a missão remove a barreira do atalho');g.dismissDialog();assert.doesNotMatch(g.snapshot().sideObjective??'',/Cartógrafo/,'a pista do Cartógrafo some após liberar o atalho');const saved=g.serialize(),h=fresh();assert.ok(h.load(saved));assert.equal(prop(h,'fortress','fortress-shortcut-barrier'),undefined,'o atalho persiste após carregar');
 });
 
 test('entrar na arena registra checkpoint antes da luta',()=>{
@@ -231,10 +231,10 @@ test('a Repulsão empurra pedras de borda que a Luva não alcança',()=>{
   const g=fresh();g.chapter=5;g.zone='sanctum';g.visited.add('sanctum');g.gloves=true;g.wands.add('repulse');g.wand='repulse';g.ranged='wand';g.map.enemies.forEach(e=>e.hp=0);
   const stone=prop(g,'sanctum','sanctum-ledge-stone'),plate=prop(g,'sanctum','sanctum-ledge-plate');
   const sx=stone.x;g.player.x=stone.x+34;g.player.y=stone.y;g.interact();assert.equal(stone.x,sx,'a Luva só empurraria a pedra para o abismo');
-  assert.equal(reachable(g,'sanctum',{x:c(3),y:c(20)},'sanctum-wind-blade'),false,'a alcova começa fechada');
+  assert.equal(reachable(g,'sanctum',{x:c(3),y:c(20)},'sanctum-alcove-cache'),false,'a alcova começa fechada');
   for(let i=0;i<3;i++){g.player.x=c(2);g.player.y=c(17);g.player.dir='right';g.wandCooldown=0;g.castWand();}
   assert.equal(plate.open,true,'o raio leva a pedra até a placa');assert.equal(prop(g,'sanctum','sanctum-alcove-barrier'),undefined);
-  assert.equal(reachable(g,'sanctum',{x:c(3),y:c(20)},'sanctum-wind-blade'),true);
+  assert.equal(reachable(g,'sanctum',{x:c(3),y:c(20)},'sanctum-alcove-cache'),true);
   const h=fresh();g.zone='aerie';g.visited.add('aerie');g.map.enemies.forEach(e=>e.hp=0);
   for(const b of g.map.props.filter(q=>q.id.startsWith('aerie-bridge'))){b.open=true;g.map.tiles[Math.floor(b.y/32)][Math.floor(b.x/32)]=3;}g.rebuildGrid('aerie');
   const ap=prop(g,'aerie','aerie-ledge-plate');
@@ -254,7 +254,7 @@ test('itens reimaginados: arco tríplice, arco rúnico, lâmina do vento, varinh
   g.wandShots=[];g.wands.add('missile');g.wand='missile';g.wandMaster=true;g.wandCooldown=0;g.castWand();assert.equal(g.wandShots.length,3,'o míssil se divide em três');
   g.phoenix=true;g.player.hp=0;g.onZeroHp();assert.equal(g.screen,'playing');assert.ok(g.player.hp>0);assert.equal(g.phoenix,false);
   const save=g.serialize(),h=fresh();assert.ok(h.load(save));assert.equal(h.tripleBow,true);assert.equal(h.wandMaster,true);assert.deepEqual(h.snapshot().relics.slice(0,2),['Arco Tríplice','Arco Rúnico']);
-  assert.equal(h.load(save.replace('"v":8','"v":7')),false,'saves antigos são descartados');
+  assert.equal(h.load(save.replace(/"v":\d+/,'"v":6')),false,'saves antigos são descartados');
 });
 
 test('portais exigem os itens da região anterior e têm atalhos',()=>{
@@ -445,4 +445,53 @@ test('Corrida do Anel Verde cobra 25 cristais e a Bota do Vento só vem na vitó
 
   const h=fresh();h.chapter=3;h.zone='world';h.coins=25;const j=prop(h,'world','jockey');h.player.x=j.x;h.player.y=j.y+28;h.interact();h.raceCountdown=0;h.raceRival=1;h.racePlayer=.4;h.update(1/60);
   assert.equal(h.swiftBoots,false,'perder a primeira corrida não concede a bota');
+});
+
+
+test('side quests de relíquias: cenário próprio, sequência, guardiões e recompensa única',async()=>{
+  const {QUESTS}=await import('../lib/sidequests.ts');const {runQuest,has}=await import('./questrun.mjs');
+  assert.equal(QUESTS.length,6);
+  for(const q of QUESTS){
+    const g=fresh(),r=runQuest(g,q);
+    assert.deepEqual(r,{entered:true,chestBlockedBefore:true,wrongOrderResets:true,sealOpen:true,chestReachable:true,guardedWhileAlive:true,rewarded:true},`${q.title}: percurso completo`);
+    assert.equal(ZONES.flatMap(z=>g.maps[z].props).filter(p=>p.kind==='chest'&&p.item===q.item).length,1,`${q.itemName} existe uma única vez`);
+    const chest=prop(g,q.zone,q.chest),h=fresh();assert.ok(h.load(g.serialize()));
+    assert.equal(has(h,q.item),true,`${q.itemName} fica no save`);assert.equal(prop(h,q.zone,q.chest).open,true,'o baú continua aberto');assert.equal(prop(h,q.zone,q.seal),undefined,'o selo continua aberto');
+    h.zone=q.zone;h.player.x=chest.x;h.player.y=chest.y+30;h.interact();assert.equal(has(h,q.item),true);
+    assert.ok(q.mural.text.includes(q.seq.labels.join(' → ')),`${q.title}: o mural ensina a ordem real`);
+  }
+});
+
+test('portas das side quests respeitam capítulo e itens exigidos',async()=>{
+  const {QUESTS}=await import('../lib/sidequests.ts');
+  for(const q of QUESTS){const g=fresh();g.zone=q.from;const door=prop(g,q.from,q.door.id);assert.ok(door,`${q.door.id} existe`);
+    assert.ok(reachable(g,q.from,{x:door.x,y:door.y+40},q.door.id),'a porta tem acesso a pé');
+    g.chapter=(q.door.minChapter??1)-1;g.player.x=door.x;g.player.y=door.y+40;g.interact();if(g.dialog)g.dismissDialog();
+    if(q.door.minChapter&&q.door.minChapter>1)assert.equal(g.zone,q.from,`${q.name} dorme antes do capítulo ${q.door.minChapter}`);
+    g.chapter=q.door.minChapter??1;g.interact();if(g.dialog)g.dismissDialog();
+    if(q.door.needs?.length){assert.equal(g.zone,q.from,`${q.name} exige ${q.door.needs.join(', ')}`);
+      g.bow=true;for(const n of q.door.needs){if(n.startsWith('wand-'))g.wands.add(n.slice(5));else g.arrowKinds.add(n);}g.interact();if(g.dialog)g.dismissDialog();}
+    assert.equal(g.zone,q.zone,`${q.name} abre com os requisitos`);
+  }
+});
+
+test('nenhuma masmorra reúne dois equipamentos especiais (exceto a evolução do giro)',()=>{
+  const g=fresh(),special=new Set(['bow','boots','swift-boots','armor','gloves','cloak','amulet','tide','wand-lightning','wand-repulse','wand-missile','triple-bow','rune-bow','wind-blade','wand-master','phoenix','magnet','fire','ice','light']);
+  for(const z of ZONES){if(z==='world'||z==='north'||z==='south')continue;const items=g.maps[z].props.filter(p=>p.kind==='chest'&&special.has(p.item)).map(p=>p.item);
+    assert.ok(items.length<=1,`${z} reúne ${items.join(', ')}`);}
+  assert.equal(prop(g,'eclipse','eclipse-lightning').item,'wand-lightning','a Varinha do Relâmpago continua no Caminho do Eclipse');
+  assert.equal(g.maps.grotto.props.some(p=>p.item==='magnet'),false,'o Anel do Ímã saiu da Gruta da Maré');
+  assert.equal(g.maps.eclipse.props.some(p=>p.item==='rune-bow'),false,'o Arco Rúnico saiu do Eclipse');
+  assert.equal(g.maps.bastion.props.some(p=>p.item==='armor'||p.item==='cloak'),false,'Armadura e Manto saíram do Bastião');
+});
+
+test('Corrida do Anel Verde: fardos em faixas diferentes e Corrida de Mestre com coração único',()=>{
+  const race=(g,steer)=>{g.coins=25;const j=prop(g,'world','jockey');g.zone='world';g.player.x=j.x;g.player.y=j.y+28;g.interact();g.raceCountdown=0;for(let i=0;i<60*30&&g.raceActive;i++){steer(g);g.update(1/60);}if(g.dialog)g.dismissDialog();};
+  const center=g=>{g.keys.add('arrowup');g.raceLane=0;};
+  const smart=g=>{g.keys.add('arrowup');const p=g.racePlayer;g.raceLane=p>.2&&p<.26?1:p>.75&&p<.81?-1:0;if(g.raceStamina>.3)g.keys.add('shift');else g.keys.delete('shift');};
+  const a=fresh();a.chapter=3;race(a,center);assert.equal(a.swiftBoots,false,'só acelerar e bater nos fardos perde');
+  const b=fresh();b.chapter=3;race(b,smart);assert.equal(b.swiftBoots,true,'desviar e usar a arrancada vence');
+  const hp=b.player.maxHp;race(b,smart);assert.equal(b.raceHeart,true,'a Corrida de Mestre vale um coração');assert.equal(b.player.maxHp,hp+1);
+  race(b,smart);assert.equal(b.player.maxHp,hp+1,'o coração não se repete');
+  const h=fresh();assert.ok(h.load(b.serialize()));assert.equal(h.raceHeart,true,'o coração da corrida fica no save');
 });

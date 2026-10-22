@@ -30,12 +30,26 @@ Ao vencer um chefe e continuar, Gregório fica onde está: o caminho até o pró
 
 ## Sidequests e relíquias
 
-**Nova evolução de combate:** após o capítulo 3, retorne à Câmara do Eco com o Ataque Giratório. O mural da Tempestade ensina uma prova de maestria: um único giro deve acertar três alvos. O baú libera a **Tempestade Ancestral** (segure J / Espaço por 1,35 s e solte; dano espada +5, alcance ampliado e efeitos de energia azul). Detalhes em [docs/sidequests-e-reliquias.md](docs/sidequests-e-reliquias.md).
+Cada equipamento opcional tem uma side quest própria, num cenário só dele: nenhuma masmorra entrega dois equipamentos especiais juntos. Toda quest segue o mesmo padrão: uma pista (NPC e mural na entrada), um puzzle em sequência, em que a ordem errada apaga os marcos mas não fecha nada, um selo, guardiões e um baú único que fica salvo.
 
+| Relíquia | Side quest | Onde | Desperta | Puzzle | Guardiões |
+|---|---|---|---|---|---|
+| Anel do Ímã | Correio das Moedas (Gruta do Correio) | Costa das Conchas, ao sul do farol de Nilo | capítulo 2 | sinos Concha → Âncora → Farol (toque) | Caranguejo-Correio e dois morcegos |
+| Manto do Eco | O Ensaio das Sombras (Teatro das Três Sombras) | extremo leste da Floresta de Outono | capítulo 3 | marcas Pulso → Pausa → Retorno (toque) | Mestre de Cena e dois atiradores |
+| Lâmina do Vento | As Pedras do Vento (Desfiladeiro dos Ventos) | sul do Bosque de Cristal (Terras do Norte) | capítulo 3 | saltos entre ilhas; pedras Leste → Oeste → Centro | cavaleiro e dois lobos da neve |
+| Armadura de Granito | O Julgamento do Sino (Cripta do Sino) | encosta sul das Montanhas Geladas | capítulo 4 | sinos Grave → Agudo → Médio (toque) | Guardião do Sino e duas Sentinelas |
+| Arco Rúnico | A Prova dos Quatro Elementos (Torre Rúnica) | oeste dos Campos Abertos (Terras do Sul) | capítulo 4, com Flechas de Fogo, Gelo e Luz | runas Brasa → Geada → Aurora → Eco, cada uma com a sua flecha | cavaleiro de escudo, salamandra e dois fogos-fátuos |
+| Varinha das Varinhas | O Teste das Três Varinhas (Cofre das Varinhas) | Deserto das Tempestades (Terras do Sul) | capítulo 6, com as três varinhas | selos Relâmpago → Míssil → Repulsão, cada um com a sua varinha | Verme das Areias e duas sombras |
 
-O padrão de design, o catálogo de quests por equipamento, as pistas, puzzles, recompensas, dependências e checklist de QA estão em [docs/sidequests-e-reliquias.md](docs/sidequests-e-reliquias.md). A Caverna Submersa agora usa a sequência das Três Marés para abrir o cofre do Arco Tríplice; os testes de motor cobrem a sequência e o selo da Caverna da Luz.
+A Varinha do Relâmpago continua no Caminho do Eclipse. O Bastião das Pedras ficou só com as Luvas da Força; a antiga prova das sentinelas agora guarda um cofre de cristais.
 
-### Três relíquias opcionais planejadas\nO guia de sidequests descreve três desafios independentes para o Manto do Eco (Teatro das Três Sombras, Floresta de Outono), Anel do Ímã (Correio das Moedas, Costa das Conchas) e Armadura de Granito (Julgamento do Sino, Montanhas Geladas). São propostas de design, ainda não implementadas no motor; não fazem parte dos requisitos das main quests.\n\n## Controles
+**Técnica Ancestral e Tempestade Ancestral:** depois do capítulo 3, volte à Câmara do Eco com o Ataque Giratório. Fique no meio dos três alvos celestes do salão central e acerte os três com um único giro; se acertar só alguns, eles se apagam. O baú libera a **Tempestade Ancestral** (segure J / Espaço por 1,35 s e solte; dano espada +5, alcance ampliado e efeitos de energia azul).
+
+**Corações:** além dos baús guardados nas masmorras e no mundo aberto, há corações em desafios de exploração (Serra dos Sinos), em puzzle com chefe (faróis do Manguezal e Leviatã), no Mercador Errante e na **Corrida de Mestre** do Anel Verde.
+
+O padrão de design, o catálogo completo, as dependências e o checklist de QA estão em [docs/sidequests-e-reliquias.md](docs/sidequests-e-reliquias.md).
+
+## Controles
 
 | Ação | Teclado | Controle |
 |---|---|---|
@@ -73,6 +87,5 @@ Recursos de menu, saves, voltar no tempo, filtros e trapaças inspirados no [Moo
 
 **Nova exploração costeira:** a enseada oriental agora inclui o Manguezal das Lanternas. Acenda os três faróis com Flechas de Fogo na ordem A → B → C, abra o selo e enfrente o Leviatã para conquistar o Coração das Marés.
 
-
 ### Corrida do Anel Verde
-Sidequest opcional a partir do capítulo 3: encontre Lia no Vale de Elara e inscreva-se por 25 cristais. Complete uma volta no circuito circular, acelere com ↑, use Shift para arrancar com fôlego e troque de faixa com ←/→ para evitar os fardos de feno. A vitória concede a Bota do Vento, que aumenta a velocidade de corrida de Gregório; depois, Lia aceita corridas de treino pelo mesmo preço.
+Sidequest opcional a partir do capítulo 3: encontre Lia no Vale de Elara e inscreva-se por 25 cristais. Uma volta no circuito circular contra Lia, montada. Acelere com ↑, use Shift para arrancar enquanto houver fôlego e troque de faixa com ←/→: os três fardos de feno ficam em faixas diferentes e a faixa do meio é a mais rápida, então só saia dela para desviar. Só acelerar sem desviar perde; desviar no tempo certo vence. A vitória concede a Bota do Vento, que aumenta a velocidade de corrida de Gregório. Com a bota, Lia aceita a **Corrida de Mestre**, em que corre mais rápido; vencer vale um Coração, uma única vez. Depois disso, as corridas continuam como treino pelo mesmo preço.
