@@ -13,9 +13,12 @@ Foi revisada a linha histórica dos sprites e dos sistemas de renderização, co
 | Cavaleiro, escudeiro, lobo, salamandra, sombra, verme e fogo-fátuo | C — frames legados inferiores | Spritesheets próprios em `public/art/enemies/` |
 | Pássaros, coelho, raposa, cervo, lebre, raposa ártica, ovelha | B — procedural simplificado | Atlas `public/art/ambient/mammals.png` e `birds.png` |
 | Sapo, tartaruga, peixe e borboleta | B — procedural simplificado | Atlas `public/art/ambient/small-fauna.png` |
+| Esquilo, macaco, lagarto, lagarto de fogo e escorpião | B — procedural simplificado | Atlas `public/art/ambient/reptiles.png` |
+| Abelha, libélula, mariposas e vaga-lume | B — procedural simplificado | Atlas `public/art/ambient/insects.png` |
 | Vaca e cavalo | B/D — procedural ou ausente | Assets dedicados `cow.png` e `horse.png` |
 | Decoração dos biomas especiais | E — motivos geométricos pequenos | `biome-props.png` |
 | Decoração dos demais biomas | E — variações procedurais repetitivas | `biome-props-full.png`, atlas 4×3 |
+| Outono, cânion, queda estelar e cristal | E — motivos ainda repetitivos | `biome-props-late.png` |
 
 ## Integração
 
