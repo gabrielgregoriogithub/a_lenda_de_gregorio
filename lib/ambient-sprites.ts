@@ -7,6 +7,30 @@ export type Pose={moving:boolean;flying:boolean;state:string;ph:number;z:number;
 type Quad={w:number;h:number;leg:number;col:string;dark:string;belly?:string;hw:number;hh:number;ear?:[number,number];earCol?:string;tail?:[number,number,string,boolean?];antler?:boolean;neck?:number;hop?:boolean;horn?:boolean;fluff?:string;spot?:string;eye?:string};
 type Bird={w:number;h:number;col:string;wing:string;beak:string;bl:number;tail:number;leg?:number;legCol?:string;belly?:string;crest?:string;eye?:string};
 
+// Fauna premium: assets desenhados substituem os blocos procedurais nos animais
+// mais visíveis. O fallback continua existindo para testes Node e carregamento inicial.
+const AMBIENT_ASSETS:Partial<Record<Species,{file:string;row?:number}>>={
+  songbird:{file:'birds',row:0},chicken:{file:'birds',row:0},mountainbird:{file:'birds',row:0},
+  owl:{file:'birds',row:1},crow:{file:'birds',row:1},vulture:{file:'birds',row:1},
+  toucan:{file:'birds',row:2},macaw:{file:'birds',row:2},
+  seagull:{file:'birds',row:3},duck:{file:'birds',row:3},heron:{file:'birds',row:3},
+  cow:{file:'cow'},horse:{file:'horse'},
+};
+const ambientImages:Partial<Record<string,HTMLImageElement>>={};
+if(typeof Image!=='undefined')for(const file of ['birds','cow','horse']){const im=new Image();im.decoding='async';im.src=`${import.meta.env?.BASE_URL??'/'}art/ambient/${file}.png?v=fauna-20261023`;ambientImages[file]=im;}
+function ambientAsset(sp:Species){
+  if(typeof Image==='undefined')return undefined;
+  const meta=AMBIENT_ASSETS[sp];if(!meta)return undefined;
+  const key=meta.file;if(ambientImages[key])return ambientImages[key];
+  const im=new Image();im.decoding='async';im.src=`${import.meta.env?.BASE_URL??'/'}art/ambient/${meta.file}.png?v=fauna-20261023`;ambientImages[key]=im;return im;
+}
+function drawAmbientAsset(c:Ctx,sp:Species,p:Pose){
+  const meta=AMBIENT_ASSETS[sp],im=ambientAsset(sp);if(!meta||!im?.complete||!im.naturalWidth)return false;
+  const cols=4,rows=meta.file==='birds'?4:1,sw=im.naturalWidth/cols,sh=im.naturalHeight/rows;
+  const frame=p.moving?Math.floor(p.ph*6)%4:0,row=meta.row??0;
+  c.imageSmoothingEnabled=false;c.drawImage(im,frame*sw,row*sh,sw,sh,-sw/2,-sh,sw,sh);return true;
+}
+
 const QUAD:Partial<Record<Species,Quad>>={
   rabbit:{w:10,h:7,leg:2,col:'#b08a62',dark:'#7a5a3c',belly:'#e8dcc4',hw:6,hh:6,ear:[2,7],earCol:'#c9a27a',tail:[3,3,'#f4efe4'],hop:true},
   hare:{w:12,h:7,leg:3,col:'#a07a52',dark:'#6e5032',belly:'#e0d0b0',hw:6,hh:6,ear:[2,9],earCol:'#b8936a',tail:[3,3,'#f0e8d8'],hop:true},
@@ -17,6 +41,7 @@ const QUAD:Partial<Record<Species,Quad>>={
   arcticfox:{w:16,h:7,leg:5,col:'#eef2f8',dark:'#aab6c8',belly:'#ffffff',hw:7,hh:6,ear:[3,4],earCol:'#c8d2e2',tail:[9,5,'#ffffff'],eye:'#20202a'},
   sheep:{w:16,h:10,leg:5,col:'#f2efe6',dark:'#c9c2b0',hw:6,hh:7,ear:[3,2],earCol:'#3a3430',fluff:'#ffffff',eye:'#1a1a1a'},
   cow:{w:24,h:12,leg:7,col:'#f4f0e8',dark:'#2a2420',hw:8,hh:8,ear:[3,2],spot:'#2a2420',horn:true,tail:[2,6,'#2a2420']},
+  horse:{w:26,h:12,leg:8,col:'#9b542f',dark:'#4a281d',belly:'#d58a55',hw:8,hh:8,ear:[3,4],earCol:'#6b3424',tail:[4,9,'#4a281d',true],neck:5},
   monkey:{w:9,h:9,leg:4,col:'#7a5434',dark:'#4a3020',belly:'#d8b890',hw:6,hh:6,ear:[2,3],earCol:'#d8b890',tail:[9,3,'#7a5434',true]},
   lizard:{w:12,h:3,leg:2,col:'#7aa04a',dark:'#4a6a2a',belly:'#c8d890',hw:4,hh:3,tail:[10,2,'#6a903e']},
   firelizard:{w:12,h:3,leg:2,col:'#d0502a',dark:'#7a2a14',belly:'#ffb04a',hw:4,hh:3,tail:[10,2,'#ff7a2a'],spot:'#ffd060'},
@@ -89,6 +114,7 @@ export function drawCritter(c:Ctx,sp:Species,x:number,y:number,f:number,size:num
   // sombra no chão (aves voando projetam sombra mais longe)
   if(sp!=='fish'&&!(p.z>60)){c.fillStyle='rgba(0,0,0,.18)';c.fillRect(Math.round(x-5*size),Math.round(y-1),Math.round(10*size),2);}
   const s=size*1.25;c.translate(Math.round(x),Math.round(y-p.z));c.scale(f*s,s);
+  if(drawAmbientAsset(c,sp,p)){c.restore();return;}
   const q=QUAD[sp],b=BIRD[sp];
   if(q)quad(c,q,p);else if(b)bird(c,b,p);else if(sp==='fish')fish(c,p,p.z>0);else if(sp==='turtle')turtle(c,p);else insect(c,sp,p);
   c.restore();

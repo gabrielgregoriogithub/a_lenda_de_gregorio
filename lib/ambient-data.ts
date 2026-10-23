@@ -3,7 +3,7 @@
 import type {Biome} from './world';
 
 export type WeatherKind='clear'|'drizzle'|'rain'|'storm'|'snow'|'blizzard'|'dust'|'sandstorm'|'ash'|'fog'|'spores'|'embers'|'drips'|'bubbles'|'gale';
-export type Species='rabbit'|'squirrel'|'deer'|'fox'|'butterfly'|'songbird'|'chicken'|'sheep'|'cow'|'hare'|'bee'|'toucan'|'macaw'|'monkey'|'frog'|'firefly'|'lizard'|'scorpion'|'beetle'|'vulture'|'whitehare'|'arcticfox'|'owl'|'mountainbird'|'dragonfly'|'fish'|'heron'|'firelizard'|'embermoth'|'bat'|'crow'|'moth'|'duck'|'turtle'|'seagull'|'crystalmoth';
+export type Species='rabbit'|'squirrel'|'deer'|'fox'|'butterfly'|'songbird'|'chicken'|'sheep'|'cow'|'horse'|'hare'|'bee'|'toucan'|'macaw'|'monkey'|'frog'|'firefly'|'lizard'|'scorpion'|'beetle'|'vulture'|'whitehare'|'arcticfox'|'owl'|'mountainbird'|'dragonfly'|'fish'|'heron'|'firelizard'|'embermoth'|'bat'|'crow'|'moth'|'duck'|'turtle'|'seagull'|'crystalmoth';
 export type Move='hop'|'walk'|'climb'|'perch'|'flutter'|'swim'|'fly'|'wade';
 export type Call='bird'|'cricket'|'frog'|'crow'|'owl'|'gull'|'drip'|'bat'|'bubble'|'creak'|'insect'|'cluck'|'macaw'|'howl';
 export type EventKind='flock'|'chase'|'butterflies'|'whirlwind'|'gust'|'shootingstar'|'fireflies'|'drink'|'dive'|'shadow'|'bats'|'smoke'|'tremor';
@@ -12,7 +12,7 @@ export type SpeciesDef={move:Move;speed:number;flee:number;size:number;night?:'o
 export const SPECIES:Record<Species,SpeciesDef>={
   rabbit:{move:'hop',speed:46,flee:90,size:1},hare:{move:'hop',speed:58,flee:110,size:1.1},whitehare:{move:'hop',speed:56,flee:100,size:1.1},
   squirrel:{move:'climb',speed:52,flee:80,size:.9},deer:{move:'walk',speed:30,flee:140,size:1.8},fox:{move:'walk',speed:44,flee:120,size:1.3},arcticfox:{move:'walk',speed:44,flee:120,size:1.3},
-  sheep:{move:'walk',speed:16,flee:60,size:1.5},cow:{move:'walk',speed:12,flee:45,size:2},chicken:{move:'walk',speed:30,flee:70,size:1},
+  sheep:{move:'walk',speed:16,flee:60,size:1.5},cow:{move:'walk',speed:12,flee:45,size:2},horse:{move:'walk',speed:34,flee:100,size:1.7},chicken:{move:'walk',speed:30,flee:70,size:1},
   monkey:{move:'climb',speed:50,flee:90,size:1.2},frog:{move:'hop',speed:34,flee:60,size:.8},lizard:{move:'walk',speed:58,flee:80,size:.9},firelizard:{move:'walk',speed:54,flee:80,size:1},
   scorpion:{move:'walk',speed:26,flee:55,size:.9},beetle:{move:'walk',speed:14,flee:30,size:.7},turtle:{move:'swim',speed:12,flee:50,size:1.2,water:true},
   fish:{move:'swim',speed:24,flee:70,size:1,water:true},duck:{move:'swim',speed:20,flee:90,size:1.1,water:true},heron:{move:'wade',speed:16,flee:120,size:1.7},
@@ -38,7 +38,7 @@ export type Profile={
 const P=(id:string,mood:string,o:Partial<Profile>):Profile=>({id,mood,wind:.35,gust:.4,weather:[['clear',1]],fauna:[],leaves:null,leafRate:0,motes:null,sound:{wind:.5,water:0,lava:0,calls:[],night:[]},events:['gust'],...o});
 
 export const BIOME_PROFILE:Record<Biome,Profile>={
-  village:P('village','acolhedor',{weather:[['clear',6],['drizzle',2],['rain',1]],fauna:[['chicken',4],['songbird',3],['butterfly',3],['bee',2],['sheep',1]],leaves:['#5f9a44','#7ab04a'],leafRate:.15,motes:{color:'#fff3c4',rate:.3},
+  village:P('village','acolhedor',{weather:[['clear',6],['drizzle',2],['rain',1]],fauna:[['chicken',4],['songbird',3],['butterfly',3],['bee',2],['sheep',1],['horse',.6]],leaves:['#5f9a44','#7ab04a'],leafRate:.15,motes:{color:'#fff3c4',rate:.3},
     sound:{wind:.35,water:0,lava:0,calls:['bird','cluck'],night:['cricket','owl']},events:['gust','butterflies','flock','shootingstar','fireflies']}),
   forest:P('forest','vivo e acolhedor',{weather:[['clear',6],['drizzle',2],['rain',2],['storm',.6],['fog',1]],fauna:[['rabbit',4],['squirrel',3],['songbird',4],['butterfly',3],['deer',1.5],['fox',1]],leaves:['#4f8a3a','#6fae4a','#3f7a32'],leafRate:.35,
     motes:{color:'#f4f0b0',rate:.25},sound:{wind:.5,water:0,lava:0,calls:['bird','bird','insect'],night:['owl','cricket']},events:['gust','flock','chase','butterflies','whirlwind','drink','dive','shootingstar','fireflies']}),
@@ -62,7 +62,7 @@ export const BIOME_PROFILE:Record<Biome,Profile>={
     sound:{wind:.4,water:.8,lava:0,calls:['bird','frog'],night:['frog','cricket']},events:['gust','dive','drink','flock','shootingstar','fireflies']}),
   rainforest:P('rainforest','denso e úmido',{tint:'rgba(40,90,40,.08)',wind:.3,weather:[['rain',4],['storm',1.4],['fog',2],['clear',2]],fauna:[['toucan',3],['macaw',3],['monkey',2],['frog',3],['butterfly',2],['firefly',2]],fog:.4,dripAfterRain:true,
     leaves:['#3f8a3a','#4fa046','#2f6a2c'],leafRate:.6,motes:{color:'#e8ff8a',glow:true,rate:.4},sound:{wind:.4,water:.3,lava:0,calls:['macaw','bird','insect','frog'],night:['frog','insect']},events:['gust','flock','butterflies','fireflies','dive']}),
-  plains:P('plains','aberto e ensolarado',{tint:'rgba(120,210,110,.05)',wind:.55,weather:[['clear',6],['drizzle',1.5],['rain',1],['storm',.5]],fauna:[['sheep',3],['cow',2],['hare',3],['bee',3],['songbird',3],['chicken',1]],leaves:['#7ab04a','#9acb62'],leafRate:.2,
+  plains:P('plains','aberto e ensolarado',{tint:'rgba(120,210,110,.05)',wind:.55,weather:[['clear',6],['drizzle',1.5],['rain',1],['storm',.5]],fauna:[['sheep',3],['cow',2],['horse',1.5],['hare',3],['bee',3],['songbird',3],['chicken',1]],leaves:['#7ab04a','#9acb62'],leafRate:.2,
     motes:{color:'#fff7c0',rate:.45},sound:{wind:.6,water:0,lava:0,calls:['bird','insect'],night:['cricket','cricket']},events:['gust','flock','butterflies','chase','shootingstar']}),
   coast:P('coast','salgado',{wind:.6,weather:[['clear',5],['drizzle',2],['fog',1.5],['storm',.5]],fauna:[['seagull',4],['turtle',2],['fish',3]],footprints:'sand',
     sound:{wind:.7,water:1,lava:0,calls:['gull'],night:['cricket']},events:['gust','dive','flock','shootingstar']}),
