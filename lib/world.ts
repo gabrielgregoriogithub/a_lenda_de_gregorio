@@ -120,7 +120,13 @@ export function makeWorld(entity:(id:string,x:number,y:number,kind:Entity['kind'
   add('chest',88,66,'frag-swamp',{item:'fragment',guard:'golem-swamp'});
   add('chest',80,36,'heart-chest',{item:'heart',guard:'lake-guard'});
   add('chest',84,7,'potion-chest',{item:'potion'});
-  add('chest',105,16,'heart-mountain',{item:'heart',guard:'ridge-guardian-a',challenge:'dungeon',challengeText:'Atravesse as cristas e derrote os guardiões da Serra.'});
+  // Arena exterior das Ruínas: o antigo coração da serra agora é conquistado
+  // num pátio de castelo destruído, com puzzle de faróis e dois guardiões.
+  add('chest',38,20,'heart-mountain',{item:'heart',guard:'ruins-warden',challenge:'miniboss',challengeText:'Pátio Partido: acenda os três faróis da muralha e derrote o Guardião do Pátio Partido para recuperar o Coração da Serra.'});
+  add('chest',43,20,'ruins-phoenix-vault',{item:'phoenix',guard:'ruins-warden',challenge:'miniboss',challengeText:'Cofre da Fênix: a sentinela das Ruínas da Lua protege a Pena da Fênix no pátio aberto.'});
+  add('torch',34,16,'ruins-court-torch-a');add('torch',43,14,'ruins-court-torch-b');add('torch',38,22,'ruins-court-torch-c');
+  add('barrier',38,18,'ruins-court-seal',{by:['ruins-court-torch-a','ruins-court-torch-b','ruins-court-torch-c']});
+  for(const [x,y,id] of [[33,18,'ruins-court-pillar-a'],[33,22,'ruins-court-pillar-b'],[47,18,'ruins-court-pillar-c'],[47,22,'ruins-court-pillar-d']] as const)add('rock',x,y,id,{solid:true});
   add('chest',118,84,'heart-coast',{item:'heart',guard:'coast-guardian',challenge:'puzzle',challengeText:'Acenda os três faróis na ordem indicada pela Marinheira e vença a criatura da enseada.'});
   add('torch',108,77,'coast-beacon-a');add('torch',114,72,'coast-beacon-b');add('torch',120,77,'coast-beacon-c');
   add('barrier',116,81,'coast-heart-seal',{by:['coast-beacon-a','coast-beacon-b','coast-beacon-c']});
@@ -167,7 +173,8 @@ export function makeWorld(entity:(id:string,x:number,y:number,kind:Entity['kind'
   LAYOUT.forEach((row,ry)=>row.forEach((b,rx)=>{const list:Entity['kind'][]=[...(elites[b]?[elites[b]!]:[]),...(fauna[b]??[]).flatMap(([k,n])=>Array.from({length:n},()=>k))];let placed=0,tries=0;for(let i=0;placed<list.length&&i<4000;i++){if(++tries>500){placed++;tries=0;continue;}const kind=list[placed],water=kind==='serpent',x=rx*CELL_W+3+Math.floor(hash(i,ry*3+rx,8)*(CELL_W-6)),y=ry*CELL_H+3+Math.floor(hash(i,ry*3+rx,9)*(CELL_H-6));const t=tiles[y][x];if(water?t!==2||[[1,0],[-1,0],[0,1],[0,-1]].filter(([dx,dy])=>tiles[y+dy]?.[x+dx]===2).length<2:(t!==0&&t!==1&&t!==3))continue;if(Math.abs(x-46)<10&&Math.abs(y-42)<8)continue;if((biome[y][x]!==b&&!(water&&b==='coast'&&biome[y][x]==='mangrove'))||props.some(p=>p.solid&&Math.abs(p.x-center(x))<40&&Math.abs(p.y-center(y))<40))continue;const elite=placed===0&&!!elites[b];const e=entity(elite?`elite-${b}-${kind}`:`${b}-${kind}-${placed}`,x,y,kind,BEAST_TINT[kind]?undefined:kind==='spitter'?SPITTER_TINT:BIOMES[b].enemyFilter);if(elite){e.hp=e.maxHp=e.maxHp*3;e.scale=1.45;}enemies.push(e);placed++;tries=0;}}));
   enemies.push(entity('golem-desert',12,44,'golem',BIOMES.desert.wallFilter),entity('golem-snow',13,7,'golem',BIOMES.snow.wallFilter),entity('golem-swamp',86,66,'golem',BIOMES.swamp.wallFilter),entity('golem-autumn',74,19,'golem',BIOMES.autumn.wallFilter),entity('golem-ruins',50,7,'golem',BIOMES.ruins.wallFilter),entity('lake-guard',79,35,'spitter',SPITTER_TINT));
   enemies.push(entity('snow-wolf-alpha',18,8,'frostwolf','#d8f4ff'),entity('snow-wolf-beta',22,10,'frostwolf','#c4e8f4'),entity('swamp-shadow',86,62,'shade','#5c7f62'));
-  enemies.push(entity('ridge-guardian-a',104,15,'knight','#d7e8ef'),entity('ridge-guardian-b',108,18,'frostwolf','#eaf8ff'),entity('coast-guardian',117,83,'sandworm','#4aa7b8'));
+  const ruinsWarden=entity('ruins-warden',38,17,'golem','#c59b70');ruinsWarden.bossAsset=3;ruinsWarden.hp=ruinsWarden.maxHp=10;
+  enemies.push(ruinsWarden,entity('ridge-guardian-a',38,17,'knight','#d7e8ef'),entity('ridge-guardian-b',43,17,'frostwolf','#eaf8ff'),entity('coast-guardian',117,83,'sandworm','#4aa7b8'));
   enemies.push(entity('coast-crab-a',100,84,'slime','#e88b75'),entity('coast-crab-b',105,89,'slime','#f0b57c'),entity('coast-ray',121,88,'wisp','#75d7e8'),entity('volcanic-newt',91,67,'salamander','#e96b45'),entity('mountain-ibex',103,12,'frostwolf','#b6c4cc'));
   return{width:W,height:H,tiles,props,enemies,biome};
 }

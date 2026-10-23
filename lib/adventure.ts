@@ -62,7 +62,7 @@ const JUMP_TIME=.5,JUMP_SPEED=230,JUMP_HEIGHT=26,ATTACK_TIME=.23;
 const DAY_LENGTH=240,FADE_TIME=.45,BOSS_NOTES=[220,261.63,293.66,261.63,329.63,293.66,261.63,246.94];
 
 const CAVE_NOTES=[196,233.08,293.66,261.63,220,196,174.61,220],TEMPLE_NOTES=[220,261.63,329.63,293.66,246.94,220,196,246.94];
-const SAVE_VERSION=10;
+const SAVE_VERSION=11;
 export const NEED_NAME:Record<string,string>={relic:'a Relíquia Lunar',bosskey:'a Chave do Guardião',tide:'a Onda Arcana',gloves:'as Luvas da Força',boots:'as Botas Aladas',amulet:'o Amuleto da Brasa',fire:'a Flecha de Fogo',ice:'a Flecha de Gelo',light:'a Flecha de Luz','wand-lightning':'a Varinha do Relâmpago','wand-repulse':'a Varinha da Repulsão','wand-missile':'a Varinha Míssil'};
 const NEED_COLOR:Record<string,string>={tide:'#57c7df',gloves:'#d3c5ad',boots:'#9fd8ff',amulet:'#ff9a3c',fire:'#ff9a3c',ice:'#9fe6ff',light:'#fff3a0','wand-lightning':'#ffe56b','wand-repulse':'#b27cff','wand-missile':'#ff9d66',relic:'#efce79',bosskey:'#d8c9a8'};
 const BOW_CHARGE=.9,ECHO_RECHARGE=6;
@@ -236,7 +236,9 @@ props.push({kind:'stairs',id:'fortress-return',x:center(3),y:center(20),solid:tr
 props.push({kind:'npc',id:'cartografo',x:center(7),y:center(18),solid:true},{kind:'barrier',id:'fortress-shortcut-barrier',x:center(21),y:center(2),solid:true,by:['cartografo']},{kind:'stairs',id:'fortress-shortcut',x:center(21),y:center(3),solid:true,to:'north',ax:58,ay:7,label:'Atalho para as Terras do Norte'});
 props.push({kind:'rock',id:'fortress-stone-a',x:center(4),y:center(6),solid:true,pushable:true,target:'fortress-plate-a'},{kind:'rock',id:'fortress-stone-b',x:center(7),y:center(8),solid:true,pushable:true,target:'fortress-plate-b'},{kind:'rock',id:'fortress-stone-c',x:center(10),y:center(6),solid:true,pushable:true,target:'fortress-plate-c'});
 props.push({kind:'target',id:'fortress-plate-a',x:center(10),y:center(8),solid:true},{kind:'target',id:'fortress-plate-b',x:center(4),y:center(8),solid:true},{kind:'target',id:'fortress-plate-c',x:center(7),y:center(6),solid:true},{kind:'barrier',id:'fortress-seal-barrier',x:center(28),y:center(18),solid:true,by:['fortress-plate-a','fortress-plate-b','fortress-plate-c']});
-props.push({kind:'chest',id:'fortress-crystals',x:center(35),y:center(5),solid:true,item:'crystals',guard:'fortress-knight'},{kind:'chest',id:'fortress-potion',x:center(5),y:center(20),solid:true,item:'potion'},{kind:'chest',id:'fortress-vault',x:center(36),y:center(19),solid:true,item:'phoenix',guard:'fortress-warden'});
+// O marco final continua existindo para preservar a silhueta da fortaleza e IDs antigos,
+// mas a recompensa especial foi redistribuída para o Pátio Partido no mundo aberto.
+props.push({kind:'chest',id:'fortress-crystals',x:center(35),y:center(5),solid:true,item:'crystals',guard:'fortress-knight'},{kind:'chest',id:'fortress-potion',x:center(5),y:center(20),solid:true,item:'potion'},{kind:'chest',id:'fortress-vault',x:center(36),y:center(19),solid:true,item:'crystals',guard:'fortress-warden'});
 return{width,height,tiles,props,enemies:[entity('fortress-knight',34,5,'knight','#8b99b8'),entity('fortress-shieldknight',18,5,'shieldknight','#5b7ca8'),entity('fortress-warden',34,19,'boss','#6f8fc4',3),entity('fortress-golem',21,17,'golem','#697a99'),entity('fortress-spitter',8,16,'spitter','#6e9caa'),entity('fortress-wisp-a',18,7,'wisp','#a9dcff'),entity('fortress-wisp-b',33,15,'wisp','#85b9e6')]};
 }
 function makeGrove():GameMap{
@@ -334,6 +336,9 @@ export const OLDEST_SAVE=7;
 type SavedMap={enemies:Entity[];opened:string[];removed:string[]};
 // relíquias que mudaram de lugar: quem já tinha o item encontra o baú novo aberto
 const MOVED_REWARDS:[string,Zone,string][]=[['magnet','mailcave','mail-magnet'],['echoCloak','theater','theater-cloak'],['armor','bellcrypt','crypt-armor'],['runeBow','runetower','tower-rune-bow'],['windBlade','windgorge','gorge-wind-blade'],['wandMaster','wandvault','vault-wand-master'],['boots','wingcave','wingcave-boots']];
+// O cofre da Fênix saiu da Fortaleza e foi para o Pátio Partido das Ruínas.
+// O ID do prêmio continua sendo phoenix; a migração só muda o mapa e o ID visual do cofre.
+const RELOCATED_REWARDS:[string,Zone,string,Zone,string][]=[['phoenix','fortress','fortress-vault','world','ruins-phoenix-vault']];
 export function migrateSave(raw:string):{ok:true;json:string;from:number}|{ok:false;reason:string}{
   let s:Record<string,unknown>;try{s=JSON.parse(raw);}catch{return {ok:false,reason:'o arquivo do save está corrompido (JSON inválido)'};}
   if(!s||typeof s!=='object')return {ok:false,reason:'o save está vazio'};
@@ -353,6 +358,19 @@ export function migrateSave(raw:string):{ok:true;json:string;from:number}|{ok:fa
     if(v<10)for(const z of ZONES){const m=maps[z];if(!m)continue;const dead=new Set(m.enemies.filter(e=>e.hp<=0&&!e.respawn).map(e=>e.id));m.enemies=makeMap(z).enemies.map(e=>dead.has(e.id)?{...e,hp:0}:e);}
     // relíquias realocadas (v<9 e a gruta das botas): o baú novo já aparece aberto para quem tem o item
     for(const [flag,z,id] of MOVED_REWARDS)if(s[flag]){const m=maps[z]??(maps[z]={enemies:makeMap(z).enemies,opened:[],removed:[]});if(!m.opened.includes(id))m.opened.push(id);}
+    // v<11: o Pátio Partido recebeu uma arena nova. Mescla os inimigos novos sem apagar
+    // mortes já registradas e realoca a Fênix sem duplicar a recompensa.
+    if(v<11){
+      for(const z of ZONES){const m=maps[z];if(!m)continue;const generated=makeMap(z).enemies,known=new Set(m.enemies.map(e=>e.id));m.enemies.push(...generated.filter(e=>!known.has(e.id)));}
+      const world=maps.world;
+      for(const [id,x,y] of [['ridge-guardian-a',38,17],['ridge-guardian-b',43,17]] as const){const e=world?.enemies.find(q=>q.id===id);if(e){e.x=e.homeX=x*32+16;e.y=e.homeY=y*32+16;}}
+      for(const [flag,from,fromId,to,toId] of RELOCATED_REWARDS){
+        const source=maps[from]??(maps[from]={enemies:makeMap(from).enemies,opened:[],removed:[]});
+        const target=maps[to]??(maps[to]={enemies:makeMap(to).enemies,opened:[],removed:[]});
+        if(!source.removed.includes(fromId))source.removed.push(fromId);
+        if(s[flag]&&!target.opened.includes(toId))target.opened.push(toId);
+      }
+    }
     s.v=SAVE_VERSION;
   }
   return {ok:true,json:JSON.stringify(s),from:v};
