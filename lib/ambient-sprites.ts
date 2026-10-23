@@ -6,6 +6,7 @@ type Ctx=CanvasRenderingContext2D;
 export type Pose={moving:boolean;flying:boolean;state:string;ph:number;z:number;alpha:number};
 type Quad={w:number;h:number;leg:number;col:string;dark:string;belly?:string;hw:number;hh:number;ear?:[number,number];earCol?:string;tail?:[number,number,string,boolean?];antler?:boolean;neck?:number;hop?:boolean;horn?:boolean;fluff?:string;spot?:string;eye?:string};
 type Bird={w:number;h:number;col:string;wing:string;beak:string;bl:number;tail:number;leg?:number;legCol?:string;belly?:string;crest?:string;eye?:string};
+type ExternalAsset={file:string;row?:number;layout:'wildlife32'|'lpc3x4';w:number;h:number};
 
 // Fauna premium: assets desenhados substituem os blocos procedurais nos animais
 // mais visíveis. O fallback continua existindo para testes Node e carregamento inicial.
@@ -22,17 +23,41 @@ const AMBIENT_ASSETS:Partial<Record<Species,{file:string;row?:number}>>={
   beetle:{file:'cave-fauna',row:0},bat:{file:'cave-fauna',row:1},
   cow:{file:'cow'},horse:{file:'horse'},
 };
+const EXTERNAL_AMBIENT:Partial<Record<Species,ExternalAsset>>={
+  deer:{file:'plasticlife-herbivore',layout:'wildlife32',w:42,h:34},
+  fox:{file:'plasticlife-predator',layout:'wildlife32',w:38,h:32},
+  arcticfox:{file:'plasticlife-wolf',layout:'wildlife32',w:40,h:34},
+  chicken:{file:'codequest-chicken',layout:'lpc3x4',w:26,h:28},
+  cow:{file:'codequest-cow',layout:'lpc3x4',w:48,h:38},
+  sheep:{file:'codequest-sheep',layout:'lpc3x4',w:38,h:34},
+};
 const ambientImages:Partial<Record<string,HTMLImageElement>>={};
-if(typeof Image!=='undefined')for(const file of ['birds','mammals','small-fauna','reptiles','insects','cave-fauna','cow','horse']){const im=new Image();im.decoding='async';im.src=`${import.meta.env?.BASE_URL??'/'}art/ambient/${file}.png?v=fauna-20261023`;ambientImages[file]=im;}
+if(typeof Image!=='undefined')for(const file of ['birds','mammals','small-fauna','reptiles','insects','cave-fauna','cow','horse','plasticlife-herbivore','plasticlife-predator','plasticlife-wolf','codequest-chicken','codequest-cow','codequest-sheep']){const im=new Image();im.decoding='async';im.src=`${import.meta.env?.BASE_URL??'/'}art/ambient/${file}.png?v=fauna-20261023`;ambientImages[file]=im;}
 export function setAmbientImages(images:Record<string,HTMLImageElement>|undefined){if(images)Object.assign(ambientImages,images);}
 function ambientAsset(sp:Species){
   if(typeof Image==='undefined')return undefined;
+  const external=EXTERNAL_AMBIENT[sp];
+  if(external){const key=external.file;if(ambientImages[key])return ambientImages[key];const im=new Image();im.decoding='async';im.src=`${import.meta.env?.BASE_URL??'/'}art/ambient/${key}.png?v=fauna-20261023`;ambientImages[key]=im;return im;}
   const meta=AMBIENT_ASSETS[sp];if(!meta)return undefined;
   const key=meta.file;if(ambientImages[key])return ambientImages[key];
   const im=new Image();im.decoding='async';im.src=`${import.meta.env?.BASE_URL??'/'}art/ambient/${meta.file}.png?v=fauna-20261023`;ambientImages[key]=im;return im;
 }
-function drawAmbientAsset(c:Ctx,sp:Species,p:Pose){
-  const meta=AMBIENT_ASSETS[sp],im=ambientAsset(sp);if(!meta||!im?.complete||!im.naturalWidth)return false;
+function drawAmbientAsset(c:Ctx,sp:Species,p:Pose,f:number){
+  const external=EXTERNAL_AMBIENT[sp],meta=AMBIENT_ASSETS[sp],im=ambientAsset(sp);if(!im?.complete||!im.naturalWidth)return false;
+  if(external){
+    c.imageSmoothingEnabled=false;
+    if(external.layout==='lpc3x4'){
+      const frame=Math.floor(p.ph*6)%3,dir=f<0?1:2;
+      c.drawImage(im,frame*im.naturalWidth/3,dir*im.naturalHeight/4,im.naturalWidth/3,im.naturalHeight/4,-external.w/2,-external.h,external.w,external.h);
+    }else{
+      const frame=p.moving?Math.floor(p.ph*8)%6:Math.floor(p.ph*4)%4;
+      const anim=p.state==='dead'?16:p.state==='feed'||p.state==='drink'?12:p.moving?4:0;
+      const dir=f<0?2:3;
+      c.drawImage(im,frame*32,(anim+dir)*32,32,32,-external.w/2,-external.h,external.w,external.h);
+    }
+    return true;
+  }
+  if(!meta)return false;
   const cols=4,rows=meta.file==='cave-fauna'?2:['birds','mammals','small-fauna','reptiles','insects'].includes(meta.file)?4:1,sw=im.naturalWidth/cols,sh=im.naturalHeight/rows;
   const dw=meta.file==='cow'?52:meta.file==='horse'?56:meta.file==='mammals'?42:meta.file==='birds'?36:28;
   const dh=meta.file==='cow'?30:meta.file==='horse'?34:meta.file==='mammals'?28:meta.file==='birds'?24:22;
@@ -123,7 +148,7 @@ export function drawCritter(c:Ctx,sp:Species,x:number,y:number,f:number,size:num
   // sombra no chão (aves voando projetam sombra mais longe)
   if(sp!=='fish'&&!(p.z>60)){c.fillStyle='rgba(0,0,0,.18)';c.fillRect(Math.round(x-5*size),Math.round(y-1),Math.round(10*size),2);}
   const s=size*1.25;c.translate(Math.round(x),Math.round(y-p.z));c.scale(f*s,s);
-  if(drawAmbientAsset(c,sp,p)){c.restore();return;}
+  if(drawAmbientAsset(c,sp,p,f)){c.restore();return;}
   const q=QUAD[sp],b=BIRD[sp];
   if(q)quad(c,q,p);else if(b)bird(c,b,p);else if(sp==='fish')fish(c,p,p.z>0);else if(sp==='turtle')turtle(c,p);else insect(c,sp,p);
   c.restore();
