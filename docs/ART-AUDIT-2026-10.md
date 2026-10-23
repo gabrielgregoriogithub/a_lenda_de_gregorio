@@ -15,6 +15,7 @@ Foi revisada a linha histórica dos sprites e dos sistemas de renderização, co
 | Sapo, tartaruga, peixe e borboleta | B — procedural simplificado | Atlas `public/art/ambient/small-fauna.png` |
 | Esquilo, macaco, lagarto, lagarto de fogo e escorpião | B — procedural simplificado | Atlas `public/art/ambient/reptiles.png` |
 | Abelha, libélula, mariposas e vaga-lume | B — procedural simplificado | Atlas `public/art/ambient/insects.png` |
+| Besouro e morcego ambiental | B — procedural simplificado | Atlas `public/art/ambient/cave-fauna.png` |
 | Vaca e cavalo | B/D — procedural ou ausente | Assets dedicados `cow.png` e `horse.png` |
 | Decoração dos biomas especiais | E — motivos geométricos pequenos | `biome-props.png` |
 | Decoração dos demais biomas | E — variações procedurais repetitivas | `biome-props-full.png`, atlas 4×3 |
