@@ -73,7 +73,7 @@ const S:Record<string,Sprite>={
 };
 export const SPRITE_KINDS=new Set(['spider','archer','skeleton','mole','shaman','magmite','serpent','crab','knight','shieldknight','frostwolf','salamander','shade','sandworm','wisp']);
 const U=4,cache=new Map<string,HTMLCanvasElement>();
-let generatedSprites:Partial<Record<BeastKind,HTMLImageElement>>|undefined;
+let generatedSprites:Record<string,HTMLImageElement>|undefined;
 function frameCanvas(name:string,i:number){const key=`${name}:${i}`;let cv=cache.get(key);if(cv)return cv;const sp=S[name],rows=sp.frames[i%sp.frames.length],w=Math.max(...rows.map(r=>r.length)),h=rows.length;
   cv=document.createElement('canvas');cv.width=w*U;cv.height=h*U;const c=cv.getContext('2d')!;rows.forEach((row,y)=>[...row].forEach((ch,x)=>{const col=sp.pal[ch];if(!col)return;c.fillStyle=col;c.fillRect(x*U,y*U,U,U);}));cache.set(key,cv);return cv;}
 function blit(c:CanvasRenderingContext2D,name:string,frame:number,x:number,y:number,face:number,sx:number,sy:number,filter:string,alpha=1){
@@ -180,7 +180,7 @@ export function drawBeastSprite(g:Game,c:CanvasRenderingContext2D,e:Entity,filte
   if(k==='crab'){if(e.st==='snap')warn(c,x,y-40,t);c.save();c.translate(x,y);blit(c,'crab',e.st==='dash'||e.st==='snap'?1:walk,0,0,Math.cos(e.phase??0)<0?-1:1,sx,sy,filter);c.restore();
     if(e.stun>0){c.fillStyle='#ffe9a8';c.fillRect(x-8,y-36+Math.sin(t*12)*2,4,4);c.fillRect(x+5,y-38+Math.cos(t*12)*2,4,4);}return;}
   // inimigos antigos com sprite novo (antes eram o golem ou o morcego recoloridos)
-  if(k==='knight'||k==='shieldknight'){blit(c,'knight',walk,x,y,face,sx,sy,filter);return;}
+  if(k==='knight'||k==='shieldknight'){blit(c,k==='shieldknight'?'shieldknight':'knight',walk,x,y,face,sx,sy,filter);return;}
   if(k==='frostwolf'){blit(c,'frostwolf',walk,x,y,face,sx,sy,filter);return;}
   if(k==='salamander'){c.save();c.globalAlpha*=.3+.12*Math.sin(t*8);c.fillStyle='#ff6332';c.beginPath();c.arc(x,y-12,24,0,Math.PI*2);c.fill();c.restore();blit(c,'salamander',walk,x,y,face,sx,sy,filter);return;}
   if(k==='shade'){const ph=e.timer%3.6;blit(c,'shade',0,x,y+Math.sin(t*3)*2,face,sx,sy,filter,ph<1.1?.25:.9);return;}
