@@ -208,16 +208,16 @@ export class Ambient{
   /** Golpes de espada atingem as galinhas, mas nunca reduzem sua vida. Dez acertos
    * dentro de três minutos convocam o bando por trinta segundos. */
   strikeChickens(x:number,y:number,dx:number,dy:number,reach=62){
-    if(this.chickenRage>0)return {hits:0,triggered:false};
+    if(this.chickenRage>0)return {hits:0,triggered:false,positions:[] as {x:number;y:number}[]};
     if(this.chickenHitWindow<=0)this.chickenHits=0;
-    let hits=0;
-    for(const k of this.critters){if(k.sp!=='chicken'||k.rage||k.alpha<.05)continue;const ox=k.x-x,oy=k.y-y,d=Math.hypot(ox,oy);if(d>reach||ox*dx+oy*dy<=-10)continue;k.hitFlash=.2;k.z=Math.max(k.z,3);k.f=dx>=0?1:-1;hits++;}
-    if(!hits)return {hits:0,triggered:false};
+    let hits=0;const positions:{x:number;y:number}[]=[];
+    for(const k of this.critters){if(k.sp!=='chicken'||k.rage)continue;const ox=k.x-x,oy=k.y-y,d=Math.hypot(ox,oy);if(d>reach||ox*dx+oy*dy<=-10)continue;k.hitFlash=.2;k.z=Math.max(k.z,3);k.f=dx>=0?1:-1;hits++;positions.push({x:k.x,y:k.y});}
+    if(!hits)return {hits:0,triggered:false,positions};
     this.chickenHits+=hits;this.chickenHitWindow=180;
-    if(this.chickenHits<10)return {hits,triggered:false};
+    if(this.chickenHits<10)return {hits,triggered:false,positions};
     this.chickenHits=0;this.chickenHitWindow=0;this.chickenRage=30;
     for(const k of this.critters)if(k.sp==='chicken'){k.rage=true;k.state='fly';k.alpha=1;k.z=10;k.vx=0;k.vy=0;k.attackCd=0;}
-    return {hits,triggered:true};
+    return {hits,triggered:true,positions};
   }
   stepRageChicken(h:AmbientHost,k:Critter,dt:number){
     const p=h.player,dx=p.x-k.x,dy=p.y-k.y,d=Math.hypot(dx,dy)||1,chaos=Math.sin(this.time*7.5+k.id*1.7)*.72;

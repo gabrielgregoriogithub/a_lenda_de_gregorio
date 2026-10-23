@@ -9,6 +9,7 @@ const prop=(g,z,id)=>g.maps[z].props.find(p=>p.id===id);
 
 test('Pátio Partido: recompensa especial fora da masmorra e migração sem duplicação',()=>{
   const g=fresh();g.zone='world';
+  const seal=prop(g,'world','ruins-court-seal');assert.ok(seal?.solid,'o selo começa bloqueando o acesso ao cofre');assert.equal(seal.x,43*32+16);assert.ok(g.collides(seal.x,seal.y,10));
   for(const id of ['ruins-court-torch-a','ruins-court-torch-b','ruins-court-torch-c']){const p=prop(g,'world',id);p.open=true;p.solid=false;}
   g.checkBarriers();assert.equal(prop(g,'world','ruins-court-seal'),undefined);
   const guard=g.maps.world.enemies.find(e=>e.id==='ruins-warden');assert.ok(guard);guard.hp=0;

@@ -125,7 +125,9 @@ export function makeWorld(entity:(id:string,x:number,y:number,kind:Entity['kind'
   add('chest',38,20,'heart-mountain',{item:'heart',guard:'ruins-warden',challenge:'miniboss',challengeText:'Pátio Partido: acenda os três faróis da muralha e derrote o Guardião do Pátio Partido para recuperar o Coração da Serra.'});
   add('chest',43,20,'ruins-phoenix-vault',{item:'phoenix',guard:'ruins-warden',challenge:'miniboss',challengeText:'Cofre da Fênix: a sentinela das Ruínas da Lua protege a Pena da Fênix no pátio aberto.'});
   add('torch',34,16,'ruins-court-torch-a');add('torch',43,14,'ruins-court-torch-b');add('torch',38,22,'ruins-court-torch-c');
-  add('barrier',38,18,'ruins-court-seal',{by:['ruins-court-torch-a','ruins-court-torch-b','ruins-court-torch-c']});
+  // O selo fica no único acesso direto ao cofre da Fênix, em frente ao baú;
+  // antes estava deslocado para o oeste e podia ser contornado pelo jogador.
+  add('barrier',43,19,'ruins-court-seal',{by:['ruins-court-torch-a','ruins-court-torch-b','ruins-court-torch-c']});
   for(const [x,y,id] of [[33,18,'ruins-court-pillar-a'],[33,22,'ruins-court-pillar-b'],[47,18,'ruins-court-pillar-c'],[47,22,'ruins-court-pillar-d']] as const)add('rock',x,y,id,{solid:true});
   add('chest',118,84,'heart-coast',{item:'heart',guard:'coast-guardian',challenge:'puzzle',challengeText:'Acenda os três faróis na ordem indicada pela Marinheira e vença a criatura da enseada.'});
   add('torch',108,77,'coast-beacon-a');add('torch',114,72,'coast-beacon-b');add('torch',120,77,'coast-beacon-c');

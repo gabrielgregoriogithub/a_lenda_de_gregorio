@@ -22,3 +22,14 @@ test('galinhas são invencíveis e reagem a dez golpes em três minutos',()=>{
   assert.equal(A.chickenRage,0);
   assert.equal(chicken.rage,false);
 });
+
+test('o golpe real do jogador alcança a galinha e mostra o progresso',()=>{
+  const g=fresh();
+  g.map.enemies.forEach(e=>{e.hp=0;});
+  g.player.dir='right';
+  const chicken={id:2,sp:'chicken',x:g.player.x+24,y:g.player.y,z:0,vx:0,vy:0,vz:0,f:1,state:'idle',t:1,ph:0,tx:g.player.x+24,ty:g.player.y,alpha:0,think:0,ax:g.player.x,ay:g.player.y,size:1};
+  g.ambient.critters=[chicken];
+  g.attack();
+  assert.equal(g.ambient.chickenHits,1);
+  assert.match(g.notice,/Galinha atingida/);
+});
