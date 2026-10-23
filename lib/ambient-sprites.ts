@@ -26,13 +26,13 @@ const AMBIENT_ASSETS:Partial<Record<Species,{file:string;row?:number}>>={
 const EXTERNAL_AMBIENT:Partial<Record<Species,ExternalAsset>>={
   deer:{file:'plasticlife-herbivore',layout:'wildlife32',w:42,h:34},
   fox:{file:'plasticlife-predator',layout:'wildlife32',w:38,h:32},
-  arcticfox:{file:'plasticlife-wolf',layout:'wildlife32',w:40,h:34},
+  arcticfox:{file:'plasticlife-predator',layout:'wildlife32',w:40,h:34},
   chicken:{file:'codequest-chicken',layout:'lpc3x4',w:26,h:28},
   cow:{file:'codequest-cow',layout:'lpc3x4',w:48,h:38},
   sheep:{file:'codequest-sheep',layout:'lpc3x4',w:38,h:34},
 };
 const ambientImages:Partial<Record<string,HTMLImageElement>>={};
-if(typeof Image!=='undefined')for(const file of ['birds','mammals','small-fauna','reptiles','insects','cave-fauna','cow','horse','plasticlife-herbivore','plasticlife-predator','plasticlife-wolf','codequest-chicken','codequest-cow','codequest-sheep']){const im=new Image();im.decoding='async';im.src=`${import.meta.env?.BASE_URL??'/'}art/ambient/${file}.png?v=fauna-20261023`;ambientImages[file]=im;}
+if(typeof Image!=='undefined')for(const file of ['birds','mammals','small-fauna','reptiles','insects','cave-fauna','cow','horse','plasticlife-herbivore','plasticlife-predator','codequest-chicken','codequest-cow','codequest-sheep']){const im=new Image();im.decoding='async';im.src=`${import.meta.env?.BASE_URL??'/'}art/ambient/${file}.png?v=fauna-20261023`;ambientImages[file]=im;}
 export function setAmbientImages(images:Record<string,HTMLImageElement>|undefined){if(images)Object.assign(ambientImages,images);}
 function ambientAsset(sp:Species){
   if(typeof Image==='undefined')return undefined;

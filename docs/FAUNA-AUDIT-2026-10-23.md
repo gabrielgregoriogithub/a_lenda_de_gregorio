@@ -11,7 +11,7 @@
 |---|---|---|
 | deer | `plasticlife-herbivore.png` | `plasticlife-art/animals` |
 | fox | `plasticlife-predator.png` | `plasticlife-art/animals` |
-| arcticfox | `plasticlife-wolf.png` | `plasticlife-art/animals` |
+| arcticfox | `plasticlife-predator.png` | `plasticlife-art/animals` |
 | chicken | `codequest-chicken.png` | `adi555j/codequest-rpg`, LPC |
 | cow | `codequest-cow.png` | `adi555j/codequest-rpg`, LPC |
 | sheep | `codequest-sheep.png` | `adi555j/codequest-rpg`, LPC |
