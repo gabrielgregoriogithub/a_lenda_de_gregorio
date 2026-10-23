@@ -17,7 +17,7 @@ export const SPECIES:Record<Species,SpeciesDef>={
   scorpion:{move:'walk',speed:26,flee:55,size:.9},beetle:{move:'walk',speed:14,flee:30,size:.7},turtle:{move:'swim',speed:12,flee:50,size:1.2,water:true},
   fish:{move:'swim',speed:24,flee:70,size:1,water:true},duck:{move:'swim',speed:20,flee:90,size:1.1,water:true},heron:{move:'wade',speed:16,flee:120,size:1.15},
   songbird:{move:'perch',speed:120,flee:80,size:1},mountainbird:{move:'perch',speed:130,flee:90,size:1},toucan:{move:'perch',speed:100,flee:90,size:1.3},macaw:{move:'perch',speed:110,flee:90,size:1.4},
-  crow:{move:'perch',speed:110,flee:100,size:1.2},owl:{move:'perch',speed:90,flee:110,size:1.3,night:'only'},seagull:{move:'fly',speed:80,flee:0,size:1.3},vulture:{move:'fly',speed:46,flee:0,size:1.8},
+  crow:{move:'perch',speed:110,flee:100,size:1.2},owl:{move:'perch',speed:90,flee:110,size:1,night:'only'},seagull:{move:'fly',speed:80,flee:0,size:1.3},vulture:{move:'fly',speed:46,flee:0,size:1.8},
   bat:{move:'fly',speed:110,flee:0,size:1,night:'only'},
   butterfly:{move:'flutter',speed:40,flee:60,size:1,night:'never'},bee:{move:'flutter',speed:50,flee:40,size:.7,night:'never'},dragonfly:{move:'flutter',speed:90,flee:60,size:1,night:'never'},
   moth:{move:'flutter',speed:34,flee:50,size:.9},firefly:{move:'flutter',speed:22,flee:40,size:.6,night:'only'},embermoth:{move:'flutter',speed:36,flee:50,size:.9},crystalmoth:{move:'flutter',speed:34,flee:50,size:.9},

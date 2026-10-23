@@ -69,6 +69,14 @@ Interiores também têm perfil: cavernas com gotejamento e eco, morcegos e poeir
   - tremor.
 - **Som:** leitos contínuos de vento, chuva, correnteza e lava com volume seguindo o clima e a água próxima, mais chamados curtos de animais em intervalos irregulares. À noite entram grilos, corujas, sapos e uivos. Nas cavernas os sons ganham eco. O som ambiente fica bem abaixo da trilha musical e desliga junto com o som do jogo.
 
+## Reação especial das galinhas
+
+Golpes de espada podem acertar galinhas sem causar dano ou removê-las. Dez acertos
+na mesma área dentro de três minutos convocam o bando por 30 segundos: elas voam
+de forma caótica, perseguem Gregório e causam dano por contato. Durante a retaliação
+continuam invencíveis e novos golpes não a estendem. Ao fim, voltam ao comportamento
+normal.
+
 ## Desempenho
 
 - No máximo 18 animais ao ar livre e 7 em interiores, mais um pequeno extra durante eventos.

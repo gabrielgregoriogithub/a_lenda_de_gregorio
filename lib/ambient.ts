@@ -13,11 +13,11 @@ const T=32,TAU=Math.PI*2;
 export interface AmbientHost{
   zone:string;map:GameMap;player:{x:number;y:number};camera:{x:number;y:number};zoom:number;canvas:{width:number;height:number};
   outdoors:boolean;sound:boolean;audio:AudioContext|null;bossActiveId:string|null;
-  collides(x:number,y:number,r?:number,air?:boolean):boolean;nightLevel():number;kick?(power:number,time:number):void;
+  collides(x:number,y:number,r?:number,air?:boolean):boolean;nightLevel():number;kick?(power:number,time:number):void;damage?(sx:number,sy:number):void;
 }
 type State='idle'|'wander'|'feed'|'rest'|'flee'|'hide'|'climb'|'perch'|'fly'|'hover'|'swim'|'jump'|'drink'|'cross'|'circle'|'dive'|'run';
 export type Critter={id:number;sp:Species;x:number;y:number;z:number;vx:number;vy:number;vz:number;f:number;state:State;t:number;ph:number;tx:number;ty:number;
-  alpha:number;think:number;ax:number;ay:number;size:number;event?:string;carry?:boolean;cx?:number;cy?:number;r?:number;ang?:number;home?:Prop};
+  alpha:number;think:number;ax:number;ay:number;size:number;event?:string;carry?:boolean;cx?:number;cy?:number;r?:number;ang?:number;home?:Prop;rage?:boolean;attackCd?:number;hitFlash?:number};
 type PK='leaf'|'drop'|'splash'|'ember'|'smoke'|'ash'|'bubble'|'ring'|'mote'|'dust'|'grass'|'spark'|'snow';
 type Part={k:PK;x:number;y:number;z:number;vx:number;vy:number;vz:number;life:number;max:number;col:string;s:number;rot:number;seed:number;on:boolean};
 type Print={x:number;y:number;life:number;side:number;k:'sand'|'snow'};
@@ -37,6 +37,7 @@ export class Ambient{
   weather:{kind:WeatherKind;i:number;target:number;timer:number;pending:WeatherKind|null}={kind:'clear',i:0,target:0,timer:5,pending:null};
   flash=0;bolt:{x:number;life:number;seed:number}|null=null;wet=0;snowCover=0;
   critters:Critter[]=[];nextId=1;spawnTimer=0;eventTimer=30;lastEvent:string|null=null;events:string[]=[];eventCount=0;
+  chickenHits=0;chickenHitWindow=0;chickenRage=0;
   parts:Part[]=[];partIdx=0;prints:Print[]=[];whirls:Whirl[]=[];stars:Star[]=[];shadow:{x:number;y:number;life:number;dir:number}|null=null;
   lastPx=0;lastPy=0;stepAcc=0;printSide=1;moving=false;kickTimer=0;splashTimer=0;
   trees:Prop[]=[];treeTimer=0;torches:Prop[]=[];keep:[number,number][]=[];keepKey='';
@@ -89,7 +90,7 @@ export class Ambient{
     if(this.quality==='low'&&!this.reducedMotion&&this.frameMs<8){this.fastFor+=dt;if(this.fastFor>8){this.quality='full';this.fastFor=0;}}else this.fastFor=0;
   }
   reportFrame(ms:number){this.frameMs+=(ms-this.frameMs)*.05;}
-  enterZone(h:AmbientHost){this.zone=h.zone;this.critters=[];this.whirls=[];this.prints=[];this.shadow=null;for(const q of this.parts)q.on=false;this.biome=this.biomeAt(h.map,h.player.x,h.player.y);this.profile=profileOf(h.zone,this.biome);
+  enterZone(h:AmbientHost){this.zone=h.zone;this.critters=[];this.whirls=[];this.prints=[];this.shadow=null;this.chickenHits=0;this.chickenHitWindow=0;this.chickenRage=0;for(const q of this.parts)q.on=false;this.biome=this.biomeAt(h.map,h.player.x,h.player.y);this.profile=profileOf(h.zone,this.biome);
     this.lastPx=h.player.x;this.lastPy=h.player.y;this.keepKey='';this.treeTimer=0;this.spawnTimer=0;
     // interiores têm clima fixo; ao ar livre o clima atual continua se o novo bioma o permitir
     const allowed=this.profile.weather.some(w=>w[0]===this.weather.kind);if(!allowed||!h.outdoors){this.weather.kind=this.pick(this.profile.weather);this.weather.i=h.outdoors?0:1;this.weather.target=this.intensityFor(this.weather.kind,h.outdoors);this.weather.pending=null;}}
@@ -179,6 +180,7 @@ export class Ambient{
       const prof=this.profileAt(h,x,y),list=prof.fauna.filter(([s])=>this.nightOk(s,night)&&this.critters.filter(k=>k.sp===s).length<(SPECIES[s].move==='flutter'?4:3));if(!list.length)return null;sp=this.pick(list);}
     if(force&&this.critters.length>=this.cap+12)return null;
     const d=SPECIES[sp],k:Critter={id:this.nextId++,sp,x,y,z:0,vx:0,vy:0,vz:0,f:r()<.5?1:-1,state:'idle',t:1+r()*2,ph:r()*10,tx:x,ty:y,alpha:0,think:0,ax:x,ay:y,size:d.size*(.9+r()*.2)};
+    if(sp==='chicken'&&this.chickenRage>0){k.rage=true;k.state='fly';k.alpha=1;k.z=10;k.attackCd=0;}
     const vis=x>c.x&&x<c.x+W&&y>c.y&&y<c.y+H;
     if(force?.state){const land=d.move==='hop'||d.move==='walk'||d.move==='climb'||d.move==='wade';if(land&&!this.landOk(h,x,y))return null;if(d.move==='swim'&&!this.waterOk(h,x,y))return null;
       k.state=force.state;k.x=x;k.y=y;k.tx=x;k.ty=y;k.ax=x;k.ay=y;k.alpha=vis?0:1;this.critters.push(k);return k;}
@@ -203,10 +205,36 @@ export class Ambient{
   threat(h:AmbientHost,k:Critter){const p=h.player,d=SPECIES[k.sp];let best:[number,number,number]|null=null;
     const dp=Math.hypot(p.x-k.x,p.y-k.y),reach=d.flee*(this.moving?1:.55);if(dp<reach)best=[p.x,p.y,dp];
     for(const e of h.map.enemies){if(e.hp<=0)continue;const de=Math.hypot(e.x-k.x,e.y-k.y);if(de<70&&(!best||de<best[2]))best=[e.x,e.y,de];}return best;}
+  /** Golpes de espada atingem as galinhas, mas nunca reduzem sua vida. Dez acertos
+   * dentro de três minutos convocam o bando por trinta segundos. */
+  strikeChickens(x:number,y:number,dx:number,dy:number,reach=62){
+    if(this.chickenRage>0)return {hits:0,triggered:false};
+    if(this.chickenHitWindow<=0)this.chickenHits=0;
+    let hits=0;
+    for(const k of this.critters){if(k.sp!=='chicken'||k.rage||k.alpha<.05)continue;const ox=k.x-x,oy=k.y-y,d=Math.hypot(ox,oy);if(d>reach||ox*dx+oy*dy<=-10)continue;k.hitFlash=.2;k.z=Math.max(k.z,3);k.f=dx>=0?1:-1;hits++;}
+    if(!hits)return {hits:0,triggered:false};
+    this.chickenHits+=hits;this.chickenHitWindow=180;
+    if(this.chickenHits<10)return {hits,triggered:false};
+    this.chickenHits=0;this.chickenHitWindow=0;this.chickenRage=30;
+    for(const k of this.critters)if(k.sp==='chicken'){k.rage=true;k.state='fly';k.alpha=1;k.z=10;k.vx=0;k.vy=0;k.attackCd=0;}
+    return {hits,triggered:true};
+  }
+  stepRageChicken(h:AmbientHost,k:Critter,dt:number){
+    const p=h.player,dx=p.x-k.x,dy=p.y-k.y,d=Math.hypot(dx,dy)||1,chaos=Math.sin(this.time*7.5+k.id*1.7)*.72;
+    const ca=Math.cos(chaos),sa=Math.sin(chaos),tx=(dx/d)*ca-(dy/d)*sa,ty=(dx/d)*sa+(dy/d)*ca,speed=145+Math.sin(this.time*3+k.id)*25;
+    k.vx+=(tx*speed-k.vx)*Math.min(1,dt*5);k.vy+=(ty*speed-k.vy)*Math.min(1,dt*5);
+    const nx=k.x+k.vx*dt,ny=k.y+k.vy*dt;if(!h.collides(nx,ny,5,true)){k.x=nx;k.y=ny;}else{k.vx*=-.8;k.vy*=-.8;}
+    k.f=k.vx>=0?1:-1;k.z=10+Math.abs(Math.sin(this.time*11+k.id))*8;k.attackCd=Math.max(0,(k.attackCd??0)-dt);
+    if(d<25&&k.attackCd<=0){h.damage?.(k.x,k.y);k.attackCd=.42;if(h.sound)this.audio.play('cluck');h.kick?.(2.5,.12);}
+  }
   updateCritters(h:AmbientHost,dt:number,night:number){const c=h.camera,W=h.canvas.width/h.zoom,H=h.canvas.height/h.zoom,cx=c.x+W/2,cy=c.y+H/2,far=(W+H)*.75;
+    if(this.chickenHitWindow>0)this.chickenHitWindow=Math.max(0,this.chickenHitWindow-dt);
+    if(this.chickenRage>0){this.chickenRage=Math.max(0,this.chickenRage-dt);if(this.chickenRage===0)for(const k of this.critters)if(k.rage){k.rage=false;k.state='idle';k.z=0;k.vx=0;k.vy=0;k.t=1+this.rng()*2;}}
     for(const k of this.critters){const d=SPECIES[k.sp];k.t-=dt;k.ph+=dt;k.think-=dt;
       const target=k.state==='hide'?0:1;k.alpha+=(target-k.alpha)*Math.min(1,dt*(k.state==='hide'?3:2));
       if(Math.abs(k.x-cx)>far+60||Math.abs(k.y-cy)>far){k.alpha=-1;continue;}
+      if(k.rage&&k.sp==='chicken'){this.stepRageChicken(h,k,dt);continue;}
+      if(k.hitFlash)k.hitFlash=Math.max(0,k.hitFlash-dt);
       // ameaça (herói ou monstro perto) a cada 0,2 s
       if(k.think<=0){k.think=.2;const th=d.flee?this.threat(h,k):null;if(th)this.react(h,k,th);}
       if(k.state==='cross'||k.state==='dive'||k.state==='circle')this.stepFly(h,k,dt);else switch(d.move){case 'hop':case 'walk':case 'climb':case 'wade':this.stepLand(h,k,dt);break;case 'perch':this.stepBird(h,k,dt);break;case 'flutter':this.stepFlutter(h,k,dt,night);break;case 'swim':this.stepSwim(h,k,dt);break;case 'fly':this.stepFly(h,k,dt);break;}
