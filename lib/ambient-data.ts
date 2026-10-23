@@ -15,7 +15,7 @@ export const SPECIES:Record<Species,SpeciesDef>={
   sheep:{move:'walk',speed:16,flee:60,size:1.5},cow:{move:'walk',speed:12,flee:45,size:2},horse:{move:'walk',speed:34,flee:100,size:1.7},chicken:{move:'walk',speed:30,flee:70,size:1},
   monkey:{move:'climb',speed:50,flee:90,size:1.2},frog:{move:'hop',speed:34,flee:60,size:.8},lizard:{move:'walk',speed:58,flee:80,size:.9},firelizard:{move:'walk',speed:54,flee:80,size:1},
   scorpion:{move:'walk',speed:26,flee:55,size:.9},beetle:{move:'walk',speed:14,flee:30,size:.7},turtle:{move:'swim',speed:12,flee:50,size:1.2,water:true},
-  fish:{move:'swim',speed:24,flee:70,size:1,water:true},duck:{move:'swim',speed:20,flee:90,size:1.1,water:true},heron:{move:'wade',speed:16,flee:120,size:1.7},
+  fish:{move:'swim',speed:24,flee:70,size:1,water:true},duck:{move:'swim',speed:20,flee:90,size:1.1,water:true},heron:{move:'wade',speed:16,flee:120,size:1.15},
   songbird:{move:'perch',speed:120,flee:80,size:1},mountainbird:{move:'perch',speed:130,flee:90,size:1},toucan:{move:'perch',speed:100,flee:90,size:1.3},macaw:{move:'perch',speed:110,flee:90,size:1.4},
   crow:{move:'perch',speed:110,flee:100,size:1.2},owl:{move:'perch',speed:90,flee:110,size:1.3,night:'only'},seagull:{move:'fly',speed:80,flee:0,size:1.3},vulture:{move:'fly',speed:46,flee:0,size:1.8},
   bat:{move:'fly',speed:110,flee:0,size:1,night:'only'},

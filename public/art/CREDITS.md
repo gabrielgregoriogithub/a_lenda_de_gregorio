@@ -6,8 +6,4 @@ https://opengameart.org/content/pixel-chest-and-coin
 
 ## Goblin and shaman enemies
 
-The `ninja-adventure-archer.png`, `ninja-adventure-goblin.png` and `ninja-adventure-shaman.png` sheets come from `pixel-boy/NinjaAdventure`:
-
-https://github.com/pixel-boy/NinjaAdventure
-
-No LICENSE file was visible in the source clone; the origin is recorded for attribution and audit.
+The `goblin-archer-original.png`, `goblin-warrior-original.png` and `shaman-original.png` sheets were generated as original artwork for this project with transparent alpha and a 4x7 animation layout.

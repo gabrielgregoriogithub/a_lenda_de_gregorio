@@ -12,7 +12,7 @@ These approved resources remain unchanged:
 ## Replaced coverage
 
 - Unprotected combat bestiary: spider, archer, skeleton, mole, shaman, magmite, serpent, crab, knight, shield knight, wolf, salamander, shade, sandworm and wisp.
-- Goblin and shaman family: `public/art/enemies/ninja-adventure-*.png`, sourced from the Ninja Adventure 4x7 character sheets.
+- Goblin and shaman family: original sheets in `public/art/enemies/goblin-*-original.png` and `public/art/enemies/shaman-original.png`.
 - Ambient fauna: atlas-based assets in `public/art/ambient/`, with the protected Amazon birds and butterflies retained.
 - Biome decoration: existing biome atlas resources remain integrated while terrain and collisions stay intact.
 
