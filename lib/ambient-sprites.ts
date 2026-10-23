@@ -24,6 +24,7 @@ const AMBIENT_ASSETS:Partial<Record<Species,{file:string;row?:number}>>={
 };
 const ambientImages:Partial<Record<string,HTMLImageElement>>={};
 if(typeof Image!=='undefined')for(const file of ['birds','mammals','small-fauna','reptiles','insects','cave-fauna','cow','horse']){const im=new Image();im.decoding='async';im.src=`${import.meta.env?.BASE_URL??'/'}art/ambient/${file}.png?v=fauna-20261023`;ambientImages[file]=im;}
+export function setAmbientImages(images:Record<string,HTMLImageElement>|undefined){if(images)Object.assign(ambientImages,images);}
 function ambientAsset(sp:Species){
   if(typeof Image==='undefined')return undefined;
   const meta=AMBIENT_ASSETS[sp];if(!meta)return undefined;

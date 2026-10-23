@@ -78,7 +78,7 @@ function frameCanvas(name:string,i:number){const key=`${name}:${i}`;let cv=cache
   cv=document.createElement('canvas');cv.width=w*U;cv.height=h*U;const c=cv.getContext('2d')!;rows.forEach((row,y)=>[...row].forEach((ch,x)=>{const col=sp.pal[ch];if(!col)return;c.fillStyle=col;c.fillRect(x*U,y*U,U,U);}));cache.set(key,cv);return cv;}
 function blit(c:CanvasRenderingContext2D,name:string,frame:number,x:number,y:number,face:number,sx:number,sy:number,filter:string,alpha=1){
   const generated=generatedSprites?.[name as BeastKind];c.save();c.globalAlpha*=alpha;c.translate(Math.round(x),Math.round(y));c.scale(face*sx,sy);if(filter&&filter!=='none')c.filter=filter;
-  if(generated?.complete&&generated.naturalWidth){const fw=generated.naturalWidth/4;c.imageSmoothingEnabled=false;c.drawImage(generated,(frame%4)*fw,0,fw,generated.naturalHeight,-36,-68,72,68);}else{const cv=frameCanvas(name,frame),w=cv.width,h=cv.height;c.drawImage(cv,-w/2,-h,w,h);}c.restore();}
+  if(generated?.complete&&generated.naturalWidth){const fw=generated.naturalWidth/4,rows=name==='archer'||name==='shaman'||name==='goblinwarrior'?4:1,fh=generated.naturalHeight/rows,row=name==='archer'?0:name==='goblinwarrior'?1:name==='shaman'?2:0;c.imageSmoothingEnabled=false;c.drawImage(generated,(frame%4)*fw,row*fh,fw,fh,-36,-68,72,68);}else{const cv=frameCanvas(name,frame),w=cv.width,h=cv.height;c.drawImage(cv,-w/2,-h,w,h);}c.restore();}
 
 const dist=(ax:number,ay:number,bx:number,by:number)=>Math.hypot(ax-bx,ay-by);
 function step(g:Game,e:Entity,mx:number,my:number,r:number,air=false){if(!g.collides(e.x+mx,e.y,r,air))e.x+=mx;if(!g.collides(e.x,e.y+my,r,air))e.y+=my;}
