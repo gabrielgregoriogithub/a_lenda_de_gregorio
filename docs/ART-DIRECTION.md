@@ -26,6 +26,8 @@ As oito famílias do bestiário introduzidas em `b1dd63f` agora usam spritesheet
 
 Chefes continuam usando `public/art/bosses-themed.png`, que é a referência de acabamento e contraste superior. O atlas base em `public/art/atlas.png` permanece para terreno, NPCs e criaturas clássicas preservadas.
 
+Fauna ambiental revisada usa `public/art/ambient/birds.png`, `mammals.png`, `small-fauna.png`, `cow.png` e `horse.png`. A decoração usa `public/art/biome-props.png` para cristais, mangue, tempestade e lava, e `public/art/biome-props-full.png` para os demais biomas. Esses assets são originais, transparentes e divididos em células de atlas; a implementação mantém fallback apenas para carregamento inicial e execução sem DOM.
+
 ## Animação
 
 Idle deve comunicar respiração, flutuação, chama ou deslocamento de peso. Ataques devem conservar antecipação e recuperação já implementadas pela simulação. A arte pode responder a `timer`, `hit`, `frozen` e `dying`, mas não deve alterar IA, dano, hitbox, progressão ou saves.

@@ -14,10 +14,13 @@ const AMBIENT_ASSETS:Partial<Record<Species,{file:string;row?:number}>>={
   owl:{file:'birds',row:1},crow:{file:'birds',row:1},vulture:{file:'birds',row:1},
   toucan:{file:'birds',row:2},macaw:{file:'birds',row:2},
   seagull:{file:'birds',row:3},duck:{file:'birds',row:3},heron:{file:'birds',row:3},
+  rabbit:{file:'mammals',row:0},hare:{file:'mammals',row:0},whitehare:{file:'mammals',row:0},
+  fox:{file:'mammals',row:1},arcticfox:{file:'mammals',row:1},deer:{file:'mammals',row:2},sheep:{file:'mammals',row:3},
+  frog:{file:'small-fauna',row:0},turtle:{file:'small-fauna',row:1},fish:{file:'small-fauna',row:2},butterfly:{file:'small-fauna',row:3},
   cow:{file:'cow'},horse:{file:'horse'},
 };
 const ambientImages:Partial<Record<string,HTMLImageElement>>={};
-if(typeof Image!=='undefined')for(const file of ['birds','cow','horse']){const im=new Image();im.decoding='async';im.src=`${import.meta.env?.BASE_URL??'/'}art/ambient/${file}.png?v=fauna-20261023`;ambientImages[file]=im;}
+if(typeof Image!=='undefined')for(const file of ['birds','mammals','small-fauna','cow','horse']){const im=new Image();im.decoding='async';im.src=`${import.meta.env?.BASE_URL??'/'}art/ambient/${file}.png?v=fauna-20261023`;ambientImages[file]=im;}
 function ambientAsset(sp:Species){
   if(typeof Image==='undefined')return undefined;
   const meta=AMBIENT_ASSETS[sp];if(!meta)return undefined;
@@ -26,9 +29,11 @@ function ambientAsset(sp:Species){
 }
 function drawAmbientAsset(c:Ctx,sp:Species,p:Pose){
   const meta=AMBIENT_ASSETS[sp],im=ambientAsset(sp);if(!meta||!im?.complete||!im.naturalWidth)return false;
-  const cols=4,rows=meta.file==='birds'?4:1,sw=im.naturalWidth/cols,sh=im.naturalHeight/rows;
+  const cols=4,rows=['birds','mammals','small-fauna'].includes(meta.file)?4:1,sw=im.naturalWidth/cols,sh=im.naturalHeight/rows;
+  const dw=meta.file==='cow'?52:meta.file==='horse'?56:meta.file==='mammals'?42:meta.file==='birds'?36:28;
+  const dh=meta.file==='cow'?30:meta.file==='horse'?34:meta.file==='mammals'?28:meta.file==='birds'?24:22;
   const frame=p.moving?Math.floor(p.ph*6)%4:0,row=meta.row??0;
-  c.imageSmoothingEnabled=false;c.drawImage(im,frame*sw,row*sh,sw,sh,-sw/2,-sh,sw,sh);return true;
+  c.imageSmoothingEnabled=false;c.drawImage(im,frame*sw,row*sh,sw,sh,-dw/2,-dh,dw,dh);return true;
 }
 
 const QUAD:Partial<Record<Species,Quad>>={

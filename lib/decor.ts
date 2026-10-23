@@ -5,8 +5,11 @@ import {hash,type Biome} from './world';
 type Px=(x:number,y:number,w:number,h:number,c:string)=>void;
 type Motif=(p:Px,v:number)=>void;
 const BIOME_ART:Partial<Record<Biome,number>>={crystal:0,mangrove:1,stormdesert:2,ash:3};
+const FULL_BIOME_ART:Partial<Record<Biome,number>>={forest:0,snow:1,desert:2,swamp:3,rainforest:4,coast:5,ruins:6,sky:7,village:8,plains:9,lake:10,darkwood:11};
 let biomeArt:HTMLImageElement|undefined;
 if(typeof Image!=='undefined'){biomeArt=new Image();biomeArt.decoding='async';biomeArt.src=`${import.meta.env?.BASE_URL??'/'}art/biome-props.png?v=biomes-20261023`;}
+let fullBiomeArt:HTMLImageElement|undefined;
+if(typeof Image!=='undefined'){fullBiomeArt=new Image();fullBiomeArt.decoding='async';fullBiomeArt.src=`${import.meta.env?.BASE_URL??'/'}art/biome-props-full.png?v=biomes-full-20261023`;}
 // cada motivo desenha numa grade de 2 px, dentro de um tile de 32 px
 const M:Record<string,Motif>={
   mushroom:(p,v)=>{const cap=v<.5?'#c8423a':'#b06a2a';p(6,10,8,2,cap);p(4,12,12,3,cap);p(7,11,2,2,'#f3e6cf');p(12,13,2,1,'#f3e6cf');p(8,15,4,5,'#efe3c7');p(8,19,4,1,'#b8ab8c');},
@@ -75,6 +78,7 @@ export function drawMotif(g:CanvasRenderingContext2D,motif:string,v:number,ox:nu
   const p:Px=(a,b,w,h,c)=>{g.fillStyle=c;g.fillRect(Math.round(ox+a*1.6+shear*Math.max(0,20-b)/14),Math.round(oy+b*1.6),Math.max(1,Math.round(w*1.6)),Math.max(1,Math.round(h*1.6)));};
   M[motif]?.(p,v);}
 export function drawDecor(g:CanvasRenderingContext2D,biome:Biome,x:number,y:number,px:number,py:number,live:'all'|'static'='all'){const d=decorAt(biome,x,y);if(!d||(live==='static'&&LIVE_MOTIFS.has(d.motif)))return;
+  const full=FULL_BIOME_ART[biome];if(full!==undefined&&fullBiomeArt?.complete&&fullBiomeArt.naturalWidth){g.save();g.globalAlpha=.94;g.imageSmoothingEnabled=false;const cols=4,sw=fullBiomeArt.naturalWidth/cols,sh=fullBiomeArt.naturalHeight/3;g.drawImage(fullBiomeArt,(full%cols)*sw,Math.floor(full/cols)*sh,sw,sh,px,py-8,32,40);g.restore();return;}
   const art=BIOME_ART[biome];if(art!==undefined&&biomeArt?.complete&&biomeArt.naturalWidth){g.save();g.globalAlpha=.94;g.imageSmoothingEnabled=false;const sw=biomeArt.naturalWidth/4;g.drawImage(biomeArt,art*sw,0,sw,biomeArt.naturalHeight,px,py-8,32,40);g.restore();return;}
   const [dx,dy]=decorOffset(x,y);g.save();g.globalAlpha=.95;drawMotif(g,d.motif,d.v,px+dx,py+dy);g.restore();}
 export const DECOR_BIOMES=Object.keys(BY_BIOME) as Biome[];
