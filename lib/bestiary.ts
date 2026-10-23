@@ -73,10 +73,12 @@ const S:Record<string,Sprite>={
 };
 export const SPRITE_KINDS=new Set(['spider','archer','skeleton','mole','shaman','magmite','serpent','crab','knight','shieldknight','frostwolf','salamander','shade','sandworm','wisp']);
 const U=4,cache=new Map<string,HTMLCanvasElement>();
+let generatedSprites:Partial<Record<BeastKind,HTMLImageElement>>|undefined;
 function frameCanvas(name:string,i:number){const key=`${name}:${i}`;let cv=cache.get(key);if(cv)return cv;const sp=S[name],rows=sp.frames[i%sp.frames.length],w=Math.max(...rows.map(r=>r.length)),h=rows.length;
   cv=document.createElement('canvas');cv.width=w*U;cv.height=h*U;const c=cv.getContext('2d')!;rows.forEach((row,y)=>[...row].forEach((ch,x)=>{const col=sp.pal[ch];if(!col)return;c.fillStyle=col;c.fillRect(x*U,y*U,U,U);}));cache.set(key,cv);return cv;}
 function blit(c:CanvasRenderingContext2D,name:string,frame:number,x:number,y:number,face:number,sx:number,sy:number,filter:string,alpha=1){
-  const cv=frameCanvas(name,frame),w=cv.width,h=cv.height;c.save();c.globalAlpha*=alpha;c.translate(Math.round(x),Math.round(y));c.scale(face*sx,sy);if(filter&&filter!=='none')c.filter=filter;c.drawImage(cv,-w/2,-h,w,h);c.restore();}
+  const generated=generatedSprites?.[name as BeastKind];c.save();c.globalAlpha*=alpha;c.translate(Math.round(x),Math.round(y));c.scale(face*sx,sy);if(filter&&filter!=='none')c.filter=filter;
+  if(generated?.complete&&generated.naturalWidth){const fw=generated.naturalWidth/4;c.imageSmoothingEnabled=false;c.drawImage(generated,(frame%4)*fw,0,fw,generated.naturalHeight,-36,-68,72,68);}else{const cv=frameCanvas(name,frame),w=cv.width,h=cv.height;c.drawImage(cv,-w/2,-h,w,h);}c.restore();}
 
 const dist=(ax:number,ay:number,bx:number,by:number)=>Math.hypot(ax-bx,ay-by);
 function step(g:Game,e:Entity,mx:number,my:number,r:number,air=false){if(!g.collides(e.x+mx,e.y,r,air))e.x+=mx;if(!g.collides(e.x,e.y+my,r,air))e.y+=my;}
@@ -160,6 +162,7 @@ export function drawBeastZones(g:Game,c:CanvasRenderingContext2D){for(const z of
 
 /* ---------- desenho ---------- */
 export function drawBeastSprite(g:Game,c:CanvasRenderingContext2D,e:Entity,filter:string,sx:number,sy:number,yo:number){
+  generatedSprites=g.assets?.enemySprites;
   const p=g.player,t=g.elapsed,face=(e.vx?e.vx<0:p.x<e.x)?-1:1,walk=Math.floor((e.timer+e.x*.01)*6)%2,x=e.x,y=e.y+yo,k=e.kind;
   if(k==='spider'){if(e.st==='hide'){c.save();c.globalAlpha*=.5;c.fillStyle='#1b2614';c.beginPath();c.ellipse(x,y-4,16,7,0,0,Math.PI*2);c.fill();c.restore();c.fillStyle='#ff4a3d';c.fillRect(x-5,y-8,3,3);c.fillRect(x+3,y-8,3,3);return;}
     if(e.st==='rise')warn(c,x,y-34,t);blit(c,'spider',e.st==='lunge'?1:walk,x+(e.st==='rise'?Math.sin(t*50)*1.5:0),y,face,sx,sy,filter);return;}

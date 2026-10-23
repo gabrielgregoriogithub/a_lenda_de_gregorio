@@ -362,7 +362,7 @@ type Effect={x:number;y:number;life:number;max:number;kind:'impact'|'ring'|'dust
 type FloatText={x:number;y:number;text:string;life:number;color:string;size?:number};
 
 export class Adventure{
-canvas:HTMLCanvasElement;ctx:CanvasRenderingContext2D;assets:{hero:HTMLImageElement;atlas:HTMLImageElement;spinCharge:HTMLImageElement;run:HTMLImageElement;bow:HTMLImageElement;wand:HTMLImageElement;bosses:HTMLImageElement;chestYellow:HTMLImageElement;chestBlue:HTMLImageElement;chestYellowOpen:HTMLImageElement;chestBlueOpen:HTMLImageElement;chestWoodOpen:HTMLImageElement};onChange:(s:Snapshot)=>void;
+canvas:HTMLCanvasElement;ctx:CanvasRenderingContext2D;assets:{hero:HTMLImageElement;atlas:HTMLImageElement;spinCharge:HTMLImageElement;run:HTMLImageElement;bow:HTMLImageElement;wand:HTMLImageElement;bosses:HTMLImageElement;chestYellow:HTMLImageElement;chestBlue:HTMLImageElement;chestYellowOpen:HTMLImageElement;chestBlueOpen:HTMLImageElement;chestWoodOpen:HTMLImageElement;enemySprites?:Partial<Record<BeastKind,HTMLImageElement>>};onChange:(s:Snapshot)=>void;
 maps=freshMaps();base:Record<Zone,Prop[]>=Object.fromEntries(ZONES.map(z=>[z,[]])) as unknown as Record<Zone,Prop[]>;grids:Record<Zone,Map<number,Prop[]>>=Object.fromEntries(ZONES.map(z=>[z,new Map()])) as unknown as Record<Zone,Map<number,Prop[]>>;
 zone:Zone='world';screen:Snapshot['screen']='ready';
 bossActiveId:string|null=null;
@@ -375,7 +375,7 @@ particles:{x:number;y:number;vx:number;vy:number;life:number;color:string}[]=[];
 heartChestTimer=0;heartChestX=0;heartChestY=0;heartChestProp:Prop|null=null;itemRevealStarted=0;itemRevealX=0;itemRevealY=0;itemRevealLabel='';itemRevealItem='';itemRevealColor='#ffe9a8';
 variants=new Map<string,CanvasImageSource>();ground=new Map<Zone,HTMLCanvasElement>();minimaps=new Map<Zone,HTMLCanvasElement>();heroWhite:HTMLCanvasElement|null=null;
 raf=0;lastTime=0;lastEmit=0;disposed=false;audio:AudioContext|null=null;sound=false;musicTimer=0;musicStep=0;musicAudio:HTMLAudioElement|null=null;musicNext:HTMLAudioElement|null=null;musicTrack='';musicFadeRaf=0;musicFadeToken=0;musicLoopPending=false;musicCrossfadeSeconds=1.8;sfxAudio:Record<string,HTMLAudioElement>={};lastGrunt=-1;
-constructor(canvas:HTMLCanvasElement,assets:Adventure['assets'],onChange:Adventure['onChange']){this.canvas=canvas;this.ctx=canvas.getContext('2d')!;this.assets=assets;this.onChange=onChange;canvas.width=960;canvas.height=640;this.indexMaps();this.emit();this.draw();}
+constructor(canvas:HTMLCanvasElement,assets:Adventure['assets'],onChange:Adventure['onChange']){this.canvas=canvas;this.ctx=canvas.getContext('2d')!;this.assets=assets;this.assets.enemySprites??={};if(typeof Image!=='undefined')for(const name of ['spider','archer','skeleton','mole','shaman','magmite','serpent','crab'] as BeastKind[]){const im=new Image();im.src=`${import.meta.env?.BASE_URL??'/'}art/enemies/${name}.png`;this.assets.enemySprites[name]=im;}this.onChange=onChange;canvas.width=960;canvas.height=640;this.indexMaps();this.emit();this.draw();}
 get map(){return this.maps[this.zone];}
 bossName(e:Entity){return bossDef(e).name||(e.kind==='colossus'?'Colosso de Cinzas':e.kind==='tidewarden'?'Guardião das Correntes':e.kind==='stonebeast'?'Besta Litórea':e.kind==='vinebeast'?'Coração da Selva':e.kind==='boss'?(e.id==='eclipse-warden'?'Guardião do Eclipse':e.id==='sanctum-warden'?'Guardião da Repulsão':e.id==='aerie-dune-warden'?'Guardião das Dunas':'Guardião de Pedra'):e.id);}
 bossAlive(){return this.bossActiveId?this.map.enemies.find(e=>e.id===this.bossActiveId&&e.hp>0):undefined;}

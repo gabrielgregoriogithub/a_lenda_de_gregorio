@@ -18,7 +18,7 @@ O clone local contém a linha histórica que parte de `f9ca542` (retorno ao proj
 | Tidewarden | Aura e marcador geométrico | Reconstruído como criatura aquática com carapaça e pinças | Sim |
 | Stonebeast / Colossus / Vinebeast / bosses | Assets e efeitos dedicados | Mantidos; referências de acabamento | Sim |
 
-A renderização continua com `imageSmoothingEnabled=false`, CSS `image-rendering: pixelated`, tiles de 32 px e o sistema de zoom existente. Não foram alterados HP, dano, IA, colisões, mapas, progressão ou formato de save.
+A renderização continua com `imageSmoothingEnabled=false`, CSS `image-rendering: pixelated`, tiles de 32 px e o sistema de zoom existente. Os oito sprites substitutos estão em `public/art/enemies/` e são spritesheets transparentes de quatro frames, carregados com fallback seguro para os testes sem DOM. Não foram alterados HP, dano, IA, colisões, mapas, progressão ou formato de save.
 
 ## Limitação de validação visual
 

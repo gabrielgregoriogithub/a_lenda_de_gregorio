@@ -16,6 +16,8 @@ O mundo usa tiles de 32 px. Criaturas comuns aparecem entre 42 e 66 px; inimigos
 
 ## Famílias recuperadas nesta revisão
 
+As oito famílias do bestiário introduzidas em `b1dd63f` agora usam spritesheets originais em `public/art/enemies/`, com quatro frames transparentes por criatura. Os PNGs são carregados com pixel snapping e substituem os mapas procedurais do commit coautorado pelo Claude.
+
 - `frostwolf`: quadrúpede com focinho, orelhas, cauda e patas articuladas.
 - `salamander`: corpo reptiliano segmentado, olhos, cauda e crista de fogo.
 - `shade`: manto espectral, braços dissolvidos, olhos e runa central.
