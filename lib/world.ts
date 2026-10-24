@@ -1,6 +1,7 @@
 // Mundo aberto de A Lenda de Gregório: regiões, gerador determinístico e diálogos.
 // Toda a arte vem do atlas original; cada região só aplica um filtro de cor por cima.
 import type {Entity,GameMap,Prop} from './adventure';
+import {NPC_PROFILES} from './npc-catalog';
 
 export type Biome='village'|'forest'|'lake'|'desert'|'snow'|'autumn'|'swamp'|'ruins'|'canyon'|'crystal'|'sky'|'starfall'|'ash'|'darkwood'|'rainforest'|'plains'|'stormdesert'|'coast'|'mangrove';
 export type BiomeStyle={name:string;ground:number;filter:string;pathFilter:string;propFilter:string;enemyFilter:string;waterFilter:string;wallFilter:string;mini:string;music:number[]};
@@ -63,6 +64,9 @@ export const NPCS:Record<string,NpcInfo>={
   viajante:{name:'Viajante do Sul',tint:'hue-rotate(320deg) saturate(1.2)',talk:()=>'As Terras do Sul guardam quatro masmorras, cada uma num canto: o Caminho do Eclipse na Floresta das Trevas (noroeste), o Bastião das Pedras na Floresta da Chuva (nordeste), o Santuário da Repulsão nos Campos Abertos (sudoeste) e o Abismo dos Alvos Velozes no Deserto das Tempestades (sudeste). Cada entrada desperta quando a anterior é vencida. A Fortaleza Esquecida fica no meio dos campos e só abre com as Luvas da Força. Siga as estradas: elas levam a todas. Há ainda dois lugares sem estrada: a Torre Rúnica, no extremo oeste dos Campos Abertos, só aceita quem carrega Flechas de Fogo, Gelo e Luz; e o Cofre das Varinhas, no Deserto das Tempestades, só abre para quem domina as três varinhas.'},
   bruxa:{name:'Bruxa do Pântano',tint:'hue-rotate(200deg) brightness(.85)',talk:({fragments})=>fragments<3?'Hihihi... o Fragmento da Névoa está a leste, além dos charcos. Cuidado com os morcegos.':'Hihihi... vá logo, a lua não espera.'},
 };
+// Mantém os IDs e as funções de diálogo legadas, mas aplica a identidade central
+// aos nomes e às paletas dos NPCs que já existem no mundo.
+for(const [id,profile] of Object.entries(NPC_PROFILES)){const npc=NPCS[id];if(npc){npc.name=profile.name+', '+profile.profession;npc.tint=profile.tint;}}
 
 type Poi={x:number;y:number;r:number};
 const center=(n:number)=>n*32+16;

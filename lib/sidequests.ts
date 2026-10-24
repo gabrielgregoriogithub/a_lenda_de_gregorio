@@ -163,7 +163,8 @@ export function makeQuestMap(zone:QuestZone,entity:MakeEntity):GameMap{
        props.push({kind:'totem',id:'archer-final',x:center(16),y:center(7),solid:true,label:'Alvo central'});
     props.push({kind:'barrier',id:q.seal,x:center(16),y:center(17),solid:true,by:[...q.seq.ids]});
     props.push({kind:'chest',id:q.chest,x:center(16),y:center(2),solid:true,item:q.item,guard:'archerguardian',challenge:'dungeon',challengeText:'O Arco da Floresta será entregue apenas após as quatro provas e a derrota do Guardião do Bosque.'});
-    enemies.push(entity('archerguardian',16,5,'boss','#6e9a52',7),entity('archer-forest-wolf',8,10,'frostwolf','#9acb73'),entity('archer-forest-wisp',24,10,'wisp','#c8f09a'));
+    const guardian=entity('archerguardian',16,5,'boss','#6e9a52',7);guardian.hp=guardian.maxHp=24;
+    enemies.push(guardian,entity('archer-forest-wolf',8,10,'frostwolf','#9acb73'),entity('archer-forest-wisp',24,10,'wisp','#c8f09a'));
     return {width:W,height:H,tiles,props,enemies};
   }
   if(zone==='braseiro'){
