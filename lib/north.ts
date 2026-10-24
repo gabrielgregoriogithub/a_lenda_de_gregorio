@@ -48,7 +48,9 @@ export function makeNorth(entity:MakeEntity):GameMap{
   // Mercador Errante: na entrada da ruína que leva à Gruta da Maré, a partir do capítulo 3 (depois de dois chefes)
   add('npc',39,30,'mercador',{minChapter:3,solid:false});add('npc',44,37,'astronomo');
   add('stairs',6,31,'north-wingcave',{to:'wingcave',ax:3,ay:7.5,label:'Entrar na Gruta das Botas Aladas'});
-  add('chest',14,4,'amulet-chest',{item:'amulet',guard:'sentinel'});
+  // A Amuleta da Brasa deixou de ser uma recompensa trivial: sua conquista acontece em Braseiro Velho.
+  add('chest',14,4,'aurora-heart',{item:'heart'});
+  add('stairs',32,43,'north-braseiro',{to:'braseiro',ax:16,ay:38,minChapter:2,label:'Entrar em Braseiro Velho'});
   add('chest',58,44,'north-heart',{item:'heart',guard:'k-heart'});
   add('chest',40,27,'north-crystals',{item:'crystals'});
   // Caverna da Luz: abre depois do segundo chefe (capítulo 3) e guarda as Flechas de Luz, que despertam os totens da ruína.

@@ -7,8 +7,8 @@ const center=(n:number)=>n*32+16;
 const floor=(w:number,h:number)=>Array.from({length:h},(_,y)=>Array.from({length:w},(_,x)=>x===0||y===0||x===w-1||y===h-1?4:3));
 const fill=(t:number[][],x0:number,y0:number,x1:number,y1:number,v:number)=>{for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++)t[y][x]=v;};
 
-export type QuestZone='mailcave'|'theater'|'bellcrypt'|'runetower'|'windgorge'|'wandvault';
-export const QUEST_ZONES:QuestZone[]=['mailcave','theater','bellcrypt','runetower','windgorge','wandvault'];
+export type QuestZone='mailcave'|'theater'|'bellcrypt'|'runetower'|'windgorge'|'wandvault'|'braseiro';
+export const QUEST_ZONES:QuestZone[]=['mailcave','theater','bellcrypt','runetower','windgorge','wandvault','braseiro'];
 // Como cada marco da sequência é ativado: tocando (E), com um tipo de flecha ou com uma varinha.
 export type SeqVia='touch'|'normal'|'fire'|'ice'|'light'|'lightning'|'missile'|'repulse';
 export const VIA_TEXT:Record<SeqVia,string>={touch:'toque (E)',normal:'uma flecha comum',fire:'uma Flecha de Fogo',ice:'uma Flecha de Gelo',light:'uma Flecha de Luz',lightning:'o relâmpago da Varinha do Relâmpago',missile:'a Varinha Míssil',repulse:'o raio da Varinha da Repulsão'};
@@ -24,16 +24,16 @@ export type QuestDef={
 };
 
 export const QUESTS:QuestDef[]=[
-  {zone:'mailcave',name:'Gruta do Correio',title:'Correio das Moedas',item:'magnet',itemName:'Anel do Ímã',
+  {zone:'mailcave',name:'Gruta do Correio',title:'A Última Entrega do Correio',item:'magnet',itemName:'Anel do Ímã',
     from:'world',door:{id:'coast-mailcave',x:114,y:91,label:'Entrar na Gruta do Correio',minChapter:2},arrive:{x:4,y:14.6},
     where:'na Costa das Conchas, ao sul do farol de Nilo, no canto sudeste do Vale',
     filter:'sepia(.35) hue-rotate(150deg) saturate(1.35) brightness(1.1)',floor:'sepia(.4) hue-rotate(150deg) saturate(1.2) brightness(.6)',
-    intro:'Gruta do Correio: o Caranguejo-Correio escondeu as cargas de cristais. Leia o mural junto da entrada.',
+    intro:'Gruta do Correio: a antiga central de entregas parou após um acidente. Fale com Bento e reabra as rotas.',
     seq:{ids:['mail-bell-shell','mail-bell-anchor','mail-bell-lighthouse'],labels:['Concha','Âncora','Farol'],via:['touch','touch','touch']},
-    seal:'mail-seal',chest:'mail-magnet',guards:['mail-crab','mail-bat-a','mail-bat-b'],
-    guardText:'O Caranguejo-Correio e seus morcegos ainda vigiam o cofre. Derrote os três para abrir o Anel do Ímã.',
-    mural:{id:'mail-mural',title:'Quadro do Correio das Moedas',text:'“Toda carta começa na praia, ancora no cais e termina no farol.” Toque os três sinos na ordem Concha → Âncora → Farol. Os sinos estão espalhados e fora de ordem pela gruta: leia o símbolo de cada um. Se errar, eles se calam e você recomeça. Depois, vença o Caranguejo-Correio e os dois morcegos do salão norte.'},
-    doneText:'Os três sinos ressoaram! O portão de cobre do salão norte se abriu.',resetText:'Os sinos se calaram. Recomece pela Concha: Concha → Âncora → Farol.'},
+    seal:'mail-seal',chest:'mail-magnet',guards:['mailmaster'],
+    guardText:'O Mestre das Entregas está descontrolado na central. Reabra a triagem, o carrinho e o estoque antes de enfrentá-lo.',
+    mural:{id:'mail-mural',title:'Quadro da Última Entrega',text:'“Toda carta começa na praia, ancora no cais e termina no farol.” Toque os três sinos na ordem Concha → Âncora → Farol. Depois Bento pedirá três tarefas: separar correspondências, conduzir o carrinho e organizar as encomendas. Símbolos, não apenas cores, indicam os destinos.'},
+    doneText:'Os três sinos ressoaram! As esteiras antigas começam a se mover.',resetText:'Os sinos se calaram. Recomece pela Concha: Concha → Âncora → Farol.'},
   {zone:'theater',name:'Teatro das Três Sombras',title:'O Ensaio das Sombras',item:'cloak',itemName:'Manto do Eco',
     from:'world',door:{id:'autumn-theater',x:93,y:13,label:'Entrar no Teatro das Três Sombras',minChapter:3},arrive:{x:4,y:14.6},
     where:'no extremo leste da Floresta de Outono, a nordeste do Vale',
@@ -64,16 +64,26 @@ export const QUESTS:QuestDef[]=[
     guardText:'O cavaleiro de escudo, a salamandra e os dois fogos-fátuos ainda guardam o Arco Rúnico. Fogo-fátuo transparente só sente a luz.',
     mural:{id:'tower-mural',title:'Pergaminho da Torre',text:'“O arco desperta quando a brasa derrete a geada, a aurora ilumina o gelo e o eco responde por último.” Acerte as runas na ordem Brasa → Geada → Aurora → Eco: a Brasa com Flecha de Fogo, a Geada com Flecha de Gelo, a Aurora com Flecha de Luz e o Eco com uma flecha comum (T troca a flecha). Atire de baixo para cima, de frente para cada nicho. Cada runa só aceita a sua flecha; a ordem errada apaga todas. No alto da torre, um cavaleiro de escudo, uma salamandra e dois fogos-fátuos protegem o Arco Rúnico.'},
     doneText:'Brasa, Geada, Aurora e Eco! O selo da torre se partiu.',resetText:'As runas se apagaram. Recomece pela Brasa: Fogo → Gelo → Luz → flecha comum.'},
-  {zone:'windgorge',name:'Desfiladeiro dos Ventos',title:'As Pedras do Vento',item:'wind-blade',itemName:'Lâmina do Vento',
+  {zone:'windgorge',name:'Desfiladeiro dos Ventos',title:'As Pedras do Vento',item:'wind-blade',itemName:'Corte Magnífico do Ar',
     from:'north',door:{id:'north-windgorge',x:29,y:43,label:'Entrar no Desfiladeiro dos Ventos',minChapter:3},arrive:{x:4,y:14.6},
     where:'no sul do Bosque de Cristal, nas Terras do Norte, a leste da saída para o Vale',
     filter:'hue-rotate(170deg) saturate(.7) brightness(1.2)',floor:'hue-rotate(170deg) saturate(.6) brightness(.55)',
     intro:'Desfiladeiro dos Ventos: as pedras do vento ficam em ilhas sobre o abismo. Use K para saltar.',
     seq:{ids:['gorge-stone-east','gorge-stone-west','gorge-stone-center'],labels:['Leste','Oeste','Centro'],via:['touch','touch','touch']},
     seal:'gorge-seal',chest:'gorge-wind-blade',guards:['gorge-knight','gorge-wolf-a','gorge-wolf-b'],
-    guardText:'O cavaleiro e os dois lobos da neve ainda guardam a Lâmina do Vento.',
-    mural:{id:'gorge-mural',title:'Marco do Desfiladeiro',text:'“O vento nasce no leste, volta pelo oeste e descansa no centro.” Salte (K) entre as ilhas e toque as pedras na ordem Leste → Oeste → Centro. Nenhum vão é maior que um salto comum; se errar a ordem, as pedras se apagam. Atrás do selo, um cavaleiro e dois lobos da neve guardam a Lâmina do Vento.'},
+    guardText:'O cavaleiro e os dois lobos da neve ainda guardam o Corte Magnífico do Ar.',
+    mural:{id:'gorge-mural',title:'Marco do Desfiladeiro',text:'“O vento nasce no leste, volta pelo oeste e descansa no centro.” Salte (K) entre as ilhas e toque as pedras na ordem Leste → Oeste → Centro. Nenhum vão é maior que um salto comum; se errar a ordem, as pedras se apagam. Atrás do selo, um cavaleiro e dois lobos da neve guardam o Corte Magnífico do Ar.'},
     doneText:'Leste, Oeste e Centro! O vento abriu o selo do desfiladeiro.',resetText:'O vento dispersou as pedras. Recomece no Leste: Leste → Oeste → Centro.'},
+  {zone:'braseiro',name:'Braseiro Velho',title:'O Último Coração das Brasas',item:'amulet',itemName:'Amuleto da Brasa',
+    from:'north',door:{id:'north-braseiro',x:32,y:43,label:'Entrar em Braseiro Velho',minChapter:2},arrive:{x:16,y:38},
+    where:'nas encostas montanhosas das Terras do Norte, ao sul das Ruínas da Aurora',
+    filter:'sepia(.8) saturate(2.3) hue-rotate(-22deg) brightness(1.05)',floor:'sepia(.9) saturate(2) hue-rotate(-22deg) brightness(.45)',
+    intro:'Braseiro Velho: a vila não dorme desde que a fornalha subterrânea despertou. Fale com Mestre Torvan.',
+    seq:{ids:['braseiro-water','braseiro-animals','braseiro-workshop'],labels:['Poço Bloqueado','Animais Perdidos','Oficina Incendiada'],via:['touch','touch','touch']},
+    seal:'braseiro-village-gate',chest:'braseiro-amulet',guards:['varkun'],
+    guardText:'Varkun, o Ferreiro Esquecido, protege a câmara do coração. Estabilize a forja e enfrente o autômato.',
+    mural:{id:'braseiro-map',title:'Mapa incompleto de Torvan',text:'“A água abre o caminho, os animais lembram a trilha e o fogo revela o metal.” Ajude os três moradores em qualquer ordem. Depois, siga os trilhos perdidos, reacenda a forja e escolha entre libertar as brasas ou selá-las antes de enfrentar Varkun.'},
+    doneText:'A vila respira novamente. A chave antiga revela a entrada da Mina das Cinzas.',resetText:'O mecanismo voltou ao repouso. Retome os três socorros da vila.'},
   {zone:'wandvault',name:'Cofre das Varinhas',title:'O Teste das Três Varinhas',item:'wand-master',itemName:'Varinha das Varinhas',
     from:'south',door:{id:'south-wandvault',x:70,y:42,label:'Entrar no Cofre das Varinhas',minChapter:6,needs:['wand-lightning','wand-repulse','wand-missile']},arrive:{x:4,y:14.6},
     where:'no Deserto das Tempestades, no sudeste das Terras do Sul (exige as três varinhas)',
@@ -107,12 +117,53 @@ function room(q:QuestDef,entity:MakeEntity,extra:(t:number[][],props:Prop[],enem
 
 export function makeQuestMap(zone:QuestZone,entity:MakeEntity):GameMap{
   const q=QUEST_BY_ZONE[zone];
-  if(zone==='mailcave')return room(q,entity,(t,props,en)=>{
-    fill(t,9,10,11,11,2);fill(t,17,13,19,14,2);fill(t,3,2,5,4,2);fill(t,21,2,23,4,2);
-    props.push({kind:'chest',id:'mail-crystals',x:center(23),y:center(16),solid:true,item:'crystals'});
-    const copper='sepia(.8) saturate(2.5) hue-rotate(-20deg) brightness(1.05)';
-    en.push(entity('mail-crab',13,4,'golem',copper),entity('mail-bat-a',7,5,'bat',copper),entity('mail-bat-b',19,5,'bat',copper),entity('mail-slime',15,12,'crab',copper));
-  },[[20,15],[5,11],[13,13]],13);
+  if(zone==='mailcave'){
+    const W=36,H=28,tiles=floor(W,H),props:Prop[]=[],enemies:Entity[]=[];
+    for(let x=1;x<W-1;x++){tiles[18][x]=4;tiles[9][x]=4;}
+    for(const x of [7,8,27,28]){tiles[18][x]=3;tiles[9][x]=3;}
+    props.push({kind:'stairs',id:'mailcave-exit',x:center(2),y:center(26),solid:true,to:'world',ax:114,ay:92,label:'Voltar à Costa das Conchas'});
+    props.push({kind:'npc',id:'bento',x:center(18),y:center(26),solid:true});
+    props.push({kind:'totem',id:q.mural.id,x:center(5),y:center(26),solid:true,open:true});
+    q.seq.ids.forEach((id,i)=>props.push({kind:'totem',id,x:center(9+i*8),y:center(24),solid:true,label:q.seq.labels[i]}));
+    props.push({kind:'barrier',id:q.seal,x:center(18),y:center(18),solid:true,by:[...q.seq.ids]});
+    props.push({kind:'totem',id:'mail-sort-1',x:center(8),y:center(14),solid:true,label:'Triagem · árvore'});
+    props.push({kind:'totem',id:'mail-sort-2',x:center(18),y:center(13),solid:true,label:'Triagem · montanha'});
+    props.push({kind:'totem',id:'mail-sort-3',x:center(28),y:center(14),solid:true,label:'Triagem · chama'});
+    props.push({kind:'barrier',id:'mail-triage-gate',x:center(18),y:center(9),solid:true,by:['mail-sort-1','mail-sort-2','mail-sort-3']});
+    props.push({kind:'totem',id:'mail-cart-a',x:center(7),y:center(6),solid:true,label:'Desvio da praia'});
+    props.push({kind:'totem',id:'mail-cart-b',x:center(18),y:center(4),solid:true,label:'Desvio do cais'});
+    props.push({kind:'totem',id:'mail-cart-c',x:center(29),y:center(6),solid:true,label:'Desvio do farol'});
+    props.push({kind:'barrier',id:'mail-cart-gate',x:center(18),y:center(2),solid:true,by:['mail-cart-a','mail-cart-b','mail-cart-c']});
+    props.push({kind:'totem',id:'mail-box-forest',x:center(11),y:center(1),solid:true,label:'Encomenda · floresta'});
+    props.push({kind:'totem',id:'mail-box-mountain',x:center(18),y:center(1),solid:true,label:'Encomenda · montanha'});
+    props.push({kind:'totem',id:'mail-box-flame',x:center(25),y:center(1),solid:true,label:'Encomenda · brasas'});
+    props.push({kind:'chest',id:q.chest,x:center(18),y:center(.5),solid:true,item:q.item,guard:'mailmaster',challenge:'dungeon',challengeText:'A recompensa só pode ser retirada após triagem, carrinho, estoque e três entregas. O Mestre das Entregas protege a central.'});
+    enemies.push(entity('mailmaster',18,1.5,'boss','#b08a58',6),entity('mail-crab',10,12,'golem','sepia(.8) saturate(2.5) hue-rotate(-20deg)'),entity('mail-bat-a',6,11,'bat','#b89464'),entity('mail-bat-b',30,11,'bat','#b89464'));
+    return {width:W,height:H,tiles,props,enemies};
+  }
+  if(zone==='braseiro'){
+    const W=32,H=42,tiles=floor(W,H),props:Prop[]=[],enemies:Entity[]=[];
+    for(let x=1;x<W-1;x++){tiles[14][x]=4;tiles[27][x]=4;}
+    for(const x of [9,10,21,22]){tiles[14][x]=3;tiles[27][x]=3;}
+    props.push({kind:'stairs',id:'braseiro-exit',x:center(2),y:center(39),solid:true,to:'north',ax:32,ay:44,label:'Voltar às Terras do Norte'});
+    props.push({kind:'npc',id:'torvan',x:center(16),y:center(39),solid:true});
+    props.push({kind:'totem',id:'braseiro-map',x:center(5),y:center(39),solid:true,open:true});
+    props.push(...q.seq.ids.map((id,i)=>({kind:'totem',id,x:center(8+i*8),y:center(37),solid:true,label:q.seq.labels[i]} as Prop)));
+    props.push({kind:'barrier',id:q.seal,x:center(16),y:center(14),solid:true,by:[...q.seq.ids]});
+    props.push({kind:'totem',id:'braseiro-rail-a',x:center(7),y:center(23),solid:true,label:'Trilho leste'});
+    props.push({kind:'totem',id:'braseiro-rail-b',x:center(16),y:center(19),solid:true,label:'Trilho central'});
+    props.push({kind:'totem',id:'braseiro-rail-c',x:center(25),y:center(23),solid:true,label:'Trilho oeste'});
+    props.push({kind:'barrier',id:'braseiro-mine-gate',x:center(16),y:center(27),solid:true,by:['braseiro-rail-a','braseiro-rail-b','braseiro-rail-c']});
+    props.push({kind:'totem',id:'braseiro-heat',x:center(8),y:center(9),solid:true,label:'Fole'});
+    props.push({kind:'totem',id:'braseiro-hammer',x:center(16),y:center(7),solid:true,label:'Martelo'});
+    props.push({kind:'totem',id:'braseiro-cool',x:center(24),y:center(9),solid:true,label:'Resfriamento'});
+    props.push({kind:'barrier',id:'braseiro-forge-gate',x:center(16),y:center(3),solid:true,by:['braseiro-heat','braseiro-hammer','braseiro-cool']});
+    props.push({kind:'totem',id:'braseiro-choice-release',x:center(11),y:center(2),solid:true,label:'Libertar as brasas'});
+    props.push({kind:'totem',id:'braseiro-choice-seal',x:center(21),y:center(2),solid:true,label:'Selar a fornalha'});
+    props.push({kind:'chest',id:q.chest,x:center(16),y:center(1.8),solid:true,item:q.item,guard:'varkun',challenge:'dungeon',challengeText:'O altar dourado só responde depois dos três socorros, dos trilhos, da forja, da escolha final e da queda de Varkun.'});
+    enemies.push(entity('varkun',16,2.5,'boss','#a87345',5));
+    return {width:W,height:H,tiles,props,enemies};
+  }
   if(zone==='theater')return room(q,entity,(t,props,en)=>{
     for(let x=4;x<=22;x+=6){t[4][x]=4;t[5][x]=4;}fill(t,10,11,11,12,4);fill(t,16,11,17,12,4);
     props.push({kind:'chest',id:'theater-potion',x:center(23),y:center(10),solid:true,item:'potion'});

@@ -141,7 +141,7 @@ Os estados abaixo distinguem conteúdo que já está no motor de propostas que a
 - **Uso posterior:** exploração de masmorras longas e chefes com segunda fase.
 - **Regra de fairness:** mostrar claramente que a pena foi consumida; não prometer ressurreição infinita nem duplicar após rewind/save.
 
-### 12. Anel do Ímã e Lâmina do Vento
+### 12. Anel do Ímã e Corte Magnífico do Ar
 **Estado:** os dois saíram das cenas compartilhadas (Gruta da Maré e Santuário da Repulsão) e ganharam quests próprias; veja a seção 17. A alcova do Santuário agora guarda cristais.
 
 ## Matriz de dependências e uso posterior
@@ -159,8 +159,8 @@ Os estados abaixo distinguem conteúdo que já está no motor de propostas que a
 | Luvas da Força | Bastião das Pedras | pedras, placas e atalhos |
 | Manto do Eco | Teatro das Três Sombras (Floresta de Outono) | projéteis |
 | Armadura de Granito | Cripta do Sino (Montanhas Geladas) | metade do dano |
-| Anel do Ímã | Gruta do Correio (Costa das Conchas) | coleta mais confortável |
-| Lâmina do Vento | Desfiladeiro dos Ventos (Bosque de Cristal) | cortes à distância e vegetação |
+| Anel do Ímã | Gruta do Correio (Costa das Conchas) | coleta mais confortável; conquistado após restaurar a central de entregas |
+| Corte Magnífico do Ar | Desfiladeiro dos Ventos (Bosque de Cristal) | cortes à distância e vegetação |
 | Arco Rúnico | Torre Rúnica (Campos Abertos, Sul) | disparo carregado com flechas mágicas |
 | Varinha da Repulsão | Santuário da Repulsão | orbes e placas à distância |
 | Varinha Míssil | Abismo dos Alvos Velozes | alvos de vento |
@@ -230,9 +230,9 @@ Para cada quest antes de marcar como concluída:
 
 | Relíquia | Cenário | Entrada | Desperta | Sequência | Guardiões |
 |---|---|---|---|---|---|
-| Anel do Ímã | Gruta do Correio | Costa das Conchas, ao sul do farol de Nilo | cap. 2 | Concha → Âncora → Farol (toque) | Caranguejo-Correio e dois morcegos |
+| Anel do Ímã | Gruta do Correio | Costa das Conchas, ao sul do farol de Nilo | cap. 2 | Concha → Âncora → Farol; triagem → carrinho → entregas | Mestre das Entregas, caranguejo e dois morcegos |
 | Manto do Eco | Teatro das Três Sombras | leste da Floresta de Outono | cap. 3 | Pulso → Pausa → Retorno (toque) | Mestre de Cena e dois atiradores |
-| Lâmina do Vento | Desfiladeiro dos Ventos | sul do Bosque de Cristal | cap. 3 | Leste → Oeste → Centro, saltando entre ilhas | cavaleiro e dois lobos |
+| Corte Magnífico do Ar | Desfiladeiro dos Ventos | sul do Bosque de Cristal | cap. 3 | Leste → Oeste → Centro, saltando entre ilhas | cavaleiro e dois lobos |
 | Armadura de Granito | Cripta do Sino | sul das Montanhas Geladas | cap. 4 | Grave → Agudo → Médio (toque) | Guardião do Sino e duas Sentinelas |
 | Arco Rúnico | Torre Rúnica | oeste dos Campos Abertos | cap. 4 + Fogo, Gelo e Luz | Brasa (fogo) → Geada (gelo) → Aurora (luz) → Eco (comum) | cavaleiro de escudo, salamandra e dois fogos-fátuos |
 | Varinha das Varinhas | Cofre das Varinhas | Deserto das Tempestades | cap. 6 + três varinhas | Relâmpago → Míssil → Repulsão | Verme das Areias e duas sombras |

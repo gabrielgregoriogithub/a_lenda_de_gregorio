@@ -19,9 +19,9 @@ Todas as recompensas são únicas: o baú ou a flag fica gravado no save e a rec
 
 | Missão | Onde | Quem indica | Requisitos | Etapas | Guardiões | Recompensa | Persistência |
 |---|---|---|---|---|---|---|---|
-| Correio das Moedas | Gruta do Correio, Costa das Conchas | Nilo e mural | capítulo 2 | 3 sinos em ordem (toque) | Caranguejo-Correio e 2 morcegos | Anel do Ímã | flag `magnet` + baú `mail-magnet` |
+| A Última Entrega do Correio | Gruta do Correio, Costa das Conchas | Bento e mural | capítulo 2 | sinos → triagem → carrinho → estoque/entregas | Mestre das Entregas, caranguejo e morcegos | Anel do Ímã | flag `magnet` + baú `mail-magnet` |
 | O Ensaio das Sombras | Teatro das Três Sombras, Floresta de Outono | Lenhadora e cartaz | capítulo 3 | 3 marcas em ordem (toque) | Mestre de Cena e 2 atiradores | Manto do Eco | `echoCloak` + baú `theater-cloak` |
-| As Pedras do Vento | Desfiladeiro dos Ventos, Terras do Norte | Guardiã do Portão e marco | capítulo 3 | 3 pedras em ordem, saltando entre ilhas | cavaleiro e 2 lobos | Lâmina do Vento | `windBlade` + baú `gorge-wind-blade` |
+| As Pedras do Vento | Desfiladeiro dos Ventos, Terras do Norte | Guardiã do Portão e marco | capítulo 3 | 3 pedras em ordem, saltando entre ilhas | cavaleiro e 2 lobos | Corte Magnífico do Ar | `windBlade` + baú `gorge-wind-blade` |
 | O Julgamento do Sino | Cripta do Sino, Montanhas Geladas | Eremita e inscrição | capítulo 4 | 3 sinos em ordem (toque) | Guardião do Sino e 2 sentinelas | Armadura de Granito | `armor` + baú `crypt-armor` |
 | A Prova dos Quatro Elementos | Torre Rúnica, Campos Abertos | Viajante do Sul e pergaminho | capítulo 4 + flechas de Fogo, Gelo e Luz | 4 runas, cada uma com a sua flecha | cavaleiro de escudo, salamandra e 2 fogos-fátuos | Arco Rúnico | `runeBow` + baú `tower-rune-bow` |
 | O Teste das Três Varinhas | Cofre das Varinhas, Deserto das Tempestades | Viajante do Sul e placa | capítulo 6 + 3 varinhas | 3 selos, cada um com a sua varinha | Verme das Areias e 2 sombras | Varinha das Varinhas | `wandMaster` + baú `vault-wand-master` |
