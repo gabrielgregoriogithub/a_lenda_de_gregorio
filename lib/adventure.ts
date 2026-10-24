@@ -98,6 +98,8 @@ function makeCave1():GameMap{
 const tiles=blankFloor(26,20),props:Prop[]=[];
 for(let x=1;x<25;x++)if(![6,12,13,19].includes(x))tiles[10][x]=4;
 fill(tiles,9,2,16,7,6);fill(tiles,11,4,14,5,3);
+// Corredor da pedra: uma rota contínua, estreita e legível do ponto de queda até o baú.
+fill(tiles,8,6,24,8,4);fill(tiles,8,7,24,7,3);
 fill(tiles,3,14,8,15,6);fill(tiles,17,14,22,15,6);
 for(let y=1;y<10;y++)if(y!==5)tiles[y][6]=4;
 props.push({kind:'stairs',id:'c1-up',x:center(12.5),y:center(18),solid:true,to:'world',ax:47.5,ay:7,label:'Subir para as Ruínas'});
@@ -105,8 +107,8 @@ props.push({kind:'stairs',id:'c1-down',x:center(2),y:center(2),solid:true,to:'ca
 props.push({kind:'chest',id:'c1-heart',x:center(12.5),y:center(4.5),solid:true,item:'heart',guard:'c1-slime-c'},{kind:'chest',id:'c1-potion',x:center(2),y:center(17),solid:true,item:'potion'},{kind:'chest',id:'c1-crystals',x:center(23),y:center(2),solid:true,item:'crystals'});
 props.push({kind:'chest',id:'c1-fire',x:center(23),y:center(7),solid:true,item:'fire'});
 props.push({kind:'torch',id:'c1-torch-a',x:center(7),y:center(3),solid:true},{kind:'torch',id:'c1-torch-b',x:center(7),y:center(7),solid:true},{kind:'barrier',id:'c1-barrier',x:center(6),y:center(5),solid:true,by:['c1-torch-a','c1-torch-b']});
-props.push({kind:'totem',id:'c1-target-a',x:center(15),y:center(2),solid:true},{kind:'totem',id:'c1-target-b',x:center(18),y:center(4),solid:true},{kind:'totem',id:'c1-target-c',x:center(18),y:center(8),solid:true},{kind:'barrier',id:'c1-fire-barrier',x:center(21),y:center(7),solid:true,by:['c1-target-a','c1-target-b','c1-target-c']});
-props.push({kind:'rock',id:'c1-rock-a',x:center(20),y:center(6),solid:true},{kind:'rock',id:'c1-rock-b',x:center(4),y:center(8),solid:true});
+props.push({kind:'rock',id:'c1-corridor-pillar-a',x:center(13),y:center(6),solid:true},{kind:'rock',id:'c1-corridor-pillar-b',x:center(17),y:center(8),solid:true},{kind:'rock',id:'c1-corridor-pillar-c',x:center(20),y:center(6),solid:true});
+props.push({kind:'rock',id:'c1-rock-b',x:center(4),y:center(8),solid:true});
 return{width:26,height:20,tiles,props,enemies:[entity('c1-bat-a',4,4,'bat'),entity('c1-bat-b',20,4,'bat'),entity('c1-bat-c',19,13,'bat'),entity('c1-slime-a',8,12,'skeleton'),entity('c1-slime-b',21,17,'slime'),entity('c1-slime-c',16,8,'spider')]};
 }
 function makeCave2():GameMap{
