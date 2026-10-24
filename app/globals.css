@@ -54,6 +54,15 @@
 .hud-controls>button.map-button{display:none}
 .menu-tabs>button:first-child{display:none}
 .touch-actions>button:last-child{display:none}
+.touch-actions button:nth-child(1){order:1}
+.touch-actions button:nth-child(6){order:2;display:flex!important}
+.touch-actions button:nth-child(3){order:3}
+.touch-actions button:nth-child(4){order:4}
+.touch-actions button:nth-child(5){order:5}
+.touch-actions button:nth-child(7){order:6}
+.touch-actions button:nth-child(8){order:7}
+.touch-actions button:nth-child(9){order:8}
+.touch-actions button:nth-child(2){order:9}
 .hud-controls>button.map-button:hover:not(:disabled){background:#2c3d3a}
 .hud-controls>button.map-button:disabled{opacity:.4}
 @media(max-width:600px){.hud-controls>button.map-button{padding:4px 6px}.hud-controls>button.map-button span{display:none}}
