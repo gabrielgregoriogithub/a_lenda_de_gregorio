@@ -66,7 +66,7 @@ export const NPCS:Record<string,NpcInfo>={
 };
 // Mantém os IDs e as funções de diálogo legadas, mas aplica a identidade central
 // aos nomes e às paletas dos NPCs que já existem no mundo.
-for(const [id,profile] of Object.entries(NPC_PROFILES)){const npc=NPCS[id];if(npc){npc.name=profile.name+', '+profile.profession;npc.tint=profile.tint;}}
+for(const [id,profile] of Object.entries(NPC_PROFILES)){const npc=NPCS[id]??(NPCS[id]={name:profile.name+', '+profile.profession,tint:profile.tint,talk:()=>''});npc.name=profile.name+', '+profile.profession;npc.tint=profile.tint;}
 
 type Poi={x:number;y:number;r:number};
 const center=(n:number)=>n*32+16;
