@@ -79,7 +79,7 @@ export function bossArmor(g:Game,e:Entity,source:Source){const def=bossDef(e),no
   if(weak&&!(e.stun>0)&&e.kind==='boss'&&e.st!=='recover'){spark(g,e,def.color);g.floatText(e.x,e.y-70,'EM ALERTA','#ffd36b');return true;}
   const open=e.stun>0||e.st==='recover'||e.kind!=='boss';
   if(!open){e.deflects=(e.deflects??0)+1;spark(g,e,def.color);g.tone(1760,.04,'square');g.tone(880,.06,'square');g.floatText(e.x,e.y-70,'BLOQUEOU','#d8d8d8');
-    if(e.deflects%3===1)g.message(`Dica: ${def.weakText}`);return true;}
+    if(e.deflects%3===1&&!e.bossTipShown){e.bossTipShown=true;g.message(`Dica: ${def.weakText}`);}return true;}
   e.bossHitUntil=now+(e.stun>0||e.st==='recover'?.3:.7);return false;}
 export function stunBoss(g:Game,e:Entity,secs:number,weak=false){e.stun=secs;e.st='stun';e.vx=0;e.vy=0;g.projectiles=g.projectiles.filter((p:{reflected?:boolean})=>p.reflected);
   g.floatText(e.x,e.y-80,weak?'FRAQUEZA! ATORDOADO':'ATORDOADO!','#ffe27a',20);g.ring(e.x,e.y-30,'#ffe27a',90);g.burst(e.x,e.y-30,'#fff1b7',26);g.kick(6,.25);g.tone(330,.12,'triangle');g.tone(660,.16,'triangle');}
