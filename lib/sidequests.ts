@@ -7,8 +7,8 @@ const center=(n:number)=>n*32+16;
 const floor=(w:number,h:number)=>Array.from({length:h},(_,y)=>Array.from({length:w},(_,x)=>x===0||y===0||x===w-1||y===h-1?4:3));
 const fill=(t:number[][],x0:number,y0:number,x1:number,y1:number,v:number)=>{for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++)t[y][x]=v;};
 
-export type QuestZone='mailcave'|'theater'|'bellcrypt'|'runetower'|'windgorge'|'wandvault'|'braseiro';
-export const QUEST_ZONES:QuestZone[]=['mailcave','theater','bellcrypt','runetower','windgorge','wandvault','braseiro'];
+export type QuestZone='mailcave'|'theater'|'bellcrypt'|'runetower'|'windgorge'|'wandvault'|'braseiro'|'archergrove';
+export const QUEST_ZONES:QuestZone[]=['mailcave','theater','bellcrypt','runetower','windgorge','wandvault','braseiro','archergrove'];
 // Como cada marco da sequência é ativado: tocando (E), com um tipo de flecha ou com uma varinha.
 export type SeqVia='touch'|'normal'|'fire'|'ice'|'light'|'lightning'|'missile'|'repulse';
 export const VIA_TEXT:Record<SeqVia,string>={touch:'toque (E)',normal:'uma flecha comum',fire:'uma Flecha de Fogo',ice:'uma Flecha de Gelo',light:'uma Flecha de Luz',lightning:'o relâmpago da Varinha do Relâmpago',missile:'a Varinha Míssil',repulse:'o raio da Varinha da Repulsão'};
@@ -84,6 +84,16 @@ export const QUESTS:QuestDef[]=[
     guardText:'Varkun, o Ferreiro Esquecido, protege a câmara do coração. Estabilize a forja e enfrente o autômato.',
     mural:{id:'braseiro-map',title:'Mapa incompleto de Torvan',text:'“A água abre o caminho, os animais lembram a trilha e o fogo revela o metal.” Ajude os três moradores em qualquer ordem. Depois, siga os trilhos perdidos, reacenda a forja e escolha entre libertar as brasas ou selá-las antes de enfrentar Varkun.'},
     doneText:'A vila respira novamente. A chave antiga revela a entrada da Mina das Cinzas.',resetText:'O mecanismo voltou ao repouso. Retome os três socorros da vila.'},
+  {zone:'archergrove',name:'Campo do Arqueiro Esquecido',title:'O Legado do Arqueiro Esquecido',item:'bow',itemName:'Arco da Floresta',
+    from:'world',door:{id:'world-archergrove',x:72,y:19,label:'Seguir a trilha do Arqueiro Esquecido',minChapter:1},arrive:{x:16,y:22},
+    where:'na borda da Floresta de Outono, atrás da trilha de madeira caída',
+    filter:'hue-rotate(35deg) saturate(1.1) brightness(1.05)',floor:'hue-rotate(35deg) saturate(.8) brightness(.48)',
+    intro:'Campo do Arqueiro Esquecido: Aldren aguarda alguém que mereça seu arco. Leia o marco de madeira.',
+       seq:{ids:['archer-explore','archer-puzzle','archer-reflex','archer-final'],labels:['Exploração','Inteligência','Reflexos','Desafio final'],via:['touch','touch','touch','touch']},
+    seal:'archer-training-gate',chest:'archer-bow',guards:['archerguardian'],
+    guardText:'O Guardião do Bosque roubou o arco de Aldren. Vença as quatro provas e derrote a criatura na clareira.',
+    mural:{id:'archer-mural',title:'Marco do Arqueiro',text:'“Um arco não pertence a quem apenas o segura.” Aldren pede quatro provas: siga as marcas de flecha pela trilha, interprete os símbolos, acerte o alvo móvel e complete o desafio final. A prova final exige uma flecha comum; o arco de treinamento estará disponível no campo.'},
+    doneText:'As quatro provas reconheceram sua coragem, inteligência e precisão. A clareira do Guardião se abriu.',resetText:'A prova perdeu o ritmo. Recomece pela Exploração e siga até o Desafio final.'},
   {zone:'wandvault',name:'Cofre das Varinhas',title:'O Teste das Três Varinhas',item:'wand-master',itemName:'Varinha das Varinhas',
     from:'south',door:{id:'south-wandvault',x:70,y:42,label:'Entrar no Cofre das Varinhas',minChapter:6,needs:['wand-lightning','wand-repulse','wand-missile']},arrive:{x:4,y:14.6},
     where:'no Deserto das Tempestades, no sudeste das Terras do Sul (exige as três varinhas)',
@@ -139,6 +149,21 @@ export function makeQuestMap(zone:QuestZone,entity:MakeEntity):GameMap{
     props.push({kind:'totem',id:'mail-box-flame',x:center(25),y:center(1),solid:true,label:'Encomenda · brasas'});
     props.push({kind:'chest',id:q.chest,x:center(18),y:center(.5),solid:true,item:q.item,guard:'mailmaster',challenge:'dungeon',challengeText:'A recompensa só pode ser retirada após triagem, carrinho, estoque e três entregas. O Mestre das Entregas protege a central.'});
     enemies.push(entity('mailmaster',18,1.5,'boss','#b08a58',6),entity('mail-crab',10,12,'golem','sepia(.8) saturate(2.5) hue-rotate(-20deg)'),entity('mail-bat-a',6,11,'bat','#b89464'),entity('mail-bat-b',30,11,'bat','#b89464'));
+    return {width:W,height:H,tiles,props,enemies};
+  }
+  if(zone==='archergrove'){
+    const W=32,H=26,tiles=floor(W,H),props:Prop[]=[],enemies:Entity[]=[];
+       for(let x=1;x<W-1;x++)tiles[17][x]=3;
+    props.push({kind:'stairs',id:'archergrove-exit',x:center(2),y:center(24),solid:true,to:'world',ax:72,ay:20,label:'Voltar à Floresta de Outono'});
+    props.push({kind:'npc',id:'aldren',x:center(16),y:center(23),solid:true});
+    props.push({kind:'totem',id:q.mural.id,x:center(5),y:center(23),solid:true,open:true});
+    props.push({kind:'totem',id:'archer-explore',x:center(7),y:center(15),solid:true,label:'Trilha escondida'});
+    props.push({kind:'totem',id:'archer-puzzle',x:center(16),y:center(13),solid:true,label:'Símbolos antigos'});
+       props.push({kind:'totem',id:'archer-reflex',x:center(25),y:center(15),solid:true,label:'Alvo móvel'});
+       props.push({kind:'totem',id:'archer-final',x:center(16),y:center(7),solid:true,label:'Alvo central'});
+    props.push({kind:'barrier',id:q.seal,x:center(16),y:center(17),solid:true,by:[...q.seq.ids]});
+    props.push({kind:'chest',id:q.chest,x:center(16),y:center(2),solid:true,item:q.item,guard:'archerguardian',challenge:'dungeon',challengeText:'O Arco da Floresta será entregue apenas após as quatro provas e a derrota do Guardião do Bosque.'});
+    enemies.push(entity('archerguardian',16,5,'boss','#6e9a52',7),entity('archer-forest-wolf',8,10,'frostwolf','#9acb73'),entity('archer-forest-wisp',24,10,'wisp','#c8f09a'));
     return {width:W,height:H,tiles,props,enemies};
   }
   if(zone==='braseiro'){

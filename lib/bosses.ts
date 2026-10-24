@@ -41,6 +41,8 @@ export const BOSSES:Record<string,BossDef>={
     weakText:'Resfrie as placas e atinja o núcleo quando ele ficar exposto. As válvulas da arena abrem a guarda.',moves:[['slam','charge','ring'],['slam','rocks','charge','fan'],['ring','slam','rocks','charge']]},
   mailmaster:{name:'Mestre das Entregas',title:'Núcleo da Central de Distribuição',weak:['lightning','repulse'],color:'#d6a15c',
     weakText:'Os interruptores da central interrompem as esteiras. Ative-os e ataque o núcleo quando a máquina parar.',moves:[['fan','rocks','charge'],['slam','ring','fan'],['rocks','charge','ring','fan']]},
+  archerguardian:{name:'Guardião do Bosque',title:'Sentinela do Campo Esquecido',weak:['fire','light'],color:'#66b56e',
+    weakText:'As raízes cedem quando você acerta seus sinais com fogo ou luz. Desvie das vinhas e ataque na janela de vulnerabilidade.',moves:[['charge','rocks','ring'],['fan','charge','rocks'],['ring','rocks','charge','fan']]},
 };
 const GENERIC:BossDef={name:'Guardião',title:'',weak:['fire','light'],color:'#e8bd74',weakText:'Procure a fraqueza dele com suas flechas e varinhas.',moves:[['charge','fan'],['charge','ring','rocks']]};
 export const bossDef=(e:Entity)=>BOSSES[e.id]??(e.kind==='colossus'?BOSSES.colossus:GENERIC);
