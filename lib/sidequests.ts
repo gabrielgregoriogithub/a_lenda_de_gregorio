@@ -171,8 +171,9 @@ export function makeQuestMap(zone:QuestZone,entity:MakeEntity):GameMap{
     const W=32,H=42,tiles=floor(W,H),props:Prop[]=[],enemies:Entity[]=[];
     for(let x=1;x<W-1;x++){tiles[14][x]=4;tiles[27][x]=4;}
     for(const x of [9,10,21,22]){tiles[14][x]=3;tiles[27][x]=3;}
+    // Braseiro Velho agora é uma arena aberta: sem totens ou barreiras visuais, apenas o caminho até Varkun.
+    for(let x=1;x<W-1;x++){tiles[14][x]=3;tiles[27][x]=3;}
     props.push({kind:'stairs',id:'braseiro-exit',x:center(2),y:center(39),solid:true,to:'north',ax:32,ay:44,label:'Voltar às Terras do Norte'});
-    props.push({kind:'npc',id:'torvan',x:center(16),y:center(39),solid:true});
     props.push({kind:'totem',id:'braseiro-map',x:center(5),y:center(39),solid:true,open:true});
     props.push(...q.seq.ids.map((id,i)=>({kind:'totem',id,x:center(8+i*8),y:center(37),solid:true,label:q.seq.labels[i]} as Prop)));
     props.push({kind:'barrier',id:q.seal,x:center(16),y:center(14),solid:true,by:[...q.seq.ids]});
@@ -188,7 +189,7 @@ export function makeQuestMap(zone:QuestZone,entity:MakeEntity):GameMap{
     props.push({kind:'totem',id:'braseiro-choice-seal',x:center(21),y:center(2),solid:true,label:'Selar a fornalha'});
     props.push({kind:'chest',id:q.chest,x:center(16),y:center(1.8),solid:true,item:q.item,guard:'varkun',challenge:'dungeon',challengeText:'O altar dourado só responde depois dos três socorros, dos trilhos, da forja, da escolha final e da queda de Varkun.'});
     enemies.push(entity('varkun',16,2.5,'boss','#a87345',5));
-    return {width:W,height:H,tiles,props,enemies};
+    return {width:W,height:H,tiles,props:props.filter(p=>p.kind!=='totem'&&p.kind!=='barrier'),enemies};
   }
   if(zone==='theater')return room(q,entity,(t,props,en)=>{
     for(let x=4;x<=22;x+=6){t[4][x]=4;t[5][x]=4;}fill(t,10,11,11,12,4);fill(t,16,11,17,12,4);
